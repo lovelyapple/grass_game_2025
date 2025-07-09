@@ -8,6 +8,12 @@ public enum GamePhase
     Playing,
     Finished,
 }
+public enum HorizontalMoveDir
+{
+    None,
+    Left,
+    Right,
+}
 public class GameEnumDefine
 {
     

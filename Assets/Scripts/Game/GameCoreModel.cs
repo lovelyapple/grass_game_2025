@@ -18,6 +18,7 @@ namespace StarMessage.Models
         public GamePhase CurrentGamePhase { get; private set; }
         public bool IsPlaying => CurrentGamePhase == GamePhase.Playing;
         private ModelCache _modelCache;
+
         private void Awake()
         {
             DontDestroyOnLoad(this.gameObject);
