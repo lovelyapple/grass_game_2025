@@ -24,7 +24,7 @@ namespace StarMessage.Models
             DontDestroyOnLoad(this.gameObject);
             _instance = this;
             _modelCache = new ModelCache();
-            _modelCache.SetInsance(_modelCache);
+            _modelCache.SetInstance(_modelCache);
             _modelCache.InitializeModels(this.gameObject);
 
             SceneChanger.GetInstance().OnSceneChangedObservable()

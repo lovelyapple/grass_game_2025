@@ -9,6 +9,7 @@ public class VehicleParameter
 }
 public class VehicleBase : MonoBehaviour
 {
+    public Transform SaddleTransform;
     [SerializeField] VehicleParameter Parameter;
 
     public float _currentSpeed;

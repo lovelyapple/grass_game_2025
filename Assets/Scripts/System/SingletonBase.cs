@@ -5,7 +5,7 @@ using UnityEngine;
 public class SingletonBase<T> where T : new()
 {
     private static T _instance;
-    public void SetInsance(T newInstance)
+    public void SetInstance(T newInstance)
     {
         _instance = newInstance;
     }
