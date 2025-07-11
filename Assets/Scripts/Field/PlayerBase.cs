@@ -10,6 +10,7 @@ public class PlayerBase : MonoBehaviour
     public Observable<PlayerBase> OnPlayerDrivingMovingAsObservable() => _onPlayerDrivingMovingSubject;
     public void DebugSetVehicle(VehicleBase vehicleBase)
     {
+        _driving = true;
         _myVehicle = vehicleBase;
         _vehicleChairTransform = _myVehicle.SaddleTransform;
     }

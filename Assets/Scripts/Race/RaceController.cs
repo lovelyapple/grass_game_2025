@@ -16,7 +16,7 @@ public class RaceController : MonoBehaviour
 
     private void OnDestroy()
     {
-        _racingDisposable.Dispose();
+        _racingDisposable?.Dispose();
         _racingDisposable = null;
     }
 
@@ -40,6 +40,12 @@ public class RaceController : MonoBehaviour
         if (playerBase.transform.position.z > EndLineTransform.position.z)
         {
             Debug.Log("Player Finished Line");
+
+            if(_racingDisposable != null)
+            {
+                _racingDisposable.Dispose();
+                _racingDisposable = null;
+            }
         }
     }
 }

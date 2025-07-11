@@ -395,8 +395,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SaddleTransform: {fileID: 80429184}
   Parameter:
-    MaxSpeed: 3
-    Acceleration: 6
+    MaxSpeed: 6
+    Acceleration: 10
   _currentSpeed: 0
   _accelerating: 0
   _horizontalMoveDir: 0
@@ -1511,6 +1511,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b172937283a5c54198565ef4242c4f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  EndLineTransform: {fileID: 949306830}
 --- !u!4 &2006574725
 Transform:
   m_ObjectHideFlags: 0
