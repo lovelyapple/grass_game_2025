@@ -4,6 +4,7 @@ using UnityEngine;
 [Serializable]
 public class VehicleParameter
 {
+    public string Name;
     public float MaxSpeed;
     public float Acceleration;
 }

@@ -27,10 +27,10 @@ public class RaceController : MonoBehaviour
             _racingDisposable = new CompositeDisposable();
         }
 
-        var player = RacingModel.GetInstance().DebugInitPlayerAndVehicle();
-        player.OnPlayerDrivingMovingAsObservable()
-            .Subscribe(CheckPlayerFinished)
-            .AddTo(_racingDisposable);
+        // var player = RacingModel.GetInstance().DebugInitPlayerAndVehicle();
+        // player.OnPlayerDrivingMovingAsObservable()
+        //     .Subscribe(CheckPlayerFinished)
+        //     .AddTo(_racingDisposable);
 
 
     }
