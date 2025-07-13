@@ -22,7 +22,7 @@ public class VehicleBase : NetworkBehaviour
     private const float FRICTION = 0.95f;
     private const float BREAK = 0.90f;
     private const float MIN_SPEED = 0.001f;
-    private const float HOR_MOVE_SPEED = 2f;        
+    private const float HOR_MOVE_SPEED = 2f;
     private const float ROAD_WIDTH = 9f;
     public void Registry(GameInputController inputController)
     {
@@ -30,9 +30,11 @@ public class VehicleBase : NetworkBehaviour
         .Subscribe(x => _accelerating = x)
         .AddTo(this);
     }
-    public void Update()
+    // UnityのUpdateの代わりにやるもの
+    public override void FixedUpdateNetwork()
     {
-        if(!Object.HasInputAuthority)
+        // Share Modeでは、HasInputAuthorityはTrueになる
+        if (!Object.HasStateAuthority)
         {
             return;
         }
@@ -56,7 +58,7 @@ public class VehicleBase : NetworkBehaviour
                 _currentSpeed = 0f;
             }
         }
-        else if(_currentSpeed > 0)
+        else if (_currentSpeed > 0)
         {
             _currentSpeed *= FRICTION;
 
