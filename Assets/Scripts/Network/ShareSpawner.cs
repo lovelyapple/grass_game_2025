@@ -13,16 +13,21 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
     {
         if (player == Runner.LocalPlayer)
         {
+            GameObject vehiclePrefab = null;
+            Vector3 spawnPosition = Vector3.zero;
             if (Runner.SessionInfo.PlayerCount == 1)
             {
-                var prefab = VehiclePrefabs[0];
-                Runner.Spawn(prefab, new Vector3(-7, 7, -10), Quaternion.identity);
+                vehiclePrefab = VehiclePrefabs[0];
+                spawnPosition = new Vector3(-7, 7, -10);
             }
             else
             {
-                var prefab = VehiclePrefabs[1];
-                Runner.Spawn(prefab, new Vector3(-7, 7, -9), Quaternion.identity);
+                vehiclePrefab = VehiclePrefabs[1];
+                spawnPosition = new Vector3(-7, 7, -8);
             }
+
+            var vh = Runner.Spawn(vehiclePrefab, spawnPosition, Quaternion.identity).GetComponent<VehicleBase>();
+            vh.Registry(GameInputController.Instance);
         }
     }
 }

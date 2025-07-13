@@ -1,4 +1,6 @@
 using System;
+using Fusion;
+using R3;
 using UnityEngine;
 
 [Serializable]
@@ -8,7 +10,7 @@ public class VehicleParameter
     public float MaxSpeed;
     public float Acceleration;
 }
-public class VehicleBase : MonoBehaviour
+public class VehicleBase : NetworkBehaviour
 {
     public Transform SaddleTransform;
     [SerializeField] VehicleParameter Parameter;
@@ -22,9 +24,20 @@ public class VehicleBase : MonoBehaviour
     private const float MIN_SPEED = 0.001f;
     private const float HOR_MOVE_SPEED = 2f;        
     private const float ROAD_WIDTH = 9f;
+    public void Registry(GameInputController inputController)
+    {
+        inputController.IsAcceleratingObservable()
+        .Subscribe(x => _accelerating = x)
+        .AddTo(this);
+    }
     public void Update()
     {
-        _accelerating = GameInputController.Instance.IsPushingAccelerate;
+        if(!Object.HasInputAuthority)
+        {
+            return;
+        }
+
+        // _accelerating = GameInputController.Instance._isAccelerating;
         _horizontalMoveDir = GameInputController.Instance.MoveDir;
 
         if (_accelerating)
