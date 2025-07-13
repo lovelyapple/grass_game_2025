@@ -25,10 +25,15 @@ public class UIButtonPressHandler : MonoBehaviour, IPointerDownHandler, IPointer
     // }
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.pointerPress == targetButton.gameObject)
+        // Debug.Log($"Point down pointerPress {eventData.pointerPress?.name}");
+        // Debug.Log($"Point down pointerClick {eventData.pointerClick?.name}");
+        // Debug.Log($"Point down pointerEnter {eventData.pointerEnter?.name}");
+        // pointerPress が反応しない？Clickを使う
+        if (eventData.pointerEnter == targetButton.gameObject)
         {
             _isPressingSubject.Value = true;
-            _isPressingSubject.ForceNotify();
+            // _isPressingSubject.ForceNotify();
+            // Debug.Log("OnPointer down");
         }
     }
 
@@ -37,7 +42,8 @@ public class UIButtonPressHandler : MonoBehaviour, IPointerDownHandler, IPointer
         if (eventData.pointerPress == targetButton.gameObject)
         {
             _isPressingSubject.Value = false;
-            _isPressingSubject.ForceNotify();
+            // _isPressingSubject.ForceNotify();
+            // Debug.Log("OnPointer up");
         }
     }
 
