@@ -44,7 +44,7 @@ public class VehicleBase : NetworkBehaviour
 
         if (_accelerating)
         {
-            _currentSpeed += Time.deltaTime * Parameter.Acceleration;
+            _currentSpeed += Runner.DeltaTime * Parameter.Acceleration;
 
             _currentSpeed = Mathf.Clamp(_currentSpeed, 0, Parameter.MaxSpeed);
         }
@@ -70,20 +70,20 @@ public class VehicleBase : NetworkBehaviour
 
         if (_horizontalMoveDir == HorizontalMoveDir.Left)
         {
-            var position = transform.position + Vector3.left * HOR_MOVE_SPEED * Time.deltaTime;
+            var position = transform.position + Vector3.left * HOR_MOVE_SPEED * Runner.DeltaTime;
             position.x = Mathf.Clamp(position.x, -ROAD_WIDTH, ROAD_WIDTH);
             transform.position = position;
         }
         else if (_horizontalMoveDir == HorizontalMoveDir.Right)
         {
-            var position = transform.position + Vector3.right * HOR_MOVE_SPEED * Time.deltaTime;
+            var position = transform.position + Vector3.right * HOR_MOVE_SPEED * Runner.DeltaTime;
             position.x = Mathf.Clamp(position.x, -ROAD_WIDTH, ROAD_WIDTH);
             transform.position = position;
         }
 
         if (_currentSpeed > 0)
         {
-            transform.position = transform.position + Vector3.forward * _currentSpeed * Time.deltaTime;
+            transform.position = transform.position + Vector3.forward * _currentSpeed * Runner.DeltaTime;
         }
     }
 }
