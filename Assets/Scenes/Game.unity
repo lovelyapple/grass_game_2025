@@ -737,8 +737,7 @@ MonoBehaviour:
   DriverPrefabs:
   - {fileID: 0}
   - {fileID: 0}
-  playerPrefab1: {fileID: 6145697508656426931, guid: 5afcaf76eab5ae343903e785e9d21977, type: 3}
-  playerPrefab2: {fileID: 6145697508656426931, guid: 04611ae29cdeca94081ccf01597fe74a, type: 3}
+  RoomStateControllerPrefab: {fileID: 7418637579357611257, guid: 99561a7781cd56548a395d3d30d198ef, type: 3}
 --- !u!1 &898407773
 GameObject:
   m_ObjectHideFlags: 0
@@ -1021,6 +1020,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5eef366c85b5c94ca76b28e33c2cee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsAdminUser: 0
 --- !u!4 &1030355425
 Transform:
   m_ObjectHideFlags: 0
@@ -1069,6 +1069,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52b67ba004805b9428c29c5c079f9122, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DebugIsAdmin: 1
   GameUIController: {fileID: 1072535520}
   MoveDir: 0
 --- !u!114 &1072535520

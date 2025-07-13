@@ -14,6 +14,13 @@ public enum HorizontalMoveDir
     Left,
     Right,
 }
+public enum RoomPhase :byte
+{
+    Waiting,
+    CountDown,
+    Playing,
+    Result,
+}
 public class GameEnumDefine
 {
     
