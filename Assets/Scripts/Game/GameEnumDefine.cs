@@ -26,7 +26,8 @@ public enum PlayerRole
     Player = 1,
     Admin = 2,
 }
-public class GameEnumDefine
+public static class GameConstant 
 {
-    
+    public const int MaxRoomCount = 3;
+    public const int MaxPlayerPerRoom = 5;
 }

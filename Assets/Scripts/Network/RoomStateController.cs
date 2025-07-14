@@ -1,5 +1,6 @@
 using Fusion;
 using R3;
+using StarMessage.Models;
 using UnityEngine;
 
 public class RoomStateController : NetworkBehaviour
@@ -11,5 +12,14 @@ public class RoomStateController : NetworkBehaviour
     public void Awake()
     {
         RoomModel.GetInstance().OnAdminJoined(this);
+    }
+    public void UpdateCurrentRoomPhase(RoomPhase roomPhase)
+    {
+        if(!GameCoreModel.Instance.IsAdminUser)
+        {
+            return;
+        }
+
+        CurrentRoomPhase = roomPhase;
     }
 }
