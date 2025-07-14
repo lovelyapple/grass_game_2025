@@ -19,6 +19,7 @@ namespace StarMessage.Models
         public bool IsPlaying => CurrentGamePhase == GamePhase.Playing;
         private ModelCache _modelCache;
         public bool IsAdminUser = false;
+        public string AdminRoomId;
         private void Awake()
         {
             DontDestroyOnLoad(this.gameObject);

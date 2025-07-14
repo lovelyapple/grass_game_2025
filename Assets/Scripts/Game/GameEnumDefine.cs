@@ -21,6 +21,11 @@ public enum RoomPhase :byte
     Playing,
     Result,
 }
+public enum PlayerRole
+{
+    Player = 1,
+    Admin = 2,
+}
 public class GameEnumDefine
 {
     
