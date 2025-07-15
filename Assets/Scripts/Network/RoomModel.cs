@@ -5,6 +5,8 @@ using Fusion;
 using R3;
 using StarMessage.Models;
 using UnityEngine;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 public class PlayerInfo
 {
     public readonly PlayerRef PlayerRef;
@@ -21,6 +23,12 @@ public class RoomModel : SingletonBase<RoomModel>
     private ReactiveProperty<RoomPhase> _roomPhaseChangedSubject = new ReactiveProperty<RoomPhase>(RoomPhase.Waiting);
     public Observable<RoomPhase> RoomPhaseChangedObseverble() => _roomPhaseChangedSubject;
     private List<PlayerInfo> PlayerInfos = new List<PlayerInfo>();
+    private string _roomName;
+    public void SetupRoomId(string roomName)
+    {
+        _roomName = roomName;
+        Debug.LogWarning($"room model update room {roomName}");
+    }
     public void OnAdminJoined(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
@@ -38,6 +46,13 @@ public class RoomModel : SingletonBase<RoomModel>
 
         PlayerInfos.Add(new PlayerInfo(playerRef));
         Debug.Log($"player joined id {playerRef.PlayerId} {playerRef.RawEncoded}");
+
+        if(GameCoreModel.Instance.IsAdminUser)
+        {
+            var playerCount = PlayerInfos.Count;
+            var roomPhase = UpdateRoomPhase(playerCount).ToString();
+            RoomService.UpdateRoom(new RoomInfo(_roomName, playerCount, roomPhase), new CancellationToken()).Forget();
+        }
     }
     public void OnPlayerLeaved(PlayerRef playerRef)
     {
@@ -51,6 +66,13 @@ public class RoomModel : SingletonBase<RoomModel>
 
         PlayerInfos.Remove(prevInfo);
         Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
+
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            var playerCount = PlayerInfos.Count;
+            var roomPhase = UpdateRoomPhase(playerCount).ToString();
+            RoomService.UpdateRoom(new RoomInfo(_roomName, playerCount, roomPhase), new CancellationToken()).Forget();
+        }
     }
     public void UpdateRoomPhase(RoomPhase roomPhase)
     {
@@ -61,5 +83,14 @@ public class RoomModel : SingletonBase<RoomModel>
 
         _roomStateController?.UpdateCurrentRoomPhase(roomPhase);
         _roomPhaseChangedSubject.Value = roomPhase;
+    }
+    private RoomPhase UpdateRoomPhase(int member)
+    {
+        if(member > GameConstant.GameStartPlayerCount)
+        {
+            return RoomPhase.CountDown;
+        }
+
+        return RoomPhase.Waiting;
     }
 }

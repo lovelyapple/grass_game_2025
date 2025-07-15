@@ -19,7 +19,7 @@ public class GASEditor : EditorWindow
 
         if(GUILayout.Button("Update"))
         {
-            RoomService.UpdateRoom(new RoomInfo() { room_name = "room1", player_count = 3, status = "playing" }, new System.Threading.CancellationToken()).Forget();
+            RoomService.UpdateRoom(new RoomInfo("room1", 3, "playing"), new System.Threading.CancellationToken()).Forget();
         }
     }
 }

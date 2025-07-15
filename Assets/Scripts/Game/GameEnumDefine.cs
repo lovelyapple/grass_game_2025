@@ -30,4 +30,5 @@ public static class GameConstant
 {
     public const int MaxRoomCount = 3;
     public const int MaxPlayerPerRoom = 5;
+    public const int GameStartPlayerCount = 3;
 }

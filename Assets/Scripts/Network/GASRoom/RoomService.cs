@@ -17,6 +17,12 @@ public class RoomInfo
     public string room_name;
     public int player_count;
     public string status;
+    public RoomInfo ( string roomName, int playerCount, string st)
+    {
+        room_name = roomName;
+        player_count = playerCount;
+        status = st;
+    }
 }
 public class RoomService
 {

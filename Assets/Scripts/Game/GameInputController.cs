@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class GameInputController : MonoBehaviour
 {
-    [SerializeField] private bool DebugIsAdmin;
     [SerializeField] GameUIController GameUIController;
     // private readonly Subject<bool> _onPushAccelerate = new Subject<bool>();
     // public Observable<bool> OnPushAccelerateAsObservable() => _onPushAccelerate;
@@ -35,8 +34,6 @@ public class GameInputController : MonoBehaviour
         GameUIController.IsPressingAccelerateButtonObservable()
         .Subscribe(isPressing => _isPressingAccelerateUI = isPressing)
         .AddTo(this);
-
-        GameCoreModel.Instance.IsAdminUser = DebugIsAdmin;
     }
 
     void Update()

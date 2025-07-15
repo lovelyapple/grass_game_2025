@@ -27,6 +27,11 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
+        if (player == runner.LocalPlayer)
+        {
+            RoomModel.GetInstance().SetupRoomId(runner.SessionInfo.Name);
+        }
+        
         RoomModel.GetInstance().OnPlayerJoined(player);
     }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)

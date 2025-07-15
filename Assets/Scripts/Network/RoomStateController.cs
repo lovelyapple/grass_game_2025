@@ -6,7 +6,7 @@ using UnityEngine;
 public class RoomStateController : NetworkBehaviour
 {
     // ネットワークで共有される変数
-    [Networked]
+    // [Networked]
     public RoomPhase CurrentRoomPhase { get; set; }
 
     public void Awake()
