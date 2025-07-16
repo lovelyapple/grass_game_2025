@@ -33,8 +33,8 @@ public class RoomCell : MonoBehaviour
     }
     private void UpdateCell()
     {
-        PlayerCountLabel.text = $"{_playerCnt} / {GameConstant.MaxRoomCount}";
+        PlayerCountLabel.text = $"{_playerCnt} / {GameConstant.MaxPlayerPerRoom}";
         RoomPhaseLabel.text = _roomPhase.ToString();
-        JoinRoomBtn.interactable = _playerCnt < GameConstant.MaxRoomCount && _roomPhase == RoomPhase.Waiting.ToString();
+        JoinRoomBtn.interactable = _playerCnt < GameConstant.MaxPlayerPerRoom && _roomPhase == RoomPhase.Waiting.ToString();
     }
 }
