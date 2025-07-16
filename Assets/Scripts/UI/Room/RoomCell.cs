@@ -11,12 +11,12 @@ public class RoomCell : MonoBehaviour
     [SerializeField] Button JoinRoomBtn;
     public string RoomName = "";
     private int _playerCnt;
-    private RoomPhase _roomPhase;
+    private string _roomPhase;
     public Observable<string> OnClickObservable => JoinRoomBtn
     .OnClickAsObservable()
     .Select(_ => RoomName); 
 
-    public void Initialize(string name, int playerCnt, RoomPhase roomPhase)
+    public void Initialize(string name, int playerCnt, string roomPhase)
     {
         RoomName = name;
         _playerCnt = playerCnt;
@@ -25,7 +25,7 @@ public class RoomCell : MonoBehaviour
         UpdateCell();
 
     }
-    public void UpdateCell(int playerCnt, RoomPhase  roomPhase)
+    public void UpdateCell(int playerCnt, string roomPhase)
     {
         _playerCnt = playerCnt;
         _roomPhase = roomPhase;
@@ -35,6 +35,6 @@ public class RoomCell : MonoBehaviour
     {
         PlayerCountLabel.text = $"{_playerCnt} / {GameConstant.MaxRoomCount}";
         RoomPhaseLabel.text = _roomPhase.ToString();
-        JoinRoomBtn.interactable = _playerCnt < GameConstant.MaxRoomCount && _roomPhase == RoomPhase.Waiting;
+        JoinRoomBtn.interactable = _playerCnt < GameConstant.MaxRoomCount && _roomPhase == RoomPhase.Waiting.ToString();
     }
 }

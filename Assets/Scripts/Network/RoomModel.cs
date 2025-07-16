@@ -58,9 +58,9 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         var prevInfo = PlayerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
 
-        if (prevInfo != null)
+        if (prevInfo == null)
         {
-            Debug.LogError("same playerRef ?!?!");
+            Debug.LogError("playerRef not found ?!?!");
             return;
         }
 
