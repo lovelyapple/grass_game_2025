@@ -55,6 +55,7 @@ public class RoomListController : MonoBehaviour
     private async UniTask<Unit> RefreshRoomListAsync()
     {
         _isRefreshing = true;
+        RefreshButton.interactable = false;
 
         _refreshCancellationTokenSource = new CancellationTokenSource();
         _refreshCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken, _refreshCancellationTokenSource.Token);
@@ -89,6 +90,7 @@ public class RoomListController : MonoBehaviour
         finally
         {
             _isRefreshing = false;
+            RefreshButton.interactable = true;
         }
 
         return Unit.Default;

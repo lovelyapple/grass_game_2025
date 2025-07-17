@@ -46,6 +46,7 @@ public class TitleController : MonoBehaviour
                     SessionName = roomName,
                     Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
                     SceneManager = runner.GetComponent<NetworkSceneManagerDefault>(),
+                    PlayerCount = GameConstant.MaxPlayerPerRoom,
                 });
             }
         }

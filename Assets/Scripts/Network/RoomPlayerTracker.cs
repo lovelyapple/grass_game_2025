@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Fusion;
 using Fusion.Sockets;
 using NUnit.Framework;
+using StarMessage.Models;
 using UnityEngine;
 
 public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
@@ -31,8 +32,19 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
         {
             RoomModel.GetInstance().SetupRoomId(runner.SessionInfo.Name);
         }
-        
-        RoomModel.GetInstance().OnPlayerJoined(player);
+
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            if (player != runner.LocalPlayer)
+            {
+                RoomModel.GetInstance().OnPlayerJoined(player);
+            }
+        }
+        else
+        {
+            RoomModel.GetInstance().OnPlayerJoined(player);
+        }
+
     }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {

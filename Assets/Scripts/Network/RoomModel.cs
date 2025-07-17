@@ -33,7 +33,14 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         _roomStateController = roomStateController;
         UpdateRoomPhase(RoomPhase.Waiting);
+
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            _playerCountRequesting = PlayerInfos.Count;
+            RequestUpdateRoom(_roomName).Forget();
+        }
     }
+
     public void OnPlayerJoined(PlayerRef playerRef)
     {
         var prevInfo = PlayerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
@@ -49,10 +56,32 @@ public class RoomModel : SingletonBase<RoomModel>
 
         if(GameCoreModel.Instance.IsAdminUser)
         {
-            var playerCount = PlayerInfos.Count;
-            var roomPhase = UpdateRoomPhase(playerCount).ToString();
-            RoomService.UpdateRoom(new RoomInfo(_roomName, playerCount, roomPhase), new CancellationToken()).Forget();
+            _playerCountRequesting = PlayerInfos.Count;
+            RequestUpdateRoom(_roomName).Forget();
         }
+    }
+    private bool _isSendRequestUpdateRoom = false;
+    private int? _playerCountRequesting = null;
+    private async UniTask<Unit> RequestUpdateRoom(string roomName)
+    {
+        if(_isSendRequestUpdateRoom) 
+        {
+            return Unit.Default;
+        }
+
+        _isSendRequestUpdateRoom = true;
+
+        while (_playerCountRequesting.HasValue)
+        {
+            var playerCount = _playerCountRequesting.Value;
+            _playerCountRequesting = null;
+
+            var roomPhase = UpdateRoomPhase(playerCount).ToString();
+            await RoomService.UpdateRoom(new RoomInfo(_roomName, playerCount, roomPhase), new CancellationToken());
+        }
+
+        _isSendRequestUpdateRoom = false;
+        return Unit.Default;
     }
     public void OnPlayerLeaved(PlayerRef playerRef)
     {
