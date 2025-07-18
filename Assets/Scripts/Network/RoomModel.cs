@@ -95,7 +95,7 @@ public class RoomModel : SingletonBase<RoomModel>
         }
         else
         {
-            if (_roomStateController == null || _roomStateController.AdminId == playerRef.PlayerId)
+            if (_roomStateController == null || AdminId == playerRef.PlayerId)
             {
                 NetworkRunnerController.Runner.Shutdown();
                 Debug.LogError($"Adminがlogoutした為、部屋が閉じられた");
@@ -155,12 +155,12 @@ public class RoomModel : SingletonBase<RoomModel>
             return _playerInfos.Count(x => x.PlayerRef != _adminPlayerRef);
         }
 
-        if (_roomStateController == null || _roomStateController.AdminId == 0)
+        if (_roomStateController == null || AdminId == 0)
         {
             Debug.LogError($"admin が存在しない");
             return -1;
         }
 
-        return _playerInfos.Count(x => x.PlayerRef.PlayerId != _roomStateController.AdminId);
+        return _playerInfos.Count(x => x.PlayerRef.PlayerId != AdminId);
     }
 }
