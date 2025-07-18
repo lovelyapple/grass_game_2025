@@ -24,6 +24,9 @@ public class RoomModel : SingletonBase<RoomModel>
     public Observable<RoomPhase> RoomPhaseChangedObservable() => _roomPhaseChangedSubject;
     private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
     private string _roomName;
+    
+    
+    // Admin用のPlayerPref
     private PlayerRef _adminPlayerRef;
     #region NetworkCallBack
     public void SetupRoomId(string roomName)
@@ -51,7 +54,20 @@ public class RoomModel : SingletonBase<RoomModel>
 
         if(GameCoreModel.Instance.IsAdminUser)
         {
+            if (isSelf)
+            {
+                _adminPlayerRef = playerRef;
+            }
+
             RequestUpdateRoom(_roomName).Forget();
+        }
+        else
+        {
+            if (_playerInfos.Count == 1)
+            {
+                NetworkRunnerController.Runner.Shutdown();
+                Debug.LogError($"Adminがいない部屋にはいった、退室します");      
+            }
         }
     }
     public void OnPlayerLeaved(PlayerRef playerRef)
