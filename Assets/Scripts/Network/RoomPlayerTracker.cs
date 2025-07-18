@@ -25,7 +25,10 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
-
+    public void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         var isSelf = player == runner.LocalPlayer;

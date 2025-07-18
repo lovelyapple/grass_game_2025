@@ -51,20 +51,6 @@ public class TitleController : MonoBehaviour
             }
         }
 
-
-        // }
-        // else
-        // {
-        //     var runner = NetworkRunnerController.Runner;
-        //     await runner.StartGame(new StartGameArgs
-        //     {
-        //         GameMode = GameMode.Shared,
-        //         SessionName = result.Item2,
-        //         Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
-        //         SceneManager = runner.GetComponent<NetworkSceneManagerDefault>(),
-        //     });
-        // }
-
         return Unit.Default;
     }
 }
