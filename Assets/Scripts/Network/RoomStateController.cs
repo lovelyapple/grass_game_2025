@@ -1,3 +1,4 @@
+using System;
 using Fusion;
 using R3;
 using StarMessage.Models;
@@ -30,6 +31,18 @@ public class RoomStateController : NetworkBehaviour
         if (GameCoreModel.Instance.IsAdminUser)
         {
             AdminId = id;
+        }
+        else
+        {
+            RoomModel.GetInstance().OnAdminSpawned(id);
+        }
+    }
+
+    private void Update()
+    {
+        if (RoomModel.GetInstance().AdminId == 0 && AdminId != 0)
+        {
+            RoomModel.GetInstance().OnAdminSpawned(AdminId);
         }
     }
 }

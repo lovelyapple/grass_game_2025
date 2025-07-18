@@ -25,14 +25,19 @@ public class RoomModel : SingletonBase<RoomModel>
     private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
     private string _roomName;
     
-    
-    // Admin用のPlayerPref
+    // Admin自信はこれを使う
     private PlayerRef _adminPlayerRef;
+    public int AdminId { get; private set; }
     #region NetworkCallBack
     public void SetupRoomId(string roomName)
     {
         _roomName = roomName;
         Debug.LogWarning($"room model update room {roomName}");
+    }
+
+    public void OnAdminSpawned(int adminId)
+    {
+        AdminId = adminId;
     }
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
