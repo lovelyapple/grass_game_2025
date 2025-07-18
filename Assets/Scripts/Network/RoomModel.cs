@@ -69,11 +69,11 @@ public class RoomModel : SingletonBase<RoomModel>
         else
         {
             // この段階Amdinのstateまた生成されていない...
-            // if (_playerInfos.Count == 1)
-            // {
-            //     NetworkRunnerController.Runner.Shutdown();
-            //     Debug.LogError($"Adminがいない部屋にはいった、退室します");      
-            // }
+            if (NetworkRunnerController.Runner.SessionInfo.PlayerCount == 1)
+            {
+                NetworkRunnerController.Runner.Shutdown();
+                Debug.LogError($"Adminがいない部屋にはいった、退室します");      
+            }
         }
     }
     public void OnPlayerLeaved(PlayerRef playerRef)
