@@ -8,10 +8,12 @@ public class RoomStateController : NetworkBehaviour
     // ネットワークで共有される変数
     // [Networked]
     public RoomPhase CurrentRoomPhase { get; set; }
+    // 一般ユーザーがこれを使ってAdminを取得
+    [Networked] public int AdminId { get; private set; }
 
     public void Awake()
     {
-        RoomModel.GetInstance().OnAdminJoined(this);
+        RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
     }
     public void UpdateCurrentRoomPhase(RoomPhase roomPhase)
     {
@@ -21,5 +23,13 @@ public class RoomStateController : NetworkBehaviour
         }
 
         CurrentRoomPhase = roomPhase;
+    }
+
+    public void SetupId(int id)
+    {
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            AdminId = id;
+        }
     }
 }

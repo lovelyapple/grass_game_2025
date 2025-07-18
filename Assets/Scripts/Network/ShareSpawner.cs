@@ -16,7 +16,8 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
         {
             if (GameCoreModel.Instance.IsAdminUser)
             {
-                Runner.Spawn(RoomStateControllerPrefab, Vector3.zero, Quaternion.identity).GetComponent<RoomStateController>();
+                var roomStateController = Runner.Spawn(RoomStateControllerPrefab, Vector3.zero, Quaternion.identity).GetComponent<RoomStateController>();
+                roomStateController.SetupId(player.PlayerId);
             }
             else
             {

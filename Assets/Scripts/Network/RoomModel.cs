@@ -19,31 +19,26 @@ public class PlayerInfo
 public class RoomModel : SingletonBase<RoomModel>
 {
     private RoomStateController _roomStateController;   
-    public bool HasAdmin => _roomStateController != null;
+    public bool HasRoomStateCtrl => _roomStateController != null;
     private ReactiveProperty<RoomPhase> _roomPhaseChangedSubject = new ReactiveProperty<RoomPhase>(RoomPhase.Waiting);
-    public Observable<RoomPhase> RoomPhaseChangedObseverble() => _roomPhaseChangedSubject;
-    private List<PlayerInfo> PlayerInfos = new List<PlayerInfo>();
+    public Observable<RoomPhase> RoomPhaseChangedObservable() => _roomPhaseChangedSubject;
+    private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
     private string _roomName;
+    private PlayerRef _adminPlayerRef;
+    #region NetworkCallBack
     public void SetupRoomId(string roomName)
     {
         _roomName = roomName;
         Debug.LogWarning($"room model update room {roomName}");
     }
-    public void OnAdminJoined(RoomStateController roomStateController)
+    public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
         UpdateRoomPhase(RoomPhase.Waiting);
-
-        if (GameCoreModel.Instance.IsAdminUser)
-        {
-            _playerCountRequesting = PlayerInfos.Count;
-            RequestUpdateRoom(_roomName).Forget();
-        }
     }
-
-    public void OnPlayerJoined(PlayerRef playerRef)
+    public void OnPlayerJoined(PlayerRef playerRef, bool isSelf)
     {
-        var prevInfo = PlayerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
+        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
 
         if(prevInfo != null)
         {
@@ -51,19 +46,47 @@ public class RoomModel : SingletonBase<RoomModel>
             return;
         }
 
-        PlayerInfos.Add(new PlayerInfo(playerRef));
+        _playerInfos.Add(new PlayerInfo(playerRef));
         Debug.Log($"player joined id {playerRef.PlayerId} {playerRef.RawEncoded}");
 
         if(GameCoreModel.Instance.IsAdminUser)
         {
-            _playerCountRequesting = PlayerInfos.Count;
             RequestUpdateRoom(_roomName).Forget();
         }
     }
+    public void OnPlayerLeaved(PlayerRef playerRef)
+    {
+        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
+
+        if (prevInfo == null)
+        {
+            Debug.LogError("playerRef not found ?!?!");
+            return;
+        }
+
+        _playerInfos.Remove(prevInfo);
+        Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
+
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            RequestUpdateRoom(_roomName).Forget();
+        }
+        else
+        {
+            if (_roomStateController == null || _roomStateController.AdminId == playerRef.PlayerId)
+            {
+                NetworkRunnerController.Runner.Shutdown();
+                Debug.LogError($"Adminがlogoutした為、部屋が閉じられた");
+            }       
+        }
+    }
+    #endregion
     private bool _isSendRequestUpdateRoom = false;
     private int? _playerCountRequesting = null;
     private async UniTask<Unit> RequestUpdateRoom(string roomName)
     {
+        _playerCountRequesting = GetCurrentPlayerCount();
+
         if(_isSendRequestUpdateRoom) 
         {
             return Unit.Default;
@@ -76,32 +99,12 @@ public class RoomModel : SingletonBase<RoomModel>
             var playerCount = _playerCountRequesting.Value;
             _playerCountRequesting = null;
 
-            var roomPhase = UpdateRoomPhase(playerCount).ToString();
+            var roomPhase = GetRoomPhaseFromMember(playerCount).ToString();
             await RoomService.UpdateRoom(new RoomInfo(_roomName, playerCount, roomPhase), new CancellationToken());
         }
 
         _isSendRequestUpdateRoom = false;
         return Unit.Default;
-    }
-    public void OnPlayerLeaved(PlayerRef playerRef)
-    {
-        var prevInfo = PlayerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
-
-        if (prevInfo == null)
-        {
-            Debug.LogError("playerRef not found ?!?!");
-            return;
-        }
-
-        PlayerInfos.Remove(prevInfo);
-        Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
-
-        if (GameCoreModel.Instance.IsAdminUser)
-        {
-            var playerCount = PlayerInfos.Count;
-            var roomPhase = UpdateRoomPhase(playerCount).ToString();
-            RoomService.UpdateRoom(new RoomInfo(_roomName, playerCount, roomPhase), new CancellationToken()).Forget();
-        }
     }
     public void UpdateRoomPhase(RoomPhase roomPhase)
     {
@@ -113,7 +116,7 @@ public class RoomModel : SingletonBase<RoomModel>
         _roomStateController?.UpdateCurrentRoomPhase(roomPhase);
         _roomPhaseChangedSubject.Value = roomPhase;
     }
-    private RoomPhase UpdateRoomPhase(int member)
+    private RoomPhase GetRoomPhaseFromMember(int member)
     {
         if(member > GameConstant.GameStartPlayerCount)
         {
@@ -121,5 +124,21 @@ public class RoomModel : SingletonBase<RoomModel>
         }
 
         return RoomPhase.Waiting;
+    }
+
+    private int GetCurrentPlayerCount()
+    {
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            return _playerInfos.Count(x => x.PlayerRef != _adminPlayerRef);
+        }
+
+        if (_roomStateController == null || _roomStateController.AdminId == 0)
+        {
+            Debug.LogError($"admin が存在しない");
+            return -1;
+        }
+
+        return _playerInfos.Count(x => x.PlayerRef.PlayerId != _roomStateController.AdminId);
     }
 }

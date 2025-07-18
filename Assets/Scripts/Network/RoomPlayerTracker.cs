@@ -28,23 +28,14 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (player == runner.LocalPlayer)
+        var isSelf = player == runner.LocalPlayer;
+        
+        if (isSelf)
         {
             RoomModel.GetInstance().SetupRoomId(runner.SessionInfo.Name);
         }
 
-        if (GameCoreModel.Instance.IsAdminUser)
-        {
-            if (player != runner.LocalPlayer)
-            {
-                RoomModel.GetInstance().OnPlayerJoined(player);
-            }
-        }
-        else
-        {
-            RoomModel.GetInstance().OnPlayerJoined(player);
-        }
-
+        RoomModel.GetInstance().OnPlayerJoined(player, isSelf);
     }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
