@@ -32,7 +32,7 @@ public class ResourceContainer : MonoBehaviour
     [SerializeField] private List<SaddleImage> SaddleImages;
     [SerializeField] private List<VehicleImage> VehicleImages;
 
-    public ResourceContainer Instance { get; private set; }
+    public static ResourceContainer Instance { get; private set; }
     public void Awake()
     {
         Instance = this;

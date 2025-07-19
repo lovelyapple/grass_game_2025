@@ -8,6 +8,15 @@ using UnityEngine;
 
 public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
 {
+    public void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
+    public void Start()
+    {
+        NetworkRunner runner = FindObjectOfType<NetworkRunner>();
+        runner.AddCallbacks(this);
+    }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }
@@ -25,17 +34,13 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
-    public void Awake()
-    {
-        DontDestroyOnLoad(this.gameObject);
-    }
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         var isSelf = player == runner.LocalPlayer;
         
         if (isSelf)
         {
-            RoomModel.GetInstance().SetupRoomId(runner.SessionInfo.Name);
+            RoomModel.GetInstance().OnSelfJoinedRoom(runner.SessionInfo.Name, player);
         }
 
         RoomModel.GetInstance().OnPlayerJoined(player, isSelf);

@@ -9,6 +9,7 @@ public class TitleController : MonoBehaviour
 {
     [SerializeField] JoinPlayerTypeSelectView JoinSelectView;
     [SerializeField] RoomListController RoomListController;
+    [SerializeField] RoomReadyController RoomReadyController;
     public void Start()
     {
         BeginSelect().Forget();
@@ -37,18 +38,27 @@ public class TitleController : MonoBehaviour
         {
             var roomName = await RoomListController.BeginSelectRoomAsync(token);
 
-            if(roomName != GameConstant.EmptyRoomName)
+            if(roomName == GameConstant.EmptyRoomName)
             {
-                var runner = NetworkRunnerController.Runner;
-                await runner.StartGame(new StartGameArgs
-                {
-                    GameMode = GameMode.Shared,
-                    SessionName = roomName,
-                    Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
-                    SceneManager = runner.GetComponent<NetworkSceneManagerDefault>(),
-                    PlayerCount = GameConstant.MaxPlayerPerRoom,
-                });
+                return Unit.Default;
             }
+
+            var runner = NetworkRunnerController.Runner;
+            await runner.StartGame(new StartGameArgs
+            {
+                GameMode = GameMode.Shared,
+                SessionName = roomName,
+                Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
+                SceneManager = runner.GetComponent<NetworkSceneManagerDefault>(),
+                PlayerCount = GameConstant.MaxPlayerPerRoom,
+            });
+
+            await UniTask.WaitUntil(() => 
+            RoomStateController.Instance != null &&
+            RoomModel.GetInstance().SelfPlayerRef != null,
+            cancellationToken: token);
+
+            RoomReadyController.gameObject.SetActive(true); 
         }
 
         return Unit.Default;
