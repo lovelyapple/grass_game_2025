@@ -783,6 +783,7 @@ GameObject:
   - component: {fileID: 7099776400340390139}
   - component: {fileID: 7562240071597484581}
   - component: {fileID: 2441138867305360659}
+  - component: {fileID: 8577324155244794390}
   m_Layer: 0
   m_Name: Prototype Runner
   m_TagString: Untagged
@@ -958,6 +959,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8577324155244794390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3795642483981219723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c16b58ca06e14d47a0c718c5b6d2212, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8714919175860732304
 MonoBehaviour:
   m_ObjectHideFlags: 0

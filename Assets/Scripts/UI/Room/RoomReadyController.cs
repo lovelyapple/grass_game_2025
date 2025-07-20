@@ -3,8 +3,6 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using R3;
 using System.Linq;
-using Unity.VisualScripting;
-using Unity.Collections;
 using UnityEngine.UI;
 
 public class RoomReadyController : MonoBehaviour
@@ -15,6 +13,7 @@ public class RoomReadyController : MonoBehaviour
     [SerializeField] Button CharaChangeButton;
     [SerializeField] Button SaddleChangeButton;
     [SerializeField] Button VehicleChangeButton;
+    [SerializeField] Button ConfirmButton;
     private void Awake()
     {
         PlayerEquipmentModel.GetInstance()
@@ -37,6 +36,10 @@ public class RoomReadyController : MonoBehaviour
 
         VehicleChangeButton.OnClickAsObservable()
         .Subscribe(_ => OnClickVehicleChange())
+        .AddTo(this);
+        
+        ConfirmButton.OnClickAsObservable()
+        .Subscribe(_ => OnConfirm())
         .AddTo(this);
 
         SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
@@ -76,5 +79,9 @@ public class RoomReadyController : MonoBehaviour
     private void OnClickVehicleChange()
     {
         PlayerEquipmentModel.GetInstance().RequestChangeSelfVehicle();
+    }
+    private void OnConfirm()
+    {
+        PlayerEquipmentModel.GetInstance().SaveSelfEquipment();
     }
 }

@@ -2202,7 +2202,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &795272559
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2294,7 +2294,7 @@ GameObject:
   - component: {fileID: 796675617}
   - component: {fileID: 796675616}
   m_Layer: 5
-  m_Name: Button_Join
+  m_Name: Button_Confirm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2508,7 +2508,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &842314791
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4252,7 +4252,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1203042737
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5631,6 +5631,7 @@ MonoBehaviour:
   CharaChangeButton: {fileID: 1877338950}
   SaddleChangeButton: {fileID: 872225008}
   VehicleChangeButton: {fileID: 713568895}
+  ConfirmButton: {fileID: 796675617}
 --- !u!1 &1585094069
 GameObject:
   m_ObjectHideFlags: 0
@@ -5649,7 +5650,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1585094070
 RectTransform:
   m_ObjectHideFlags: 0

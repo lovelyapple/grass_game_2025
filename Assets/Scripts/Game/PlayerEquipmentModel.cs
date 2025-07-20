@@ -20,6 +20,13 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         SelfEquipmentSetInfo = null;
         PlayerEquipmentSetInfos.Clear();
     }
+    public void RegisterRpc()
+    {
+        var rpcConnector = RpcConnector.Instance;
+        rpcConnector.BroadcastEquipmentSaveObservable()
+        .Subscribe(info => OnReceivePlayerEquipSave(info))
+        .AddTo(rpcConnector.gameObject);
+    }
     public void OnPlayerJoined(int playerId, bool isSelf)
     {
         if(PlayerEquipmentSetInfos.Any(x => x.PlayerId == playerId))
@@ -34,10 +41,15 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
             {
                 PlayerId = playerId,
             };
+
+            var info = SelfEquipmentSetInfo.Clone();
+            PlayerEquipmentSetInfos.Add(info);
+        }
+        else
+        {
+            PlayerEquipmentSetInfos.Add(new EquipmentSetInfo() { PlayerId = playerId });
         }
 
-        var info = SelfEquipmentSetInfo.Clone();
-        PlayerEquipmentSetInfos.Add(info);
     }
     public void OnPlayerLeaved(int playerId)
     {
@@ -65,26 +77,33 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         SelfEquipmentSetInfo.Vehicle = (Vehicles)nextIndex;
         _playerEquipmentUpdateSubject.OnNext(SelfEquipmentSetInfo);
     }
-    public void UpdateSelfEquipmen(EquipmentSetInfo equipmentSetInfo)
+    public void SaveSelfEquipment()
     {
-        SelfEquipmentSetInfo = equipmentSetInfo.Clone();
-
-        Rpc_BroadcastEquipment(equipmentSetInfo.PlayerId, equipmentSetInfo.Character, equipmentSetInfo.Saddle, equipmentSetInfo.Vehicle);
+        RpcConnector.Instance.Rpc_BroadcastEquipmentSave(
+        SelfEquipmentSetInfo.PlayerId, 
+        SelfEquipmentSetInfo.Character,
+        SelfEquipmentSetInfo.Saddle,
+        SelfEquipmentSetInfo.Vehicle);
     }
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void Rpc_BroadcastEquipment(int playerId, Characters chara, SaddleType saddle, Vehicles vehicle)
+    private void OnReceivePlayerEquipSave(EquipmentSetInfo info)
     {
-        var equipmentInfo = PlayerEquipmentSetInfos.FirstOrDefault(x => x.PlayerId == playerId);
-
-        if (equipmentInfo == null)
+        if(info.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
         {
-            Debug.LogError($"Playerの装備が見つからない {playerId}");
             return;
         }
 
-        equipmentInfo.Character = chara;
-        equipmentInfo.Saddle = saddle;
-        equipmentInfo.Vehicle = vehicle;
+        Debug.Log($"player equipment updated {info.PlayerId}");
+        var equipmentInfo = PlayerEquipmentSetInfos.FirstOrDefault(x => x.PlayerId == info.PlayerId);
+
+        if (equipmentInfo == null)
+        {
+            Debug.LogError($"Playerの装備が見つからない {info.PlayerId}");
+            return;
+        }
+
+        equipmentInfo.Character = info.Character;
+        equipmentInfo.Saddle = info.Saddle;
+        equipmentInfo.Vehicle = info.Vehicle;
 
         _playerEquipmentUpdateSubject.OnNext(equipmentInfo);
     }
