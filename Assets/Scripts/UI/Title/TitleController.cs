@@ -63,13 +63,18 @@ public class TitleController : MonoBehaviour
                 Debug.LogError($"player joint srever error {startResult.ErrorMessage} - {startResult.ShutdownReason}");
                 return Unit.Default;
             }
+        }
 
-            await UniTask.WaitUntil(() =>
+
+        await UniTask.WaitUntil(() =>
             RoomStateController.Instance != null &&
             RpcConnector.Instance != null &&
             RoomModel.GetInstance().SelfPlayerRef != null,
             cancellationToken: token);
 
+
+        if (!isAdmin)
+        {
             RoomReadyController.gameObject.SetActive(true);
         }
 
