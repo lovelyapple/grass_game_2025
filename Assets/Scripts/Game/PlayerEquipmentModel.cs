@@ -40,9 +40,10 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         }
         else
         {
-            PlayerEquipmentSetInfos.Add(new EquipmentSetInfo() { PlayerId = playerId });
+            var equipmentInfo = new EquipmentSetInfo() { PlayerId = playerId };
+            PlayerEquipmentSetInfos.Add(equipmentInfo);
+            _playerEquipmentUpdateSubject.OnNext(equipmentInfo);
         }
-
     }
     public void OnPlayerLeaved(int playerId)
     {
