@@ -14,7 +14,7 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
     }
     public void Start()
     {
-        NetworkRunner runner = FindObjectOfType<NetworkRunner>();
+        NetworkRunner runner = FindFirstObjectByType<NetworkRunner>();
         runner.AddCallbacks(this);
     }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }

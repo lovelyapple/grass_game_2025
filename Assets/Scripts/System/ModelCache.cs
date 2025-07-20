@@ -21,7 +21,6 @@ namespace StarMessage.Models
 
             _equipMentModel = new PlayerEquipmentModel();
             _equipMentModel.SetInstance(_equipMentModel);
-            _equipMentModel.RegisterRpc();
 
             _roomModel.OnPlayerJoinObeservable()
             .Subscribe(x => _equipMentModel.OnPlayerJoined(x.Item1, x.Item2))

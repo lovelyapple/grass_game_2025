@@ -8,6 +8,7 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] List<GameObject> VehiclePrefabs;
     [SerializeField] List<GameObject> DriverPrefabs;
+    [SerializeField] GameObject RpcConnectorPrefab;
 
     [SerializeField] GameObject RoomStateControllerPrefab;
     public void PlayerJoined(PlayerRef player)
@@ -18,6 +19,7 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
             {
                 var roomStateController = Runner.Spawn(RoomStateControllerPrefab, Vector3.zero, Quaternion.identity).GetComponent<RoomStateController>();
                 roomStateController.SetupId(player.PlayerId);
+                Runner.Spawn(RpcConnectorPrefab, Vector3.zero, Quaternion.identity);
             }
             else
             {

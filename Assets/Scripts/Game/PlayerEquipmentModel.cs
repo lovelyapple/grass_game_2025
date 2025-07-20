@@ -20,13 +20,6 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         SelfEquipmentSetInfo = null;
         PlayerEquipmentSetInfos.Clear();
     }
-    public void RegisterRpc()
-    {
-        var rpcConnector = RpcConnector.Instance;
-        rpcConnector.BroadcastEquipmentSaveObservable()
-        .Subscribe(info => OnReceivePlayerEquipSave(info))
-        .AddTo(rpcConnector.gameObject);
-    }
     public void OnPlayerJoined(int playerId, bool isSelf)
     {
         if(PlayerEquipmentSetInfos.Any(x => x.PlayerId == playerId))
@@ -85,7 +78,7 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         SelfEquipmentSetInfo.Saddle,
         SelfEquipmentSetInfo.Vehicle);
     }
-    private void OnReceivePlayerEquipSave(EquipmentSetInfo info)
+    public void OnReceivePlayerEquipSave(EquipmentSetInfo info)
     {
         if(info.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
         {
