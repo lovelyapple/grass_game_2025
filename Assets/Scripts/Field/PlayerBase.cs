@@ -1,8 +1,14 @@
+using System;
 using R3;
 using UnityEngine;
-
+[Serializable]
+public class DriverParameter
+{
+    public string DriverName;
+}
 public class PlayerBase : MonoBehaviour
 {
+    [SerializeField] DriverParameter Parameter;
     private VehicleBase _myVehicle;
     private Transform _vehicleChairTransform;
     private bool _driving;

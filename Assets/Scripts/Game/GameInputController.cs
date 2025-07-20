@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameInputController : MonoBehaviour
 {
+    [SerializeField] GameUIController GameUIController;
     // private readonly Subject<bool> _onPushAccelerate = new Subject<bool>();
     // public Observable<bool> OnPushAccelerateAsObservable() => _onPushAccelerate;
     private static GameInputController _instance;
@@ -21,23 +22,28 @@ public class GameInputController : MonoBehaviour
         }
     }
 
-    public bool IsPushingAccelerate;
+    private readonly ReactiveProperty<bool> _isAccelerating = new ReactiveProperty<bool>(false);
+    public Observable<bool> IsAcceleratingObservable() => _isAccelerating;
 
     public HorizontalMoveDir MoveDir;
+    private bool _isPressingAccelerateUI = false;
     private void Awake()
     {
         _instance = this;
+        GameUIController.IsPressingAccelerateButtonObservable()
+        .Subscribe(isPressing => _isPressingAccelerateUI = isPressing)
+        .AddTo(this);
     }
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space) || _isPressingAccelerateUI)
         {
-            IsPushingAccelerate = true;
+            _isAccelerating.Value = true;
         }
         else
         {
-            IsPushingAccelerate = false;
+            _isAccelerating.Value = false;
         }
 
         if (Input.GetKey(KeyCode.UpArrow))
