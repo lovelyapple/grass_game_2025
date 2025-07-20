@@ -1,5 +1,6 @@
 using System;
 using R3;
+using StarMessage.Models;
 using UnityEngine;
 
 public class GameInputController : MonoBehaviour

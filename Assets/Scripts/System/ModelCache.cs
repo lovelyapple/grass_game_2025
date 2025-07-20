@@ -6,7 +6,7 @@ namespace StarMessage.Models
     public class ModelCache : SingletonBase<ModelCache>
     {
         private SceneChanger _sceneChanger;
-
+        private RoomModel _roomModel;
         private RacingModel _racingModel; 
         public void InitializeModels(GameObject coreModelObj)
         {
@@ -15,6 +15,9 @@ namespace StarMessage.Models
 
             _racingModel = new RacingModel();
             _racingModel.SetInstance(_racingModel);
+
+            _roomModel = new RoomModel();
+            _roomModel.SetInstance(_roomModel);
         }
     }
 }

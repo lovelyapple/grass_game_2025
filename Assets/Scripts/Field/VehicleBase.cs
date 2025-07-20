@@ -30,7 +30,6 @@ public class VehicleBase : NetworkBehaviour
         .Subscribe(x => _accelerating = x)
         .AddTo(this);
     }
-    // UnityのUpdateの代わりにやるもの
     public override void FixedUpdateNetwork()
     {
         // Share Modeでは、HasInputAuthorityはTrueになる
