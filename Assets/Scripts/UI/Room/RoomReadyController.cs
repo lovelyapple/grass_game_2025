@@ -44,6 +44,11 @@ public class RoomReadyController : MonoBehaviour
 
         SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
         PlayerEquipmentSetViews.ForEach(x => x.SetAsEmpty());
+        var equipmentCache = RoomStateController.Instance.RoomPlayerEuipmentCache;
+        foreach(var equipment in equipmentCache)
+        {
+            UpdateEquipmentInfo(new (equipment.Value));
+        }
     }
     private void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {

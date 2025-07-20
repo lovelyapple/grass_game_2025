@@ -29,6 +29,17 @@ public class EquipmentSetInfo
     public Characters Character;
     public SaddleType Saddle;
     public Vehicles Vehicle;
+    public EquipmentSetInfo(EquipmentSetInfoStruct set)
+    {
+        PlayerId = set.PlayerId;
+        Character = (Characters)set.Character;
+        Saddle = (SaddleType)set.SaddleType;
+        Vehicle = (Vehicles)set.Vehicle;
+    }
+    public EquipmentSetInfo()
+    {
+
+    }
     public EquipmentSetInfo Clone()
     {
         return new EquipmentSetInfo()
