@@ -18,7 +18,9 @@ public class RoomStateController : NetworkBehaviour
     public RoomPhase CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked] public int AdminId { get; private set; }
-    [Networked] public NetworkDictionary<int, PlayerEquipmentSetInfoStruct> RoomPlayerEuipmentCache => default;
+
+    // todoこいつを消す
+    [Networked] public NetworkDictionary<int, PlayerEquipmentSetInfoStruct> RoomPlayerEquipmentCache => default;
     public static RoomStateController Instance;
     public void Awake()
     {
@@ -73,7 +75,7 @@ public class RoomStateController : NetworkBehaviour
             return;
         }
 
-        RoomPlayerEuipmentCache.Add(playerId, new PlayerEquipmentSetInfoStruct() { PlayerId = playerId });
+        RoomPlayerEquipmentCache.Add(playerId, new PlayerEquipmentSetInfoStruct() { PlayerId = playerId });
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -82,7 +84,7 @@ public class RoomStateController : NetworkBehaviour
             return;
         }
 
-        RoomPlayerEuipmentCache.Remove(playerId);
+        RoomPlayerEquipmentCache.Remove(playerId);
     }
     public void OnPlayerUpdateEquipmentInfo(EquipmentSetInfo info)
     {
@@ -94,8 +96,8 @@ public class RoomStateController : NetworkBehaviour
             structInfo.SaddleType = (int)info.Saddle;
             structInfo.Vehicle = (int)info.Vehicle;
 
-            RoomPlayerEuipmentCache.Remove(info.PlayerId);
-            RoomPlayerEuipmentCache.Add(info.PlayerId, structInfo);
+            RoomPlayerEquipmentCache.Remove(info.PlayerId);
+            RoomPlayerEquipmentCache.Add(info.PlayerId, structInfo);
         }
     }
 }
