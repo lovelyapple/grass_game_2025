@@ -5993,7 +5993,7 @@ MonoBehaviour:
   - {fileID: 1203042738}
   - {fileID: 795272560}
   - {fileID: 1585094071}
-  RandomButton: {fileID: 0}
+  RandomButton: {fileID: 293698125}
   CharaChangeButton: {fileID: 1877338950}
   SaddleChangeButton: {fileID: 872225008}
   VehicleChangeButton: {fileID: 713568895}
@@ -8140,7 +8140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2086762469
 RectTransform:
   m_ObjectHideFlags: 0

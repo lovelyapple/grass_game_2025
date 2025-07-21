@@ -42,6 +42,10 @@ public class RoomReadyController : MonoBehaviour
         .Subscribe(_ => OnConfirm())
         .AddTo(this);
 
+        RandomButton.OnClickAsObservable()
+        .Subscribe(_ => ShaffleSelfEquipment())
+        .AddTo(this);
+
         SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
         PlayerEquipmentSetViews.ForEach(x => x.SetAsEmpty());
         var equipmentCache = RoomStateController.Instance.RoomPlayerEuipmentCache;
@@ -88,5 +92,9 @@ public class RoomReadyController : MonoBehaviour
     private void OnConfirm()
     {
         PlayerEquipmentModel.GetInstance().SaveSelfEquipment();
+    }
+    private void ShaffleSelfEquipment()
+    {
+        PlayerEquipmentModel.GetInstance().ShuffleSelfEquipment();
     }
 }
