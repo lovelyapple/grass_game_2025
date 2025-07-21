@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using R3;
 using UnityEngine;
 namespace StarMessage.Models
 {
@@ -7,7 +6,8 @@ namespace StarMessage.Models
     {
         private SceneChanger _sceneChanger;
         private RoomModel _roomModel;
-        private RacingModel _racingModel; 
+        private RacingModel _racingModel;
+        private PlayerEquipmentModel _equipMentModel;
         public void InitializeModels(GameObject coreModelObj)
         {
             _sceneChanger = new SceneChanger();
@@ -18,6 +18,17 @@ namespace StarMessage.Models
 
             _roomModel = new RoomModel();
             _roomModel.SetInstance(_roomModel);
+
+            _equipMentModel = new PlayerEquipmentModel();
+            _equipMentModel.SetInstance(_equipMentModel);
+
+            _roomModel.OnPlayerJoinObeservable()
+            .Subscribe(x => _equipMentModel.OnPlayerJoined(x.Item1, x.Item2))
+            .AddTo(coreModelObj);
+
+            _roomModel.OnPlayerLeaveObservable()
+            .Subscribe(x => _equipMentModel.OnPlayerLeaved(x))
+            .AddTo(coreModelObj);
         }
     }
 }

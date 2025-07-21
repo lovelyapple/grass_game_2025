@@ -34,12 +34,12 @@ public class SceneChanger : SingletonBase<SceneChanger>
         }
 
         _requestChangingScene = targetScene;
-        await RequeChangeScene();
+        await DoChangeSceneAsync();
 
         _onSceneChanged.OnNext(requestTargetScene);
         return Unit.Default;
     }
-    public async UniTask<Unit> RequeChangeScene()
+    private async UniTask<Unit> DoChangeSceneAsync()
     {
         await SceneManager.LoadSceneAsync(_sceneIndex[_requestChangingScene]);
         _requestChangingScene = SceneName.None;

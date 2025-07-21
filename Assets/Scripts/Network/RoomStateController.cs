@@ -11,9 +11,10 @@ public class RoomStateController : NetworkBehaviour
     public RoomPhase CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked] public int AdminId { get; private set; }
-
+    public static RoomStateController Instance;
     public void Awake()
     {
+        Instance = this;
         RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
     }
     public void UpdateCurrentRoomPhase(RoomPhase roomPhase)

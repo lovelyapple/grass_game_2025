@@ -8,6 +8,7 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] List<GameObject> VehiclePrefabs;
     [SerializeField] List<GameObject> DriverPrefabs;
+    [SerializeField] GameObject RpcConnectorPrefab;
 
     [SerializeField] GameObject RoomStateControllerPrefab;
     public void PlayerJoined(PlayerRef player)
@@ -18,24 +19,25 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
             {
                 var roomStateController = Runner.Spawn(RoomStateControllerPrefab, Vector3.zero, Quaternion.identity).GetComponent<RoomStateController>();
                 roomStateController.SetupId(player.PlayerId);
+                Runner.Spawn(RpcConnectorPrefab, Vector3.zero, Quaternion.identity);
             }
             else
             {
-                GameObject vehiclePrefab = null;
-                Vector3 spawnPosition = Vector3.zero;
-                if (Runner.SessionInfo.PlayerCount == 1)
-                {
-                    vehiclePrefab = VehiclePrefabs[0];
-                    spawnPosition = new Vector3(-7, 7, -10);
-                }
-                else
-                {
-                    vehiclePrefab = VehiclePrefabs[1];
-                    spawnPosition = new Vector3(-7, 7, -8);
-                }
+                // GameObject vehiclePrefab = null;
+                // Vector3 spawnPosition = Vector3.zero;
+                // if (Runner.SessionInfo.PlayerCount == 1)
+                // {
+                //     vehiclePrefab = VehiclePrefabs[0];
+                //     spawnPosition = new Vector3(-7, 7, -10);
+                // }
+                // else
+                // {
+                //     vehiclePrefab = VehiclePrefabs[1];
+                //     spawnPosition = new Vector3(-7, 7, -8);
+                // }
 
-                var vh = Runner.Spawn(vehiclePrefab, spawnPosition, Quaternion.identity).GetComponent<VehicleBase>();
-                vh.Registry(GameInputController.Instance);
+                // var vh = Runner.Spawn(vehiclePrefab, spawnPosition, Quaternion.identity).GetComponent<VehicleBase>();
+                // vh.Registry(GameInputController.Instance);
             }
         }
     }

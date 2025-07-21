@@ -27,46 +27,13 @@ namespace StarMessage.Models
             _modelCache = new ModelCache();
             _modelCache.SetInstance(_modelCache);
             _modelCache.InitializeModels(this.gameObject);
-
-            SceneChanger.GetInstance().OnSceneChangedObservable()
-                .Where(sceneName => sceneName == SceneChanger.SceneName.Title)
-                .Subscribe(sceneName =>
-                {
-                    // LoadUIController.Close();
-                })
-                .AddTo(this);
-
-            SceneChanger.GetInstance().OnSceneChangedObservable()
-                .Where(sceneName => sceneName == SceneChanger.SceneName.Game)
-                .SubscribeAwait(async (sceneName, token) =>
-                {
-                })
-                .AddTo(this);
         }
-        public void ResetGame()
+        private void Start()
         {
-            CurrentGamePhase = GamePhase.Title;
-        }
-        public void RequestStartGame()
-        {
-            CurrentGamePhase = GamePhase.Ready;
-        }
-        public void OnGameResult(bool isWin)
-        {
-            CurrentGamePhase = GamePhase.Finished;
-            PerformResult(isWin).Forget();
-        }
-        private async UniTask PerformResult(bool isWin)
-        {
-        }
-        public void RestartGame()
-        {
-            ResetGame();
-            RequestStartGame();
+            GotoTitle();
         }
         public void GotoTitle()
         {
-            ResetGame();
             GotoTitleAsync(new CancellationToken());
         }
         private void GotoTitleAsync(CancellationToken cancellationToken)

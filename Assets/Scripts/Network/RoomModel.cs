@@ -22,16 +22,25 @@ public class RoomModel : SingletonBase<RoomModel>
     public bool HasRoomStateCtrl => _roomStateController != null;
     private ReactiveProperty<RoomPhase> _roomPhaseChangedSubject = new ReactiveProperty<RoomPhase>(RoomPhase.Waiting);
     public Observable<RoomPhase> RoomPhaseChangedObservable() => _roomPhaseChangedSubject;
+
+    private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
+    public Observable<(int, bool)> OnPlayerJoinObeservable() => _onPlayerJoinSubject;
+
+    private readonly Subject<int> _onPlayerLeaveSubject = new Subject<int>();
+    public Observable<int> OnPlayerLeaveObservable() => _onPlayerLeaveSubject;
+
     private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
-    private string _roomName;
+    public string RoomName{ get; private set; }
+    public PlayerRef SelfPlayerRef{ get; private set; }
     
-    // Admin自信はこれを使う
+    // Adminj自身はこれを使う
     private PlayerRef _adminPlayerRef;
     public int AdminId { get; private set; }
     #region NetworkCallBack
-    public void SetupRoomId(string roomName)
+    public void OnSelfJoinedRoom(string roomName, PlayerRef playerRef)
     {
-        _roomName = roomName;
+        RoomName = roomName;
+        SelfPlayerRef = playerRef;
         Debug.LogWarning($"room model update room {roomName}");
     }
 
@@ -64,7 +73,7 @@ public class RoomModel : SingletonBase<RoomModel>
                 _adminPlayerRef = playerRef;
             }
 
-            RequestUpdateRoom(_roomName).Forget();
+            RequestUpdateRoom(RoomName).Forget();
         }
         else
         {
@@ -75,6 +84,8 @@ public class RoomModel : SingletonBase<RoomModel>
                 Debug.LogError($"Adminがいない部屋にはいった、退室します");      
             }
         }
+
+        _onPlayerJoinSubject.OnNext((playerRef.PlayerId, isSelf));
     }
     public void OnPlayerLeaved(PlayerRef playerRef)
     {
@@ -91,7 +102,7 @@ public class RoomModel : SingletonBase<RoomModel>
 
         if (GameCoreModel.Instance.IsAdminUser)
         {
-            RequestUpdateRoom(_roomName).Forget();
+            RequestUpdateRoom(RoomName).Forget();
         }
         else
         {
@@ -101,6 +112,8 @@ public class RoomModel : SingletonBase<RoomModel>
                 Debug.LogError($"Adminがlogoutした為、部屋が閉じられた");
             }       
         }
+
+        _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
     }
     #endregion
     private bool _isSendRequestUpdateRoom = false;
@@ -122,7 +135,7 @@ public class RoomModel : SingletonBase<RoomModel>
             _playerCountRequesting = null;
 
             var roomPhase = GetRoomPhaseFromMember(playerCount).ToString();
-            await RoomService.UpdateRoom(new RoomInfo(_roomName, playerCount, roomPhase), new CancellationToken());
+            await RoomService.UpdateRoom(new RoomInfo(RoomName, playerCount, roomPhase), new CancellationToken());
         }
 
         _isSendRequestUpdateRoom = false;

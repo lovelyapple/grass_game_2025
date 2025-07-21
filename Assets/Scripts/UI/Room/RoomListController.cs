@@ -95,9 +95,4 @@ public class RoomListController : MonoBehaviour
 
         return Unit.Default;
     }
-
-    // private async UniTask<Unit> RefreshRoomListAsync(CancellationToken token)
-    // {
-    //     await 
-    // }
 }
