@@ -20,8 +20,6 @@ public class RoomModel : SingletonBase<RoomModel>
 {
     private RoomStateController _roomStateController;   
     public bool HasRoomStateCtrl => _roomStateController != null;
-    private ReactiveProperty<RoomPhase> _roomPhaseChangedSubject = new ReactiveProperty<RoomPhase>(RoomPhase.Waiting);
-    public Observable<RoomPhase> RoomPhaseChangedObservable() => _roomPhaseChangedSubject;
 
     private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
     public Observable<(int, bool)> OnPlayerJoinObeservable() => _onPlayerJoinSubject;
@@ -51,7 +49,7 @@ public class RoomModel : SingletonBase<RoomModel>
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
-        UpdateRoomPhase(RoomPhase.Waiting);
+        UpdateRoomPhaseAdmin(RoomPhase.Waiting);
     }
     public void OnPlayerJoined(PlayerRef playerRef, bool isSelf)
     {
@@ -73,7 +71,7 @@ public class RoomModel : SingletonBase<RoomModel>
                 _adminPlayerRef = playerRef;
             }
 
-            RequestUpdateRoom(RoomName).Forget();
+            RequestUpdateRoomAdmin(RoomName).Forget();
         }
         else
         {
@@ -102,7 +100,7 @@ public class RoomModel : SingletonBase<RoomModel>
 
         if (GameCoreModel.Instance.IsAdminUser)
         {
-            RequestUpdateRoom(RoomName).Forget();
+            RequestUpdateRoomAdmin(RoomName).Forget();
         }
         else
         {
@@ -116,9 +114,10 @@ public class RoomModel : SingletonBase<RoomModel>
         _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
     }
     #endregion
+    public RoomPhase CurrentRoomPhase{ get; private set; }
     private bool _isSendRequestUpdateRoom = false;
     private int? _playerCountRequesting = null;
-    private async UniTask<Unit> RequestUpdateRoom(string roomName)
+    private async UniTask<Unit> RequestUpdateRoomAdmin(string roomName)
     {
         _playerCountRequesting = GetCurrentPlayerCount();
 
@@ -129,36 +128,59 @@ public class RoomModel : SingletonBase<RoomModel>
 
         _isSendRequestUpdateRoom = true;
 
+        var prevRoomPhase = CurrentRoomPhase;
         while (_playerCountRequesting.HasValue)
         {
             var playerCount = _playerCountRequesting.Value;
             _playerCountRequesting = null;
 
-            var roomPhase = GetRoomPhaseFromMember(playerCount).ToString();
-            await RoomService.UpdateRoom(new RoomInfo(RoomName, playerCount, roomPhase), new CancellationToken());
+            CurrentRoomPhase = GetRoomPhaseFromMember(playerCount);
+            await RoomService.UpdateRoom(new RoomInfo(RoomName, playerCount, CurrentRoomPhase.ToString()), new CancellationToken());
         }
 
         _isSendRequestUpdateRoom = false;
+
+        if (prevRoomPhase != CurrentRoomPhase)
+        {
+            if (CurrentRoomPhase == RoomPhase.CountDown)
+            {
+                StartCountDownAdmin();
+            }
+            else if(CurrentRoomPhase == RoomPhase.Waiting)
+            {
+                CancelCountDownAdmin();
+            }
+        }
+
         return Unit.Default;
     }
-    public void UpdateRoomPhase(RoomPhase roomPhase)
+    public void UpdateRoomPhaseAdmin(RoomPhase roomPhase)
     {
         if(!GameCoreModel.Instance.IsAdminUser)
         {
             return;
         }
 
-        _roomStateController?.UpdateCurrentRoomPhase(roomPhase);
-        _roomPhaseChangedSubject.Value = roomPhase;
+        _roomStateController?.UpdateCurrentRoomPhaseAdmin(roomPhase);
     }
     private RoomPhase GetRoomPhaseFromMember(int member)
     {
-        if(member > GameConstant.GameStartPlayerCount)
+        if(CurrentRoomPhase == RoomPhase.Waiting)
         {
-            return RoomPhase.CountDown;
+            if (member >= GameConstant.GameStartPlayerCount)
+            {
+                return RoomPhase.CountDown;
+            }
+        }
+        else if(CurrentRoomPhase == RoomPhase.CountDown)
+        {
+            if (member < GameConstant.GameStartPlayerCount)
+            {
+                return RoomPhase.Waiting;
+            }
         }
 
-        return RoomPhase.Waiting;
+        return CurrentRoomPhase;
     }
 
     private int GetCurrentPlayerCount()
@@ -175,5 +197,72 @@ public class RoomModel : SingletonBase<RoomModel>
         }
 
         return _playerInfos.Count(x => x.PlayerRef.PlayerId != AdminId);
+    }
+    private DateTime GameStartAtTime;
+    private IDisposable _countdownSubscription;
+    public double RemainSeconds { get; private set; }
+    public double TotalCostTimeSeconds { get; private set; }
+    private readonly Subject<Unit> _onRoomCountDownStart = new Subject<Unit>();
+    public Observable<Unit> OnRoomCountDownStartObservable() => _onRoomCountDownStart;
+    private readonly Subject<double> _countDownChangedSubject = new Subject<double>();
+    public Observable<double> OnCountDownChangedAsObservable() => _countDownChangedSubject;
+    private readonly Subject<Unit> _countDownFinishedSubject = new Subject<Unit>();
+    public Observable<Unit> OnCountDowFinishedAsObservable() => _countDownFinishedSubject;
+    private readonly Subject<Unit> _countDownCancelSubject = new Subject<Unit>();
+    public Observable<Unit> OnCountDownCancelAsObservable() => _countDownCancelSubject;
+    private void StartCountDownAdmin()
+    {
+        if(!GameCoreModel.Instance.IsAdminUser)
+        {
+            return;
+        }
+
+        var endTime = DateTime.UtcNow.AddSeconds(GameConstant.CountDownSec);
+        double unixTimeMs = new DateTimeOffset(endTime).ToUnixTimeMilliseconds();
+        RpcConnector.Instance.Rpc_BroadcastStartCountDown(unixTimeMs);
+    }
+    public void ReceivedStartCountDown(double endTimeUnixMilliseconds)
+    {
+        _countdownSubscription?.Dispose();
+        _onRoomCountDownStart.OnNext(Unit.Default);
+        RoomStateController.Instance.UpdateCurrentRoomPhaseAdmin(RoomPhase.CountDown);
+        PerformCountDownAsync(endTimeUnixMilliseconds);
+    }
+    public void PerformCountDownAsync(double endTimeUnixMilliseconds)
+    {
+        GameStartAtTime = DateTimeOffset.FromUnixTimeMilliseconds((long)endTimeUnixMilliseconds).UtcDateTime;
+        RemainSeconds = (GameStartAtTime - DateTime.Now).TotalSeconds;
+
+        _countdownSubscription = Observable.Interval(System.TimeSpan.FromSeconds(1))
+            .TakeWhile(_ => RemainSeconds > 0)
+            .Subscribe(_ =>
+            {
+                RemainSeconds--;
+
+                if (RemainSeconds <= 0)
+                {
+                    _countDownFinishedSubject.OnNext(Unit.Default);
+                }
+                else
+                {
+                    _countDownChangedSubject.OnNext(RemainSeconds);
+                }
+            });
+    }
+    private void CancelCountDownAdmin()
+    {
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            return;
+        }
+
+        RpcConnector.Instance.Rpc_BroadcastCancelCountDown(0);
+    }
+    public void ReceiveCountDownCancle(double time)
+    {
+        _countdownSubscription?.Dispose();
+        _countdownSubscription = null;
+        _countDownCancelSubject.OnNext(Unit.Default);
+        RoomStateController.Instance.UpdateCurrentRoomPhaseAdmin(RoomPhase.Waiting);
     }
 }

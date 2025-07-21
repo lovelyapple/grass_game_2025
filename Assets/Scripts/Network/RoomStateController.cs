@@ -14,8 +14,7 @@ public struct PlayerEquipmentSetInfoStruct : INetworkStruct
 public class RoomStateController : NetworkBehaviour
 {
     // ネットワークで共有される変数
-    // [Networked]
-    public RoomPhase CurrentRoomPhase { get; set; }
+    [Networked] public int CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked] public int AdminId { get; private set; }
 
@@ -25,7 +24,6 @@ public class RoomStateController : NetworkBehaviour
     public void Awake()
     {
         Instance = this;
-        RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
 
         RoomModel.GetInstance().OnPlayerJoinObeservable()
         .Subscribe(x => OnPlayerJoin(x.Item1))
@@ -39,14 +37,14 @@ public class RoomStateController : NetworkBehaviour
         .Subscribe(x => OnPlayerUpdateEquipmentInfo(x))
         .AddTo(this);
     }
-    public void UpdateCurrentRoomPhase(RoomPhase roomPhase)
+    public void UpdateCurrentRoomPhaseAdmin(RoomPhase roomPhase)
     {
         if(!GameCoreModel.Instance.IsAdminUser)
         {
             return;
         }
 
-        CurrentRoomPhase = roomPhase;
+        CurrentRoomPhase = (int)roomPhase;
     }
 
     public void SetupId(int id)
@@ -99,5 +97,10 @@ public class RoomStateController : NetworkBehaviour
             RoomPlayerEquipmentCache.Remove(info.PlayerId);
             RoomPlayerEquipmentCache.Add(info.PlayerId, structInfo);
         }
+    }
+    public override void Spawned()
+    {
+        base.Spawned();
+        RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
     }
 }

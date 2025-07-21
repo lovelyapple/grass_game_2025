@@ -1,3 +1,4 @@
+using System;
 using Fusion;
 using R3;
 using UnityEngine;
@@ -22,5 +23,15 @@ public class RpcConnector : NetworkBehaviour
         };
 
         PlayerEquipmentModel.GetInstance().OnReceivePlayerEquipSave(info);
+    }
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void Rpc_BroadcastStartCountDown(double endTimeUnixMilliseconds)
+    {
+        RoomModel.GetInstance().ReceivedStartCountDown(endTimeUnixMilliseconds);
+    }
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void Rpc_BroadcastCancelCountDown(double endTimeUnixMilliseconds)
+    {
+        RoomModel.GetInstance().ReceiveCountDownCancle(endTimeUnixMilliseconds);
     }
 }
