@@ -58,12 +58,12 @@ public class PlayerRootObject : MonoBehaviour
     {
         if(PlayerInfos.ContainsKey(playerId))
         {
-            if(PlayerInfos[playerId].BaseInfoStruct.PlayerId <= 0)
+            if(PlayerInfos[playerId].PlayerId <= 0)
             {
                 return null;
             }
 
-            return PlayerInfos[playerId].BaseInfoStruct.PlayerName;
+            return PlayerInfos[playerId].PlayerName;
         }
 
         return null;

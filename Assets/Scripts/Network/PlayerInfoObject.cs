@@ -5,22 +5,19 @@ using Unity.Mathematics;
 using UnityEngine;
 public struct PlayerBaseInfoStruct : INetworkStruct
 {
+
+}
+public class PlayerInfoObject : NetworkBehaviour
+{
     [Networked]       // Notifies the ILWeaver to extend this property
     [Capacity(16)]    // allocates memory for 16 characters
     [UnityMultiline]  // Optional attribute to force multi-line in inspector.
     public string PlayerName { get => default; set { } }
-    public int PlayerId;
-}
-public class PlayerInfoObject : NetworkBehaviour
-{
-    [Networked] public PlayerBaseInfoStruct BaseInfoStruct{ get; set; }
-    public NetworkString<_16> Name;
+    [Networked] public int PlayerId { get; set; }
     [Networked] public PlayerRef PlayerRef { get; set; }
 
     // まぁ、たぶん使わないけど、一応
     [Networked] public PlayerEquipmentSetInfoStruct PlayerEquipment { get; set; }
-
-    private NetworkString<_32> _requestName = "";
     private bool _isSpawned = false;
     public override void Spawned()
     {
@@ -32,13 +29,8 @@ public class PlayerInfoObject : NetworkBehaviour
     {
         await UniTask.WaitUntil(() => _isSpawned, cancellationToken: this.destroyCancellationToken);
 
-        _requestName = new NetworkString<_32>(playerName);
-
-        BaseInfoStruct = new PlayerBaseInfoStruct()
-        {
-            PlayerName = playerName,
-            PlayerId = playerRef.PlayerId,
-        };
+        PlayerName = playerName;
+        PlayerId = playerRef.PlayerId;
 
          PlayerRef = playerRef;
 
@@ -51,7 +43,7 @@ public class PlayerInfoObject : NetworkBehaviour
 
     private async UniTask<Unit> RegisterRootAsync()
     {
-        await UniTask.WaitUntil(() => BaseInfoStruct.PlayerId > 0, cancellationToken: this.destroyCancellationToken);
+        await UniTask.WaitUntil(() => PlayerId > 0, cancellationToken: this.destroyCancellationToken);
         PlayerRootObject.Instance.OnPlayerInfoSpawned(this);
         return Unit.Default;
     }
