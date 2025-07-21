@@ -11,6 +11,7 @@ public class RpcConnector : NetworkBehaviour
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
     }
+
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void Rpc_BroadcastEquipmentSave(int playerId, Characters chara, SaddleType saddle, Vehicles vehicle)
     {

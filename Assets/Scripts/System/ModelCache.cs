@@ -9,6 +9,7 @@ namespace StarMessage.Models
         private RacingModel _racingModel;
         private PlayerEquipmentModel _equipMentModel;
         private GamePlayerInfoModel _gamePlayerModel;
+        public static IGameAdminModel Admin { get; private set; }
         public void InitializeModels(GameObject coreModelObj)
         {
             _sceneChanger = new SceneChanger();
@@ -33,6 +34,17 @@ namespace StarMessage.Models
 
             _gamePlayerModel = new GamePlayerInfoModel();
             _gamePlayerModel.SetInstance(_gamePlayerModel);
+        }
+        public void LoadAdminAs(bool isAdmin)
+        {
+            if(isAdmin)
+            {
+                Admin = new GameAdminModel();
+            }
+            else
+            {
+                Admin = new NullGameAdminModel();
+            }
         }
     }
 }

@@ -102,5 +102,6 @@ public class RoomStateController : NetworkBehaviour
     {
         base.Spawned();
         RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
+        ModelCache.Admin.OnRoomStateControllerSpawn(this);
     }
 }

@@ -19,7 +19,6 @@ public class PlayerInfo
 public class RoomModel : SingletonBase<RoomModel>
 {
     private RoomStateController _roomStateController;   
-    public bool HasRoomStateCtrl => _roomStateController != null;
 
     private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
     public Observable<(int, bool)> OnPlayerJoinObeservable() => _onPlayerJoinSubject;
