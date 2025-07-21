@@ -8,6 +8,7 @@ namespace StarMessage.Models
         private RoomModel _roomModel;
         private RacingModel _racingModel;
         private PlayerEquipmentModel _equipMentModel;
+        private GamePlayerInfoModel _gamePlayerModel;
         public void InitializeModels(GameObject coreModelObj)
         {
             _sceneChanger = new SceneChanger();
@@ -29,6 +30,9 @@ namespace StarMessage.Models
             _roomModel.OnPlayerLeaveObservable()
             .Subscribe(x => _equipMentModel.OnPlayerLeaved(x))
             .AddTo(coreModelObj);
+
+            _gamePlayerModel = new GamePlayerInfoModel();
+            _gamePlayerModel.SetInstance(_gamePlayerModel);
         }
     }
 }

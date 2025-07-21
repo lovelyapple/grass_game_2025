@@ -9,6 +9,7 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] List<GameObject> VehiclePrefabs;
     [SerializeField] List<GameObject> DriverPrefabs;
     [SerializeField] GameObject RpcConnectorPrefab;
+    [SerializeField] GameObject PlayerInfoObjectPrefab;
 
     [SerializeField] GameObject RoomStateControllerPrefab;
     public void PlayerJoined(PlayerRef player)
@@ -23,6 +24,11 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
             }
             else
             {
+                var playerObject = Runner.Spawn(PlayerInfoObjectPrefab, Vector3.zero, Quaternion.identity, inputAuthority: player).GetComponent<PlayerInfoObject>();
+                playerObject.Initialize(GameCoreModel.Instance.SelfName, player);
+                GamePlayerInfoModel.GetInstance().SetSelfObject(playerObject);
+
+
                 // GameObject vehiclePrefab = null;
                 // Vector3 spawnPosition = Vector3.zero;
                 // if (Runner.SessionInfo.PlayerCount == 1)

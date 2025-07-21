@@ -4,7 +4,7 @@ using Fusion;
 using R3;
 using StarMessage.Models;
 using UnityEngine;
-public struct EquipmentSetInfoStruct : INetworkStruct
+public struct PlayerEquipmentSetInfoStruct : INetworkStruct
 {
     public int PlayerId;
     public int Character;
@@ -18,7 +18,7 @@ public class RoomStateController : NetworkBehaviour
     public RoomPhase CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked] public int AdminId { get; private set; }
-    [Networked] public NetworkDictionary<int, EquipmentSetInfoStruct> RoomPlayerEuipmentCache => default;
+    [Networked] public NetworkDictionary<int, PlayerEquipmentSetInfoStruct> RoomPlayerEuipmentCache => default;
     public static RoomStateController Instance;
     public void Awake()
     {
@@ -73,7 +73,7 @@ public class RoomStateController : NetworkBehaviour
             return;
         }
 
-        RoomPlayerEuipmentCache.Add(playerId, new EquipmentSetInfoStruct() { PlayerId = playerId });
+        RoomPlayerEuipmentCache.Add(playerId, new PlayerEquipmentSetInfoStruct() { PlayerId = playerId });
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -88,7 +88,7 @@ public class RoomStateController : NetworkBehaviour
     {
         if (GameCoreModel.Instance.IsAdminUser)
         {
-            var structInfo = new EquipmentSetInfoStruct();
+            var structInfo = new PlayerEquipmentSetInfoStruct();
             structInfo.PlayerId = (int)info.PlayerId;
             structInfo.Character = (int)info.Character;
             structInfo.SaddleType = (int)info.Saddle;

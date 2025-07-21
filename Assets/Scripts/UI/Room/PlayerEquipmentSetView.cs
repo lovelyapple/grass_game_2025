@@ -29,13 +29,6 @@ public class EquipmentSetInfo
     public Characters Character;
     public SaddleType Saddle;
     public Vehicles Vehicle;
-    public EquipmentSetInfo(EquipmentSetInfoStruct set)
-    {
-        PlayerId = set.PlayerId;
-        Character = (Characters)set.Character;
-        Saddle = (SaddleType)set.SaddleType;
-        Vehicle = (Vehicles)set.Vehicle;
-    }
     public EquipmentSetInfo()
     {
 
@@ -49,6 +42,24 @@ public class EquipmentSetInfo
             Saddle = Saddle,
             Vehicle = Vehicle,
         };
+    }
+
+    public EquipmentSetInfo(PlayerEquipmentSetInfoStruct set)
+    {
+        PlayerId = set.PlayerId;
+        Character = (Characters)set.Character;
+        Saddle = (SaddleType)set.SaddleType;
+        Vehicle = (Vehicles)set.Vehicle;
+    }
+
+    public PlayerEquipmentSetInfoStruct ToStruct()
+    {
+        var result = new PlayerEquipmentSetInfoStruct();
+        result.PlayerId = PlayerId;
+        result.Character = (int)Character;
+        result.SaddleType = (int)Saddle;
+        result.Vehicle = (int)Vehicle;
+        return result;
     }
 }
 public class PlayerEquipmentSetView : MonoBehaviour
