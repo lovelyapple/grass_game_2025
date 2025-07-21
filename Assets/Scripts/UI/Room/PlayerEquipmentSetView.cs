@@ -1,3 +1,7 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using R3;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -69,28 +73,41 @@ public class PlayerEquipmentSetView : MonoBehaviour
     [SerializeField] Image SaddleImage;
     [SerializeField] Image VehicleImage;
     public int PlayerId { get; private set; }
-    public void UpdateEquipmentInfo(string playerName, EquipmentSetInfo equipmentSetInfo)
+    private CancellationTokenSource _requestNameHandler;
+    public void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {
-        NameText.text = playerName;
         PlayerId = equipmentSetInfo.PlayerId;
         CharacterImage.sprite = ResourceContainer.Instance.GetCharacterImage(equipmentSetInfo.Character, false);
         SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage(equipmentSetInfo.Saddle, false);
         VehicleImage.sprite = ResourceContainer.Instance.GetVehicleImage(equipmentSetInfo.Vehicle, false);
         gameObject.SetActive(true);
+
+        RequestPlayerNameAsync().Forget();
     }
     public void InitAsSelf(int playerId)
     {
-        NameText.text = "self";
+        NameText.text = "Joinnig";
         PlayerId = playerId;
         CharacterImage.sprite = ResourceContainer.Instance.GetCharacterImage(Characters.JK, false);
         SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage(SaddleType.Ice, false);
         VehicleImage.sprite = ResourceContainer.Instance.GetVehicleImage(Vehicles.Bicycle, false);
         gameObject.SetActive(true);
-
+        RequestPlayerNameAsync().Forget();
+    }
+    private async UniTask<Unit> RequestPlayerNameAsync()
+    {
+        _requestNameHandler = new CancellationTokenSource();
+        var token = CancellationTokenSource.CreateLinkedTokenSource(_requestNameHandler.Token, destroyCancellationToken).Token;
+        await UniTask.WaitUntil(() => PlayerRootObject.Instance.GetPlayerInfoName(PlayerId) != null, cancellationToken: token);
+        NameText.text = PlayerRootObject.Instance.GetPlayerInfoName(PlayerId);
+        return Unit.Default;
     }
     public void SetAsEmpty()
     {
         PlayerId = 0;
         gameObject.SetActive(false);
+
+        _requestNameHandler?.Cancel();
+        NameText.text = "";
     }
 }

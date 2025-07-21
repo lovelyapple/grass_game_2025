@@ -54,7 +54,7 @@ public class RoomReadyController : MonoBehaviour
     {
         if(equipmentSetInfo.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
         {
-            SelfEquipmentSetView.UpdateEquipmentInfo("self", equipmentSetInfo);
+            SelfEquipmentSetView.UpdateEquipmentInfo(equipmentSetInfo);
         }
         else
         {
@@ -65,7 +65,7 @@ public class RoomReadyController : MonoBehaviour
                 view = PlayerEquipmentSetViews.FirstOrDefault(x => x.PlayerId == 0);
             }
 
-            view.UpdateEquipmentInfo("other", equipmentSetInfo);
+            view.UpdateEquipmentInfo(equipmentSetInfo);
         }
     }
     private void OnPlayerLeave(int id)

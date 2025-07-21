@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
 using StarMessage.Models;
@@ -24,8 +25,9 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
             }
             else
             {
+                Debug.Log($"{player.PlayerId}");
                 var playerObject = Runner.Spawn(PlayerInfoObjectPrefab, Vector3.zero, Quaternion.identity, inputAuthority: player).GetComponent<PlayerInfoObject>();
-                playerObject.Initialize(GameCoreModel.Instance.SelfName, player);
+                playerObject.InitializeAsync(GamePlayerInfoModel.GetInstance().SelfName, player).Forget();
                 GamePlayerInfoModel.GetInstance().SetSelfObject(playerObject);
 
 

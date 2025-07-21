@@ -78,6 +78,8 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         SelfEquipmentSetInfo.Character,
         SelfEquipmentSetInfo.Saddle,
         SelfEquipmentSetInfo.Vehicle);
+
+        GamePlayerInfoModel.GetInstance().UpdateSelfEquipment(SelfEquipmentSetInfo);
     }
     public void OnReceivePlayerEquipSave(EquipmentSetInfo info)
     {
