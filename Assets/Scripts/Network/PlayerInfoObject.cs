@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
+using UnityEngine;
 public class PlayerInfoObject : NetworkBehaviour
 {
     [Networked]       // Notifies the ILWeaver to extend this property
@@ -11,7 +13,8 @@ public class PlayerInfoObject : NetworkBehaviour
     [Networked] public PlayerRef PlayerRef { get; set; }
 
     // まぁ、たぶん使わないけど、一応
-    [Networked] public PlayerEquipmentSetInfoStruct PlayerEquipment { get; set; }
+    [Networked, OnChangedRender(nameof(OnEquipmentUpdate))] 
+    public PlayerEquipmentSetInfoStruct PlayerEquipment { get; set; }
     private bool _isSpawned = false;
     public override void Spawned()
     {
@@ -34,5 +37,9 @@ public class PlayerInfoObject : NetworkBehaviour
         await UniTask.WaitUntil(() => PlayerId > 0, cancellationToken: this.destroyCancellationToken);
         PlayerRootObject.Instance.OnPlayerInfoSpawnedAndRegister(this);
         return Unit.Default;
+    }
+    private void OnEquipmentUpdate()
+    {
+        UnityEngine.Debug.Log($"PlayerInfoObject OnChangedRender OnEquipmentUpdate {PlayerId}");
     }
 }

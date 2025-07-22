@@ -19,9 +19,6 @@ public class RoomStateController : NetworkBehaviour
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked]  
     public int AdminId { get; private set; }
-
-    // todoこいつを消す
-    [Networked] public NetworkDictionary<int, PlayerEquipmentSetInfoStruct> RoomPlayerEquipmentCache => default;
     public static RoomStateController Instance;
     public override void Spawned()
     {
