@@ -42,7 +42,7 @@ public class PlayerRootObject : MonoBehaviour
         PlayerInfos.Add(playerInfoObj.PlayerRef.PlayerId, playerInfoObj);
         playerInfoObj.transform.parent = transform;
         playerInfoObj.gameObject.name = $"PlayerInfoObject_{playerInfoObj.PlayerRef.PlayerId}";
-        ModelCache.Admin.OnPlayerInfoObjectJoined(playerInfoObj);
+        RoomModel.GetInstance().OnPlayerInfoObjectJoined(playerInfoObj);
     }
     public void OnPlayerLeave(int playerId)
     {

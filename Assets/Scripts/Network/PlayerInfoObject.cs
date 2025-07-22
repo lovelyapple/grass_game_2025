@@ -24,8 +24,8 @@ public class PlayerInfoObject : NetworkBehaviour
         await UniTask.WaitUntil(() => _isSpawned, cancellationToken: this.destroyCancellationToken);
 
         PlayerName = playerName;
-        PlayerId = playerRef.PlayerId;
         PlayerRef = playerRef;
+        PlayerId = playerRef.PlayerId;
 
         return Unit.Default;
     }

@@ -1,5 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Fusion;
+using R3;
 public interface IGameAdminModel
 {
     public void OnAdminJoined(PlayerRef playerRef);
@@ -18,8 +23,10 @@ public class GameAdminModel : IGameAdminModel
 {
     private PlayerRef _adminRef;
     private RoomStateController _roomStateController;
-    private RoomPhase _roomPhase;
     private Dictionary<int, PlayerInfoObject> _playerInfoObjects = new Dictionary<int, PlayerInfoObject>();
+    private RoomPhase _currentRoomPhase;
+    private bool _isSendRequestUpdateRoom = false;
+    private int? _playerCountRequesting = null;
     public void OnAdminJoined(PlayerRef playerRef)
     {
         _adminRef = playerRef;
@@ -41,11 +48,83 @@ public class GameAdminModel : IGameAdminModel
     }
     private void UpdateRoomPhase()
     {
-
+        RequestUpdateRoomAdmin(RoomModel.GetInstance().RoomName).Forget();
     }
+    private async UniTask<Unit> RequestUpdateRoomAdmin(string roomName)
+    {
+        _playerCountRequesting = GetCurrentPlayerCount();
+
+        if (_isSendRequestUpdateRoom)
+        {
+            return Unit.Default;
+        }
+
+        _isSendRequestUpdateRoom = true;
+
+        var prevRoomPhase = _currentRoomPhase;
+        while (_playerCountRequesting.HasValue)
+        {
+            var playerCount = _playerCountRequesting.Value;
+            _playerCountRequesting = null;
+
+            _currentRoomPhase = GetRoomPhaseFromMember(playerCount, _currentRoomPhase);
+            await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
+        }
+
+        _isSendRequestUpdateRoom = false;
+
+        if (prevRoomPhase != _currentRoomPhase)
+        {
+            if (_currentRoomPhase == RoomPhase.CountDown)
+            {
+                // StartCountDownAdmin();
+            }
+            else if (_currentRoomPhase == RoomPhase.Waiting)
+            {
+                // CancelCountDownAdmin();
+            }
+        }
+
+        return Unit.Default;
+    }
+    private int GetCurrentPlayerCount()
+    {
+        return _playerInfoObjects.Keys.Count(x => x != _adminRef.PlayerId);
+    }
+    private RoomPhase GetRoomPhaseFromMember(int member, RoomPhase currentRoomPhase)
+    {
+        if (currentRoomPhase == RoomPhase.Waiting)
+        {
+            if (member >= GameConstant.GameStartPlayerCount)
+            {
+                return RoomPhase.CountDown;
+            }
+        }
+        else if (currentRoomPhase == RoomPhase.CountDown)
+        {
+            if (member < GameConstant.GameStartPlayerCount)
+            {
+                return RoomPhase.Waiting;
+            }
+        }
+
+        return currentRoomPhase;
+    }
+    #region cound_down
+    private void StartCountDownAdmin()
+    {
+        var endTime = DateTime.UtcNow.AddSeconds(GameConstant.CountDownSec);
+        double unixTimeMs = new DateTimeOffset(endTime).ToUnixTimeMilliseconds();
+        RpcConnector.Instance.Rpc_BroadcastStartCountDown(unixTimeMs);
+    }
+    private void CancelCountDownAdmin()
+    {
+        RpcConnector.Instance.Rpc_BroadcastCancelCountDown(0);
+    }
+    #endregion
     private void SendUpdateRoomPhase(RoomPhase roomPhase)
     {
-        _roomPhase = roomPhase;
+        _currentRoomPhase = roomPhase;
         _roomStateController.CurrentRoomPhase = (int)roomPhase;
     }
 }

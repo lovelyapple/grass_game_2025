@@ -17,7 +17,7 @@ public class RoomStateController : NetworkBehaviour
     [Networked, OnChangedRender(nameof(RoomPhaseChanged))] 
     public int CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
-    [Networked, OnChangedRender(nameof(AdminIdUpdate))]  
+    [Networked]  
     public int AdminId { get; private set; }
 
     // todoこいつを消す
@@ -28,13 +28,10 @@ public class RoomStateController : NetworkBehaviour
         base.Spawned();
         RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
         ModelCache.Admin.OnRoomStateControllerSpawn(this);
+        Instance = this;
     }
     private void RoomPhaseChanged(NetworkBehaviourBuffer previous)
     {
         RoomModel.GetInstance().ReceivedRoomPhaseUpdate((RoomPhase)CurrentRoomPhase);
-    }
-    private void AdminIdUpdate()
-    {
-        RoomModel.GetInstance().ReceivedUpdateAdminId(AdminId);
     }
 }
