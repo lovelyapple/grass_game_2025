@@ -54,7 +54,9 @@ public class PlayerRootObject : MonoBehaviour
 
         var obj = PlayerInfos[playerId];
         PlayerInfos.Remove(playerId);
-        Destroy(obj.gameObject);
+        
+        if(GameCoreModel.Instance.IsAdminUser)
+            Destroy(obj.gameObject);
         ModelCache.Admin.OnPlayerLeave(playerId);
     }
     public string GetPlayerInfoName(int playerId)
