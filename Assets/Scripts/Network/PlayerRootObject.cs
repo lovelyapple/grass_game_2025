@@ -31,7 +31,7 @@ public class PlayerRootObject : MonoBehaviour
         .Subscribe(x => OnPlayerLeave(x))
         .AddTo(this);
     }
-    public void OnPlayerInfoSpawned(PlayerInfoObject playerInfoObj)
+    public void OnPlayerInfoSpawnedAndRegister(PlayerInfoObject playerInfoObj)
     {
         if(_requestLeavePlayerIds.Contains(playerInfoObj.PlayerRef.PlayerId))
         {
@@ -42,7 +42,7 @@ public class PlayerRootObject : MonoBehaviour
         PlayerInfos.Add(playerInfoObj.PlayerRef.PlayerId, playerInfoObj);
         playerInfoObj.transform.parent = transform;
         playerInfoObj.gameObject.name = $"PlayerInfoObject_{playerInfoObj.PlayerRef.PlayerId}";
-        ModelCache.Admin.OnPlayerInfoObjectSpawned(playerInfoObj);
+        ModelCache.Admin.OnPlayerInfoObjectJoined(playerInfoObj);
     }
     public void OnPlayerLeave(int playerId)
     {

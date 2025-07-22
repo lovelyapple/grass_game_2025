@@ -1,12 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
-using Unity.Mathematics;
-using UnityEngine;
-public struct PlayerBaseInfoStruct : INetworkStruct
-{
-
-}
 public class PlayerInfoObject : NetworkBehaviour
 {
     [Networked]       // Notifies the ILWeaver to extend this property
@@ -31,20 +25,14 @@ public class PlayerInfoObject : NetworkBehaviour
 
         PlayerName = playerName;
         PlayerId = playerRef.PlayerId;
-
-         PlayerRef = playerRef;
+        PlayerRef = playerRef;
 
         return Unit.Default;
     }
-    public void UpdateEquipment(EquipmentSetInfo setInfo)
-    {
-        PlayerEquipment = setInfo.ToStruct();
-    }
-
     private async UniTask<Unit> RegisterRootAsync()
     {
         await UniTask.WaitUntil(() => PlayerId > 0, cancellationToken: this.destroyCancellationToken);
-        PlayerRootObject.Instance.OnPlayerInfoSpawned(this);
+        PlayerRootObject.Instance.OnPlayerInfoSpawnedAndRegister(this);
         return Unit.Default;
     }
 }

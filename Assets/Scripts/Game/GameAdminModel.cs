@@ -2,16 +2,16 @@ using System.Collections.Generic;
 using Fusion;
 public interface IGameAdminModel
 {
-    public void OnAdmingJoined(PlayerRef playerRef);
+    public void OnAdminJoined(PlayerRef playerRef);
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController);
-    public void OnPlayerInfoObjectSpawned(PlayerInfoObject infoObject);
+    public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject);
     public void OnPlayerLeave(int playerId);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
-    public void OnAdmingJoined(PlayerRef playerRef) { }
+    public void OnAdminJoined(PlayerRef playerRef) { }
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController) { }
-    public void OnPlayerInfoObjectSpawned(PlayerInfoObject infoObject) { }
+    public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
     public void OnPlayerLeave(int playerId) { }
 }
 public class GameAdminModel : IGameAdminModel
@@ -20,15 +20,16 @@ public class GameAdminModel : IGameAdminModel
     private RoomStateController _roomStateController;
     private RoomPhase _roomPhase;
     private Dictionary<int, PlayerInfoObject> _playerInfoObjects = new Dictionary<int, PlayerInfoObject>();
-    public void OnAdmingJoined(PlayerRef playerRef)
+    public void OnAdminJoined(PlayerRef playerRef)
     {
         _adminRef = playerRef;
     }
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
+        SendUpdateRoomPhase(RoomPhase.Waiting);
     }
-    public void OnPlayerInfoObjectSpawned(PlayerInfoObject infoObject)
+    public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
     {
         _playerInfoObjects.Add(infoObject.PlayerId, infoObject);
         UpdateRoomPhase();
@@ -41,5 +42,10 @@ public class GameAdminModel : IGameAdminModel
     private void UpdateRoomPhase()
     {
 
+    }
+    private void SendUpdateRoomPhase(RoomPhase roomPhase)
+    {
+        _roomPhase = roomPhase;
+        _roomStateController.CurrentRoomPhase = (int)roomPhase;
     }
 }

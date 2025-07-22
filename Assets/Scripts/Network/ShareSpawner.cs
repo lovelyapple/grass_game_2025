@@ -19,14 +19,18 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
         {
             if (GameCoreModel.Instance.IsAdminUser)
             {
-                var roomStateController = Runner.Spawn(RoomStateControllerPrefab, Vector3.zero, Quaternion.identity).GetComponent<RoomStateController>();
-                roomStateController.SetupId(player.PlayerId);
+                Runner.Spawn(RoomStateControllerPrefab, Vector3.zero, Quaternion.identity)
+                    .GetComponent<RoomStateController>();
                 Runner.Spawn(RpcConnectorPrefab, Vector3.zero, Quaternion.identity);
+                
+                ModelCache.Admin.OnAdminJoined(player);
             }
             else
             {
                 Debug.Log($"{player.PlayerId}");
-                var playerObject = Runner.Spawn(PlayerInfoObjectPrefab, Vector3.zero, Quaternion.identity, inputAuthority: player).GetComponent<PlayerInfoObject>();
+                var playerObject = Runner.Spawn(PlayerInfoObjectPrefab, Vector3.zero, Quaternion.identity, inputAuthority: player)
+                    .GetComponent<PlayerInfoObject>();
+
                 playerObject.InitializeAsync(GamePlayerInfoModel.GetInstance().SelfName, player).Forget();
                 GamePlayerInfoModel.GetInstance().SetSelfObject(playerObject);
 

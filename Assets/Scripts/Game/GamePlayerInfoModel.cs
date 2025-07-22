@@ -29,7 +29,6 @@ public class GamePlayerInfoModel : SingletonBase<GamePlayerInfoModel>
     public void SetSelfObject(PlayerInfoObject playerInfoObject)
     {
         SelfPlayerInfoObj = playerInfoObject;
-
     }
     public void UpdateSelfEquipment(EquipmentSetInfo setInfo)
     {
