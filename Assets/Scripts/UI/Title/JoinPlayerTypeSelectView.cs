@@ -10,6 +10,8 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
     [SerializeField] Button JoinAdminButton;
     [SerializeField] Button JoinPlayerButton;
     [SerializeField] TMP_InputField AdminRoomInputField;
+    [SerializeField] TMP_InputField PlayerNameInputField;
+
     private int _clickResult = 0;
     private void Awake()
     {
@@ -18,8 +20,15 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
         .AddTo(this);
 
         JoinPlayerButton.OnClickAsObservable()
-        .Subscribe(_ => _clickResult = (int)PlayerRole.Player)
+        .Where(_ => !string.IsNullOrEmpty(PlayerNameInputField.text))
+        .Subscribe(_ =>
+        {
+            GamePlayerInfoModel.GetInstance().SelfName = PlayerNameInputField.text;
+            _clickResult = (int)PlayerRole.Player;
+        })
         .AddTo(this);
+
+        PlayerNameInputField.text = GamePlayerInfoModel.GetInstance().GetDefaultRandomName();
     }
     public async UniTask<(PlayerRole, string)> OpenViewAsync(CancellationToken cancellation)
     {

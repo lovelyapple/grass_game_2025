@@ -20,6 +20,7 @@ namespace StarMessage.Models
         private ModelCache _modelCache;
         public bool IsAdminUser = false;
         public string AdminRoomId;
+
         private void Awake()
         {
             DontDestroyOnLoad(this.gameObject);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
 using StarMessage.Models;
@@ -9,6 +10,7 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
     [SerializeField] List<GameObject> VehiclePrefabs;
     [SerializeField] List<GameObject> DriverPrefabs;
     [SerializeField] GameObject RpcConnectorPrefab;
+    [SerializeField] GameObject PlayerInfoObjectPrefab;
 
     [SerializeField] GameObject RoomStateControllerPrefab;
     public void PlayerJoined(PlayerRef player)
@@ -23,6 +25,12 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
             }
             else
             {
+                Debug.Log($"{player.PlayerId}");
+                var playerObject = Runner.Spawn(PlayerInfoObjectPrefab, Vector3.zero, Quaternion.identity, inputAuthority: player).GetComponent<PlayerInfoObject>();
+                playerObject.InitializeAsync(GamePlayerInfoModel.GetInstance().SelfName, player).Forget();
+                GamePlayerInfoModel.GetInstance().SetSelfObject(playerObject);
+
+
                 // GameObject vehiclePrefab = null;
                 // Vector3 spawnPosition = Vector3.zero;
                 // if (Runner.SessionInfo.PlayerCount == 1)

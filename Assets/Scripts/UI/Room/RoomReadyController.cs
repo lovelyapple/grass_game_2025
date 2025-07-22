@@ -4,9 +4,14 @@ using UnityEngine;
 using R3;
 using System.Linq;
 using UnityEngine.UI;
+using TMPro;
+using StarMessage.Models;
 
 public class RoomReadyController : MonoBehaviour
 {
+    [SerializeField] TextMeshProUGUI RoomNameLabel;
+    [SerializeField] TextMeshProUGUI PlayerCountLabel;
+    [SerializeField] TextMeshProUGUI RoomStateLabel;
     [SerializeField] private PlayerEquipmentSetView SelfEquipmentSetView;
     [SerializeField] private List<PlayerEquipmentSetView> PlayerEquipmentSetViews;
     [SerializeField] Button RandomButton;
@@ -42,14 +47,25 @@ public class RoomReadyController : MonoBehaviour
         .Subscribe(_ => OnConfirm())
         .AddTo(this);
 
+        RandomButton.OnClickAsObservable()
+        .Subscribe(_ => ShaffleSelfEquipment())
+        .AddTo(this);
+
         SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
         PlayerEquipmentSetViews.ForEach(x => x.SetAsEmpty());
+        var equipmentCache = RoomStateController.Instance.RoomPlayerEuipmentCache;
+        foreach(var equipment in equipmentCache)
+        {
+            UpdateEquipmentInfo(new (equipment.Value));
+        }
+
+        RoomNameLabel.text = RoomModel.GetInstance().RoomName;
     }
     private void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {
         if(equipmentSetInfo.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
         {
-            SelfEquipmentSetView.UpdateEquipmentInfo("self", equipmentSetInfo);
+            SelfEquipmentSetView.UpdateEquipmentInfo(equipmentSetInfo);
         }
         else
         {
@@ -60,13 +76,15 @@ public class RoomReadyController : MonoBehaviour
                 view = PlayerEquipmentSetViews.FirstOrDefault(x => x.PlayerId == 0);
             }
 
-            view.UpdateEquipmentInfo("other", equipmentSetInfo);
+            view.UpdateEquipmentInfo(equipmentSetInfo);
         }
+        UpdatePlayerCountLabel();
     }
     private void OnPlayerLeave(int id)
     {
         var view = PlayerEquipmentSetViews.FirstOrDefault(x => x.PlayerId == id);
         view.SetAsEmpty();
+        UpdatePlayerCountLabel();
     }
     private void OnClickCharaChange()
     {
@@ -83,5 +101,14 @@ public class RoomReadyController : MonoBehaviour
     private void OnConfirm()
     {
         PlayerEquipmentModel.GetInstance().SaveSelfEquipment();
+    }
+    private void ShaffleSelfEquipment()
+    {
+        PlayerEquipmentModel.GetInstance().ShuffleSelfEquipment();
+    }
+    private void UpdatePlayerCountLabel()
+    {
+        var infos = PlayerEquipmentModel.GetInstance().PlayerEquipmentSetInfos.Where(x => x.PlayerId != 1);
+        PlayerCountLabel.text = $"{infos.Count()} / {GameConstant.MaxPlayerPerRoom}";
     }
 }

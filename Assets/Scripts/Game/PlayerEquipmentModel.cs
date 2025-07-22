@@ -71,6 +71,22 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         SelfEquipmentSetInfo.Vehicle = (Vehicles)nextIndex;
         _playerEquipmentUpdateSubject.OnNext(SelfEquipmentSetInfo);
     }
+    public void ShuffleSelfEquipment()
+    {
+        var chara = GetEnumRandom((int)Characters.Max);
+        var saddle = GetEnumRandom((int)SaddleType.Max);
+        var Vehicle = GetEnumRandom((int)Vehicles.Max);
+
+        SelfEquipmentSetInfo.Character = (Characters)chara;
+        SelfEquipmentSetInfo.Saddle = (SaddleType)saddle;
+        SelfEquipmentSetInfo.Vehicle = (Vehicles)Vehicle;
+        _playerEquipmentUpdateSubject.OnNext(SelfEquipmentSetInfo);
+    }
+    private int GetEnumRandom(int maxEnumCount)
+    {
+        var result = UnityEngine.Random.Range(0, maxEnumCount);
+        return result;
+    }
     public void SaveSelfEquipment()
     {
         RpcConnector.Instance.Rpc_BroadcastEquipmentSave(
@@ -78,6 +94,8 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
         SelfEquipmentSetInfo.Character,
         SelfEquipmentSetInfo.Saddle,
         SelfEquipmentSetInfo.Vehicle);
+
+        GamePlayerInfoModel.GetInstance().UpdateSelfEquipment(SelfEquipmentSetInfo);
     }
     public void OnReceivePlayerEquipSave(EquipmentSetInfo info)
     {
