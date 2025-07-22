@@ -12,6 +12,7 @@ public class RoomReadyController : MonoBehaviour
     [SerializeField] TextMeshProUGUI RoomNameLabel;
     [SerializeField] TextMeshProUGUI PlayerCountLabel;
     [SerializeField] TextMeshProUGUI RoomStateLabel;
+    [SerializeField] TextMeshProUGUI CountDownlabel;
     [SerializeField] private PlayerEquipmentSetView SelfEquipmentSetView;
     [SerializeField] private List<PlayerEquipmentSetView> PlayerEquipmentSetViews;
     [SerializeField] Button RandomButton;
@@ -19,8 +20,14 @@ public class RoomReadyController : MonoBehaviour
     [SerializeField] Button SaddleChangeButton;
     [SerializeField] Button VehicleChangeButton;
     [SerializeField] Button ConfirmButton;
+    private List<Button> ActionButtonList;
     private void Awake()
     {
+        ActionButtonList = new List<Button>()
+        {
+            RandomButton, CharaChangeButton, SaddleChangeButton, VehicleChangeButton, ConfirmButton,
+        };
+
         PlayerEquipmentModel.GetInstance()
         .PlayerEquipmentUpdateObservable()
         .Subscribe(x => UpdateEquipmentInfo(x))
@@ -53,13 +60,33 @@ public class RoomReadyController : MonoBehaviour
 
         SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
         PlayerEquipmentSetViews.ForEach(x => x.SetAsEmpty());
-        var equipmentCache = RoomStateController.Instance.RoomPlayerEuipmentCache;
+
+        var equipmentCache = PlayerRootObject.Instance.PlayerInfos.Values
+        .Where(x => x.PlayerId != RoomModel.GetInstance().SelfPlayerRef.PlayerId)
+        .Select(x => x.PlayerEquipment);
+
         foreach(var equipment in equipmentCache)
         {
-            UpdateEquipmentInfo(new (equipment.Value));
+            UpdateEquipmentInfo(new (equipment));
         }
 
         RoomNameLabel.text = RoomModel.GetInstance().RoomName;
+
+        RoomModel.GetInstance().OnRoomCountDownStartObservable()
+        .Subscribe(_ => OnCountDownStart())
+        .AddTo(this);
+
+        RoomModel.GetInstance().OnCountDownChangedAsObservable()
+        .Subscribe(sec => OnCountDownChange(sec))
+        .AddTo(this);
+
+        RoomModel.GetInstance().OnCountDownCancelAsObservable()
+        .Subscribe(sec => OnCountDownCancelled())
+        .AddTo(this);
+
+        CountDownlabel.text = "--";
+
+        ActionButtonList.ForEach(x => x.interactable = true);
     }
     private void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {
@@ -110,5 +137,27 @@ public class RoomReadyController : MonoBehaviour
     {
         var infos = PlayerEquipmentModel.GetInstance().PlayerEquipmentSetInfos.Where(x => x.PlayerId != 1);
         PlayerCountLabel.text = $"{infos.Count()} / {GameConstant.MaxPlayerPerRoom}";
+    }
+    private void OnCountDownStart()
+    {
+        
+    }
+    private void OnCountDownChange(double remainSeconds)
+    {
+        if(remainSeconds > GameConstant.FinalCountDowneSec)
+        {
+            CountDownlabel.text = $"{remainSeconds}";
+            ActionButtonList.ForEach(x => x.interactable = true);
+        }
+        else
+        {
+            CountDownlabel.text = $"{remainSeconds}";
+            ActionButtonList.ForEach(x => x.interactable = false);
+        }
+    }
+    private void OnCountDownCancelled()
+    {
+        ActionButtonList.ForEach(x => x.interactable = true);
+        CountDownlabel.text = "--";
     }
 }

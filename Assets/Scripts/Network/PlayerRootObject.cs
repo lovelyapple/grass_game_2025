@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
 using R3;
+using StarMessage.Models;
 
 public class PlayerRootObject : MonoBehaviour
 {
@@ -30,7 +31,7 @@ public class PlayerRootObject : MonoBehaviour
         .Subscribe(x => OnPlayerLeave(x))
         .AddTo(this);
     }
-    public void OnPlayerInfoSpawned(PlayerInfoObject playerInfoObj)
+    public void OnPlayerInfoSpawnedAndRegister(PlayerInfoObject playerInfoObj)
     {
         if(_requestLeavePlayerIds.Contains(playerInfoObj.PlayerRef.PlayerId))
         {
@@ -41,6 +42,7 @@ public class PlayerRootObject : MonoBehaviour
         PlayerInfos.Add(playerInfoObj.PlayerRef.PlayerId, playerInfoObj);
         playerInfoObj.transform.parent = transform;
         playerInfoObj.gameObject.name = $"PlayerInfoObject_{playerInfoObj.PlayerRef.PlayerId}";
+        RoomModel.GetInstance().OnPlayerInfoObjectJoined(playerInfoObj);
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -53,6 +55,7 @@ public class PlayerRootObject : MonoBehaviour
         var obj = PlayerInfos[playerId];
         PlayerInfos.Remove(playerId);
         Destroy(obj.gameObject);
+        ModelCache.Admin.OnPlayerLeave(playerId);
     }
     public string GetPlayerInfoName(int playerId)
     {

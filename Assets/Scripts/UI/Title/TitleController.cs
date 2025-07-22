@@ -23,6 +23,7 @@ public class TitleController : MonoBehaviour
 
         if (isAdmin)
         {
+            ModelCache.GetInstance().LoadAdminAs(true);
             GameCoreModel.Instance.AdminRoomId = result.Item2;
 
             var runner = NetworkRunnerController.Runner;
@@ -41,6 +42,7 @@ public class TitleController : MonoBehaviour
         }
         else
         {
+            ModelCache.GetInstance().LoadAdminAs(false);
             var roomName = await RoomListController.BeginSelectRoomAsync(token);
 
             if (roomName == GameConstant.EmptyRoomName)

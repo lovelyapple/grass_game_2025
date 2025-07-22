@@ -42,8 +42,6 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
         {
             RoomModel.GetInstance().OnSelfJoinedRoom(runner.SessionInfo.Name, player);
         }
-
-        RoomModel.GetInstance().OnPlayerJoined(player, isSelf);
     }
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {

@@ -18,43 +18,48 @@ public class PlayerInfo
 }
 public class RoomModel : SingletonBase<RoomModel>
 {
-    private RoomStateController _roomStateController;   
-    public bool HasRoomStateCtrl => _roomStateController != null;
-    private ReactiveProperty<RoomPhase> _roomPhaseChangedSubject = new ReactiveProperty<RoomPhase>(RoomPhase.Waiting);
-    public Observable<RoomPhase> RoomPhaseChangedObservable() => _roomPhaseChangedSubject;
+    public string RoomName { get; private set; }
+    public PlayerRef SelfPlayerRef { get; private set; }
+    private RoomStateController _roomStateController;
+    private int AdmingId => _roomStateController != null ? _roomStateController.AdminId : 0;
+    private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
 
     private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
-    public Observable<(int, bool)> OnPlayerJoinObeservable() => _onPlayerJoinSubject;
+    public Observable<(int, bool)> OnPlayerJoinObservable() => _onPlayerJoinSubject;
+
+    private Subject<RoomPhase> _roomPhaseUpdateSubject = new Subject<RoomPhase>();
+    public Observable<RoomPhase> RoomPhaseUpdateObservable() => _roomPhaseUpdateSubject;
 
     private readonly Subject<int> _onPlayerLeaveSubject = new Subject<int>();
     public Observable<int> OnPlayerLeaveObservable() => _onPlayerLeaveSubject;
 
-    private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
-    public string RoomName{ get; private set; }
-    public PlayerRef SelfPlayerRef{ get; private set; }
-    
-    // Adminj自身はこれを使う
-    private PlayerRef _adminPlayerRef;
-    public int AdminId { get; private set; }
+
     #region NetworkCallBack
+    public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
+    {
+        _roomStateController = roomStateController;
+    }
     public void OnSelfJoinedRoom(string roomName, PlayerRef playerRef)
     {
         RoomName = roomName;
         SelfPlayerRef = playerRef;
         Debug.LogWarning($"room model update room {roomName}");
     }
+    // tracker.join → (infoObj.create → rootObj.Register) → here → admin.join
+    public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
+    {
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            // この段階Amdinのstateまた生成されていない...
+            if (NetworkRunnerController.Runner.SessionInfo.PlayerCount == 1)
+            {
+                NetworkRunnerController.Runner.Shutdown();
+                Debug.LogError($"Adminがいない部屋にはいった、退室します");
+                return;
+            }
+        }
 
-    public void OnAdminSpawned(int adminId)
-    {
-        AdminId = adminId;
-    }
-    public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
-    {
-        _roomStateController = roomStateController;
-        UpdateRoomPhase(RoomPhase.Waiting);
-    }
-    public void OnPlayerJoined(PlayerRef playerRef, bool isSelf)
-    {
+        var playerRef = infoObject.PlayerRef;
         var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
 
         if(prevInfo != null)
@@ -63,32 +68,26 @@ public class RoomModel : SingletonBase<RoomModel>
             return;
         }
 
+        var isSelf = playerRef.PlayerId == SelfPlayerRef.PlayerId;
         _playerInfos.Add(new PlayerInfo(playerRef));
         Debug.Log($"player joined id {playerRef.PlayerId} {playerRef.RawEncoded}");
 
-        if(GameCoreModel.Instance.IsAdminUser)
-        {
-            if (isSelf)
-            {
-                _adminPlayerRef = playerRef;
-            }
-
-            RequestUpdateRoom(RoomName).Forget();
-        }
-        else
-        {
-            // この段階Amdinのstateまた生成されていない...
-            if (NetworkRunnerController.Runner.SessionInfo.PlayerCount == 1)
-            {
-                NetworkRunnerController.Runner.Shutdown();
-                Debug.LogError($"Adminがいない部屋にはいった、退室します");      
-            }
-        }
-
         _onPlayerJoinSubject.OnNext((playerRef.PlayerId, isSelf));
+        ModelCache.Admin.OnPlayerInfoObjectJoined(infoObject);
     }
+    // tackter.leave → here → playerRoot.leave → admin.Leave
     public void OnPlayerLeaved(PlayerRef playerRef)
     {
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            if (_roomStateController == null || AdmingId == playerRef.PlayerId)
+            {
+                NetworkRunnerController.Runner.Shutdown();
+                Debug.LogError($"Adminがlogoutした為、部屋が閉じられた");
+                return;
+            }
+        }
+
         var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
 
         if (prevInfo == null)
@@ -99,81 +98,61 @@ public class RoomModel : SingletonBase<RoomModel>
 
         _playerInfos.Remove(prevInfo);
         Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
-
-        if (GameCoreModel.Instance.IsAdminUser)
-        {
-            RequestUpdateRoom(RoomName).Forget();
-        }
-        else
-        {
-            if (_roomStateController == null || AdminId == playerRef.PlayerId)
-            {
-                NetworkRunnerController.Runner.Shutdown();
-                Debug.LogError($"Adminがlogoutした為、部屋が閉じられた");
-            }       
-        }
-
         _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
     }
     #endregion
-    private bool _isSendRequestUpdateRoom = false;
-    private int? _playerCountRequesting = null;
-    private async UniTask<Unit> RequestUpdateRoom(string roomName)
+    #region count_down
+    private DateTime GameStartAtTime;
+    private IDisposable _countdownSubscription;
+    public double RemainSeconds { get; private set; }
+    private readonly Subject<Unit> _onRoomCountDownStart = new Subject<Unit>();
+    public Observable<Unit> OnRoomCountDownStartObservable() => _onRoomCountDownStart;
+    private readonly Subject<double> _countDownChangedSubject = new Subject<double>();
+    public Observable<double> OnCountDownChangedAsObservable() => _countDownChangedSubject;
+    private readonly Subject<Unit> _countDownFinishedSubject = new Subject<Unit>();
+    public Observable<Unit> OnCountDowFinishedAsObservable() => _countDownFinishedSubject;
+    private readonly Subject<Unit> _countDownCancelSubject = new Subject<Unit>();
+    public Observable<Unit> OnCountDownCancelAsObservable() => _countDownCancelSubject;
+    public void PerformCountDownAsync(double endTimeUnixMilliseconds)
     {
-        _playerCountRequesting = GetCurrentPlayerCount();
+        GameStartAtTime = DateTimeOffset.FromUnixTimeMilliseconds((long)endTimeUnixMilliseconds).UtcDateTime;
+        RemainSeconds = (GameStartAtTime - DateTime.Now).TotalSeconds;
 
-        if(_isSendRequestUpdateRoom) 
-        {
-            return Unit.Default;
-        }
+        _countdownSubscription = Observable.Interval(System.TimeSpan.FromSeconds(1))
+            .TakeWhile(_ => RemainSeconds > 0)
+            .Subscribe(_ =>
+            {
+                RemainSeconds--;
 
-        _isSendRequestUpdateRoom = true;
-
-        while (_playerCountRequesting.HasValue)
-        {
-            var playerCount = _playerCountRequesting.Value;
-            _playerCountRequesting = null;
-
-            var roomPhase = GetRoomPhaseFromMember(playerCount).ToString();
-            await RoomService.UpdateRoom(new RoomInfo(RoomName, playerCount, roomPhase), new CancellationToken());
-        }
-
-        _isSendRequestUpdateRoom = false;
-        return Unit.Default;
+                if (RemainSeconds <= 0)
+                {
+                    _countDownFinishedSubject.OnNext(Unit.Default);
+                }
+                else
+                {
+                    _countDownChangedSubject.OnNext(RemainSeconds);
+                }
+            });
     }
-    public void UpdateRoomPhase(RoomPhase roomPhase)
+    #endregion
+    #region Rpc_CallReceiver
+    public void ReceivedRoomPhaseUpdate(RoomPhase roomPhase)
     {
-        if(!GameCoreModel.Instance.IsAdminUser)
-        {
-            return;
-        }
-
-        _roomStateController?.UpdateCurrentRoomPhase(roomPhase);
-        _roomPhaseChangedSubject.Value = roomPhase;
+        Debug.Log($"ReceivedRoomPhaseUpdate {roomPhase}");
+        _roomPhaseUpdateSubject.OnNext(roomPhase);
     }
-    private RoomPhase GetRoomPhaseFromMember(int member)
+    public void ReceivedStartCountDown(double endTimeUnixMilliseconds)
     {
-        if(member > GameConstant.GameStartPlayerCount)
-        {
-            return RoomPhase.CountDown;
-        }
-
-        return RoomPhase.Waiting;
+        _countdownSubscription?.Dispose();
+        _onRoomCountDownStart.OnNext(Unit.Default);
+        PerformCountDownAsync(endTimeUnixMilliseconds);
     }
-
-    private int GetCurrentPlayerCount()
+    public void ReceiveCountDownCancle(double time)
     {
-        if (GameCoreModel.Instance.IsAdminUser)
-        {
-            return _playerInfos.Count(x => x.PlayerRef != _adminPlayerRef);
-        }
-
-        if (_roomStateController == null || AdminId == 0)
-        {
-            Debug.LogError($"admin が存在しない");
-            return -1;
-        }
-
-        return _playerInfos.Count(x => x.PlayerRef.PlayerId != AdminId);
+        _countdownSubscription?.Dispose();
+        _countdownSubscription = null;
+        _countDownCancelSubject.OnNext(Unit.Default);
     }
+    #endregion
+
 }

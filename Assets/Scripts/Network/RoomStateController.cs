@@ -14,88 +14,21 @@ public struct PlayerEquipmentSetInfoStruct : INetworkStruct
 public class RoomStateController : NetworkBehaviour
 {
     // ネットワークで共有される変数
-    // [Networked]
-    public RoomPhase CurrentRoomPhase { get; set; }
+    [Networked, OnChangedRender(nameof(RoomPhaseChanged))] 
+    public int CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
-    [Networked] public int AdminId { get; private set; }
-    [Networked] public NetworkDictionary<int, PlayerEquipmentSetInfoStruct> RoomPlayerEuipmentCache => default;
+    [Networked]  
+    public int AdminId { get; private set; }
     public static RoomStateController Instance;
-    public void Awake()
+    public override void Spawned()
     {
-        Instance = this;
+        base.Spawned();
         RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
-
-        RoomModel.GetInstance().OnPlayerJoinObeservable()
-        .Subscribe(x => OnPlayerJoin(x.Item1))
-        .AddTo(this);
-
-        RoomModel.GetInstance().OnPlayerLeaveObservable()
-        .Subscribe(x => OnPlayerLeave(x))
-        .AddTo(this);
-
-        PlayerEquipmentModel.GetInstance().PlayerEquipmentUpdateObservable()
-        .Subscribe(x => OnPlayerUpdateEquipmentInfo(x))
-        .AddTo(this);
+        ModelCache.Admin.OnRoomStateControllerSpawn(this);
+        Instance = this;
     }
-    public void UpdateCurrentRoomPhase(RoomPhase roomPhase)
+    private void RoomPhaseChanged(NetworkBehaviourBuffer previous)
     {
-        if(!GameCoreModel.Instance.IsAdminUser)
-        {
-            return;
-        }
-
-        CurrentRoomPhase = roomPhase;
-    }
-
-    public void SetupId(int id)
-    {
-        if (GameCoreModel.Instance.IsAdminUser)
-        {
-            AdminId = id;
-        }
-        else
-        {
-            RoomModel.GetInstance().OnAdminSpawned(id);
-        }
-    }
-
-    private void Update()
-    {
-        if (RoomModel.GetInstance().AdminId == 0 && AdminId != 0)
-        {
-            RoomModel.GetInstance().OnAdminSpawned(AdminId);
-        }
-    }
-    public void OnPlayerJoin(int playerId)
-    {
-        if(AdminId == playerId || !GameCoreModel.Instance.IsAdminUser)
-        {
-            return;
-        }
-
-        RoomPlayerEuipmentCache.Add(playerId, new PlayerEquipmentSetInfoStruct() { PlayerId = playerId });
-    }
-    public void OnPlayerLeave(int playerId)
-    {
-        if (AdminId == playerId || !GameCoreModel.Instance.IsAdminUser)
-        {
-            return;
-        }
-
-        RoomPlayerEuipmentCache.Remove(playerId);
-    }
-    public void OnPlayerUpdateEquipmentInfo(EquipmentSetInfo info)
-    {
-        if (GameCoreModel.Instance.IsAdminUser)
-        {
-            var structInfo = new PlayerEquipmentSetInfoStruct();
-            structInfo.PlayerId = (int)info.PlayerId;
-            structInfo.Character = (int)info.Character;
-            structInfo.SaddleType = (int)info.Saddle;
-            structInfo.Vehicle = (int)info.Vehicle;
-
-            RoomPlayerEuipmentCache.Remove(info.PlayerId);
-            RoomPlayerEuipmentCache.Add(info.PlayerId, structInfo);
-        }
+        RoomModel.GetInstance().ReceivedRoomPhaseUpdate((RoomPhase)CurrentRoomPhase);
     }
 }
