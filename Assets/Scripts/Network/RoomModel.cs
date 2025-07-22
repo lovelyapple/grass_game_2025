@@ -116,9 +116,9 @@ public class RoomModel : SingletonBase<RoomModel>
     public Observable<Unit> OnCountDownCancelAsObservable() => _countDownCancelSubject;
     public void PerformCountDownAsync(double endTimeUnixMilliseconds)
     {
-        GameStartAtTime = DateTimeOffset.FromUnixTimeMilliseconds((long)endTimeUnixMilliseconds).UtcDateTime;
+        GameStartAtTime = DateTimeOffset.FromUnixTimeMilliseconds((long)endTimeUnixMilliseconds).DateTime;
         RemainSeconds = (GameStartAtTime - DateTime.Now).TotalSeconds;
-
+        UnityEngine.Debug.LogWarning($"Start CoundDown Client {RemainSeconds}");
         _countdownSubscription = Observable.Interval(System.TimeSpan.FromSeconds(1))
             .TakeWhile(_ => RemainSeconds > 0)
             .Subscribe(_ =>
