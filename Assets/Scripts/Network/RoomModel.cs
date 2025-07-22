@@ -21,7 +21,7 @@ public class RoomModel : SingletonBase<RoomModel>
     public string RoomName { get; private set; }
     public PlayerRef SelfPlayerRef { get; private set; }
     private RoomStateController _roomStateController;
-    private int AdmingId => _roomStateController != null ? _roomStateController.AdminId : 0;
+    private int _admingId;
     private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
 
     private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
@@ -38,6 +38,7 @@ public class RoomModel : SingletonBase<RoomModel>
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
+        _admingId = _roomStateController.AdminId;
     }
     public void OnSelfJoinedRoom(string roomName, PlayerRef playerRef)
     {
@@ -80,7 +81,7 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         if (!GameCoreModel.Instance.IsAdminUser)
         {
-            if (_roomStateController == null || AdmingId == playerRef.PlayerId)
+            if (_roomStateController == null || _admingId == playerRef.PlayerId)
             {
                 NetworkRunnerController.Runner.Shutdown();
                 Debug.LogError($"Adminがlogoutした為、部屋が閉じられた");
