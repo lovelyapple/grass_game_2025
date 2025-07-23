@@ -34,5 +34,5 @@ public static class GameConstant
     public const int GameStartPlayerCount = 1;
     public const string EmptyRoomName = "Empty";
     public const int CountDownSec = 30;
-    public const int FinalCountDowneSec = 10;
+    public const int FinalCountDownSec = 10;
 }

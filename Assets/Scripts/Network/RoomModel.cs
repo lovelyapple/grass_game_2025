@@ -109,8 +109,8 @@ public class RoomModel : SingletonBase<RoomModel>
     private readonly Subject<Unit> _onRoomCountDownStart = new Subject<Unit>();
     public Observable<Unit> OnRoomCountDownStartObservable() => _onRoomCountDownStart;
 
-    private readonly Subject<double> _countDownUpdatedSubject = new Subject<double>();
-    public Observable<double> OnCountDownUpdatedAsObservable() => _countDownUpdatedSubject;
+    private readonly Subject<int> _countDownUpdatedSubject = new Subject<int>();
+    public Observable<int> OnCountDownUpdatedAsObservable() => _countDownUpdatedSubject;
 
     private readonly Subject<Unit> _countDownFinishedSubject = new Subject<Unit>();
     public Observable<Unit> OnCountDowFinishedAsObservable() => _countDownFinishedSubject;
@@ -130,8 +130,8 @@ public class RoomModel : SingletonBase<RoomModel>
                 onNext: _ =>
                 {
                     RemainSeconds = (GameStartAtTime - DateTime.UtcNow).TotalSeconds;
-                    _countDownUpdatedSubject.OnNext(RemainSeconds);
-                    Debug.Log($"Count Down Operating{RemainSeconds}");
+                    _countDownUpdatedSubject.OnNext((int)RemainSeconds);
+                    ModelCache.Admin.OnCountDownUpdate(RemainSeconds);
                 },
                 onCompleted: _ =>
                 {
@@ -161,6 +161,7 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         _countdownSubscription?.Dispose();
         _countdownSubscription = null;
+        RemainSeconds = 0;
     }
     #endregion
 

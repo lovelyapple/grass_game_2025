@@ -11,6 +11,7 @@ public interface IGameAdminModel
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController);
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject);
     public void OnPlayerLeave(int playerId);
+    public void OnCountDownUpdate(double timeRemain);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -18,6 +19,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController) { }
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
     public void OnPlayerLeave(int playerId) { }
+    public void OnCountDownUpdate(double timeRemain) { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -47,6 +49,15 @@ public class GameAdminModel : IGameAdminModel
     {
         _playerInfoObjects.Remove(playerId);
         UpdateRoomPhase();
+    }
+
+    public void OnCountDownUpdate(double timeRemain)
+    {
+        if (timeRemain <= GameConstant.FinalCountDownSec && _currentRoomPhase == RoomPhase.CountDown)
+        {
+            _currentRoomPhase = RoomPhase.CountLock;
+            UpdateRoomPhase();
+        }
     }
     private void UpdateRoomPhase()
     {
@@ -120,7 +131,7 @@ public class GameAdminModel : IGameAdminModel
         var endTime = DateTime.UtcNow.AddSeconds(GameConstant.CountDownSec);
         double unixTimeMs = new DateTimeOffset(endTime).ToUnixTimeMilliseconds();
         RpcConnector.Instance.Rpc_BroadcastStartCountDown(unixTimeMs);
-        UnityEngine.Debug.LogWarning($"Start CoundDown Admin");
+        UnityEngine.Debug.LogWarning($"Start CountDown Admin");
     }
     private void CancelCountDownAdmin()
     {
