@@ -58,6 +58,10 @@ public class RoomReadyController : MonoBehaviour
         .Subscribe(_ => ShaffleSelfEquipment())
         .AddTo(this);
 
+        RoomModel.GetInstance().RoomPhaseUpdateObservable()
+            .Subscribe(roomPhase => OnRoomPhaseUpdate(roomPhase))
+            .AddTo(this);
+
         SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
         PlayerEquipmentSetViews.ForEach(x => x.SetAsEmpty());
 
@@ -76,17 +80,17 @@ public class RoomReadyController : MonoBehaviour
         .Subscribe(_ => OnCountDownStart())
         .AddTo(this);
 
-        RoomModel.GetInstance().OnCountDownChangedAsObservable()
+        RoomModel.GetInstance().OnCountDownUpdatedAsObservable()
         .Subscribe(sec => OnCountDownChange(sec))
         .AddTo(this);
 
-        RoomModel.GetInstance().OnCountDownCancelAsObservable()
+        RoomModel.GetInstance().OnCountDownCancelledAsObservable()
         .Subscribe(sec => OnCountDownCancelled())
         .AddTo(this);
 
         CountDownlabel.text = "--";
 
-        ActionButtonList.ForEach(x => x.interactable = true);
+        SetButtonActive(RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.Waiting);
     }
     private void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {
@@ -144,20 +148,33 @@ public class RoomReadyController : MonoBehaviour
     }
     private void OnCountDownChange(double remainSeconds)
     {
-        if(remainSeconds > GameConstant.FinalCountDowneSec)
+        if(remainSeconds > GameConstant.FinalCountDownSec)
         {
             CountDownlabel.text = $"{remainSeconds}";
-            ActionButtonList.ForEach(x => x.interactable = true);
+            CountDownlabel.color = Color.black;
         }
         else
         {
             CountDownlabel.text = $"{remainSeconds}";
-            ActionButtonList.ForEach(x => x.interactable = false);
+            CountDownlabel.color = Color.red;
         }
     }
     private void OnCountDownCancelled()
     {
-        ActionButtonList.ForEach(x => x.interactable = true);
+        SetButtonActive(true);
         CountDownlabel.text = "--";
+    }
+
+    private void OnRoomPhaseUpdate(RoomPhase roomPhase)
+    {
+        if (roomPhase == RoomPhase.CountLock)
+        {
+            SetButtonActive(false);
+        }
+    }
+
+    private void SetButtonActive(bool active)
+    {
+        ActionButtonList.ForEach(x => x.interactable = active);
     }
 }

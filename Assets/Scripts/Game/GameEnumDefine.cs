@@ -18,6 +18,7 @@ public enum RoomPhase :byte
 {
     Waiting,
     CountDown,
+    CountLock,
     Playing,
     Result,
 }
@@ -30,8 +31,8 @@ public static class GameConstant
 {
     public const int MaxRoomCount = 3;
     public const int MaxPlayerPerRoom = 5;
-    public const int GameStartPlayerCount = 2;
+    public const int GameStartPlayerCount = 1;
     public const string EmptyRoomName = "Empty";
     public const int CountDownSec = 30;
-    public const int FinalCountDowneSec = 10;
+    public const int FinalCountDownSec = 15;
 }

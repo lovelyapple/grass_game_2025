@@ -11,6 +11,7 @@ public interface IGameAdminModel
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController);
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject);
     public void OnPlayerLeave(int playerId);
+    public void OnCountDownUpdate(double timeRemain);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -18,6 +19,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController) { }
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
     public void OnPlayerLeave(int playerId) { }
+    public void OnCountDownUpdate(double timeRemain) { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -34,7 +36,9 @@ public class GameAdminModel : IGameAdminModel
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
-        SendUpdateRoomPhase(RoomPhase.Waiting);
+        _currentRoomPhase = RoomPhase.Waiting;
+        UpdateRoomPhase();
+        SendUpdateRoomPhase();
     }
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
     {
@@ -45,6 +49,15 @@ public class GameAdminModel : IGameAdminModel
     {
         _playerInfoObjects.Remove(playerId);
         UpdateRoomPhase();
+    }
+
+    public void OnCountDownUpdate(double timeRemain)
+    {
+        if (timeRemain <= GameConstant.FinalCountDownSec && _currentRoomPhase == RoomPhase.CountDown)
+        {
+            _currentRoomPhase = RoomPhase.CountLock;
+            UpdateRoomPhase();
+        }
     }
     private void UpdateRoomPhase()
     {
@@ -73,16 +86,18 @@ public class GameAdminModel : IGameAdminModel
 
         _isSendRequestUpdateRoom = false;
 
-        if (prevRoomPhase != _currentRoomPhase)
+        if (_currentRoomPhase != prevRoomPhase || _currentRoomPhase == RoomPhase.CountLock)
         {
             if (_currentRoomPhase == RoomPhase.CountDown)
             {
-                // StartCountDownAdmin();
+                StartCountDownAdmin();
             }
             else if (_currentRoomPhase == RoomPhase.Waiting)
             {
-                // CancelCountDownAdmin();
+                CancelCountDownAdmin();
             }
+
+            SendUpdateRoomPhase();
         }
 
         return Unit.Default;
@@ -116,15 +131,15 @@ public class GameAdminModel : IGameAdminModel
         var endTime = DateTime.UtcNow.AddSeconds(GameConstant.CountDownSec);
         double unixTimeMs = new DateTimeOffset(endTime).ToUnixTimeMilliseconds();
         RpcConnector.Instance.Rpc_BroadcastStartCountDown(unixTimeMs);
+        UnityEngine.Debug.LogWarning($"Start CountDown Admin");
     }
     private void CancelCountDownAdmin()
     {
         RpcConnector.Instance.Rpc_BroadcastCancelCountDown(0);
     }
     #endregion
-    private void SendUpdateRoomPhase(RoomPhase roomPhase)
+    private void SendUpdateRoomPhase()
     {
-        _currentRoomPhase = roomPhase;
-        _roomStateController.CurrentRoomPhase = (int)roomPhase;
+        _roomStateController.CurrentRoomPhase = (int)_currentRoomPhase;
     }
 }
