@@ -29,6 +29,7 @@ public class RoomStateController : NetworkBehaviour
     }
     private void RoomPhaseChanged(NetworkBehaviourBuffer previous)
     {
+        Debug.Log($"RoomStateController UpdatePhase {(RoomPhase)CurrentRoomPhase}");
         RoomModel.GetInstance().ReceivedRoomPhaseUpdate((RoomPhase)CurrentRoomPhase);
     }
 }

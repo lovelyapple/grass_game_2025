@@ -86,7 +86,7 @@ public class GameAdminModel : IGameAdminModel
 
         _isSendRequestUpdateRoom = false;
 
-        if (_currentRoomPhase != prevRoomPhase)
+        if (_currentRoomPhase != prevRoomPhase || _currentRoomPhase == RoomPhase.CountLock)
         {
             if (_currentRoomPhase == RoomPhase.CountDown)
             {
