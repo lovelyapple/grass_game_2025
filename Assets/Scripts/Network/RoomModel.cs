@@ -108,32 +108,37 @@ public class RoomModel : SingletonBase<RoomModel>
     public double RemainSeconds { get; private set; }
     private readonly Subject<Unit> _onRoomCountDownStart = new Subject<Unit>();
     public Observable<Unit> OnRoomCountDownStartObservable() => _onRoomCountDownStart;
-    private readonly Subject<double> _countDownChangedSubject = new Subject<double>();
-    public Observable<double> OnCountDownChangedAsObservable() => _countDownChangedSubject;
+
+    private readonly Subject<double> _countDownUpdatedSubject = new Subject<double>();
+    public Observable<double> OnCountDownUpdatedAsObservable() => _countDownUpdatedSubject;
+
     private readonly Subject<Unit> _countDownFinishedSubject = new Subject<Unit>();
     public Observable<Unit> OnCountDowFinishedAsObservable() => _countDownFinishedSubject;
-    private readonly Subject<Unit> _countDownCancelSubject = new Subject<Unit>();
-    public Observable<Unit> OnCountDownCancelAsObservable() => _countDownCancelSubject;
-    public void PerformCountDownAsync(double endTimeUnixMilliseconds)
-    {
-        GameStartAtTime = DateTimeOffset.FromUnixTimeMilliseconds((long)endTimeUnixMilliseconds).DateTime;
-        RemainSeconds = (GameStartAtTime - DateTime.Now).TotalSeconds;
-        UnityEngine.Debug.LogWarning($"Start CoundDown Client {RemainSeconds}");
-        _countdownSubscription = Observable.Interval(System.TimeSpan.FromSeconds(1))
-            .TakeWhile(_ => RemainSeconds > 0)
-            .Subscribe(_ =>
-            {
-                RemainSeconds--;
 
-                if (RemainSeconds <= 0)
+    private readonly Subject<Unit> _countDownCancelledSubject = new Subject<Unit>();
+    public Observable<Unit> OnCountDownCancelledAsObservable() => _countDownCancelledSubject;
+    private void PerformCountDownAsync(double endTimeUnixMilliseconds)
+    {
+        GameStartAtTime = DateTimeOffset.FromUnixTimeMilliseconds((long)endTimeUnixMilliseconds).UtcDateTime;
+        RemainSeconds = (GameStartAtTime - DateTime.UtcNow).TotalSeconds;
+        UnityEngine.Debug.LogWarning($"Start CountDown Client {RemainSeconds}");
+        _onRoomCountDownStart.OnNext(Unit.Default);
+
+        _countdownSubscription = Observable.Interval(System.TimeSpan.FromSeconds(1))
+            .TakeWhile(_ => DateTime.UtcNow < GameStartAtTime)
+            .Subscribe(
+                onNext: _ =>
                 {
+                    RemainSeconds = (GameStartAtTime - DateTime.UtcNow).TotalSeconds;
+                    _countDownUpdatedSubject.OnNext(RemainSeconds);
+                    Debug.Log($"Count Down Operating{RemainSeconds}");
+                },
+                onCompleted: _ =>
+                {
+                    ClearCountDownHandler();
                     _countDownFinishedSubject.OnNext(Unit.Default);
                 }
-                else
-                {
-                    _countDownChangedSubject.OnNext(RemainSeconds);
-                }
-            });
+            );
     }
     #endregion
     #region Rpc_CallReceiver
@@ -144,15 +149,18 @@ public class RoomModel : SingletonBase<RoomModel>
     }
     public void ReceivedStartCountDown(double endTimeUnixMilliseconds)
     {
-        _countdownSubscription?.Dispose();
-        _onRoomCountDownStart.OnNext(Unit.Default);
+        ClearCountDownHandler();
         PerformCountDownAsync(endTimeUnixMilliseconds);
     }
-    public void ReceiveCountDownCancle(double time)
+    public void ReceiveCountDownCancel(double time)
+    {
+        ClearCountDownHandler();
+        _countDownCancelledSubject.OnNext(Unit.Default);
+    }
+    private void ClearCountDownHandler()
     {
         _countdownSubscription?.Dispose();
         _countdownSubscription = null;
-        _countDownCancelSubject.OnNext(Unit.Default);
     }
     #endregion
 

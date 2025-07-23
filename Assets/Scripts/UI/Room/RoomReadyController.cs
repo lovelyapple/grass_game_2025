@@ -76,11 +76,11 @@ public class RoomReadyController : MonoBehaviour
         .Subscribe(_ => OnCountDownStart())
         .AddTo(this);
 
-        RoomModel.GetInstance().OnCountDownChangedAsObservable()
+        RoomModel.GetInstance().OnCountDownUpdatedAsObservable()
         .Subscribe(sec => OnCountDownChange(sec))
         .AddTo(this);
 
-        RoomModel.GetInstance().OnCountDownCancelAsObservable()
+        RoomModel.GetInstance().OnCountDownCancelledAsObservable()
         .Subscribe(sec => OnCountDownCancelled())
         .AddTo(this);
 

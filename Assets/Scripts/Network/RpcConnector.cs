@@ -33,6 +33,6 @@ public class RpcConnector : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void Rpc_BroadcastCancelCountDown(double endTimeUnixMilliseconds)
     {
-        RoomModel.GetInstance().ReceiveCountDownCancle(endTimeUnixMilliseconds);
+        RoomModel.GetInstance().ReceiveCountDownCancel(endTimeUnixMilliseconds);
     }
 }
