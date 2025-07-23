@@ -93,7 +93,7 @@ public class RoomModel : SingletonBase<RoomModel>
 
         if (prevInfo == null)
         {
-            Debug.LogError("playerRef not found ?!?!");
+            Debug.LogError($"playerRef not found ?!?! id:{playerRef.PlayerId}");
             return;
         }
 
