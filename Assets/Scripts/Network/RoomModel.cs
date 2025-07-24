@@ -136,6 +136,7 @@ public class RoomModel : SingletonBase<RoomModel>
                 onCompleted: _ =>
                 {
                     ClearCountDownHandler();
+                    ModelCache.Admin.OnCountDownFinished();
                     _countDownFinishedSubject.OnNext(Unit.Default);
                 }
             );

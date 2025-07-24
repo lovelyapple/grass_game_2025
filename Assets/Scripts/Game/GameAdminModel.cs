@@ -12,6 +12,7 @@ public interface IGameAdminModel
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject);
     public void OnPlayerLeave(int playerId);
     public void OnCountDownUpdate(double timeRemain);
+    public void OnCountDownFinished();
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -20,6 +21,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
     public void OnPlayerLeave(int playerId) { }
     public void OnCountDownUpdate(double timeRemain) { }
+    public void OnCountDownFinished() { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -50,20 +52,22 @@ public class GameAdminModel : IGameAdminModel
         _playerInfoObjects.Remove(playerId);
         UpdateRoomPhase();
     }
-
+    public void OnCountDownFinished()
+    {
+        UpdateRoomPhase((int)RoomPhase.Playing);
+    }
     public void OnCountDownUpdate(double timeRemain)
     {
         if (timeRemain <= GameConstant.FinalCountDownSec && _currentRoomPhase == RoomPhase.CountDown)
         {
-            _currentRoomPhase = RoomPhase.CountLock;
-            UpdateRoomPhase();
+            UpdateRoomPhase((int)_currentRoomPhase);
         }
     }
-    private void UpdateRoomPhase()
+    private void UpdateRoomPhase(int roomPhase = -1)
     {
         RequestUpdateRoomAdmin(RoomModel.GetInstance().RoomName).Forget();
     }
-    private async UniTask<Unit> RequestUpdateRoomAdmin(string roomName)
+    private async UniTask<Unit> RequestUpdateRoomAdmin(string roomName, int requestRoomPhase = -1)
     {
         _playerCountRequesting = GetCurrentPlayerCount();
 
@@ -80,7 +84,15 @@ public class GameAdminModel : IGameAdminModel
             var playerCount = _playerCountRequesting.Value;
             _playerCountRequesting = null;
 
-            _currentRoomPhase = GetRoomPhaseFromMember(playerCount, _currentRoomPhase);
+            if(requestRoomPhase >= 0)
+            {
+                _currentRoomPhase = (RoomPhase)requestRoomPhase;
+            }
+            else
+            {
+                _currentRoomPhase = GetRoomPhaseFromMember(playerCount, _currentRoomPhase);
+            }
+
             await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
         }
 
