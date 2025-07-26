@@ -137,7 +137,7 @@ public class GameAdminModel : IGameAdminModel
 
         return currentRoomPhase;
     }
-    #region cound_down
+    #region count_down
     private void StartCountDownAdmin()
     {
         var endTime = DateTime.UtcNow.AddSeconds(GameConstant.CountDownSec);

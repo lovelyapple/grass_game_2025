@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
@@ -9,10 +10,17 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
 {
     [SerializeField] List<GameObject> VehiclePrefabs;
     [SerializeField] List<GameObject> DriverPrefabs;
+    [SerializeField] List<GameObject> SaddlePrefabs;
+
     [SerializeField] GameObject RpcConnectorPrefab;
     [SerializeField] GameObject PlayerInfoObjectPrefab;
 
     [SerializeField] GameObject RoomStateControllerPrefab;
+    public static ShareSpawner Instance{ get; private set; }
+    private void Awake()
+    {
+        Instance = this;
+    }
     public void PlayerJoined(PlayerRef player)
     {
         if (player == Runner.LocalPlayer)
@@ -53,4 +61,16 @@ public class ShareSpawner : SimulationBehaviour, IPlayerJoined
             }
         }
     }
+    public FieldPlayerController LoadVehicle(Vehicles vehicle)
+    {
+        var prefab = VehiclePrefabs.FirstOrDefault(x => x.name.Contains(vehicle.ToString()));
+        var ctrl = Runner.Spawn(prefab, Vector3.zero, Quaternion.identity).GetComponent<FieldPlayerController>();
+        return ctrl;
+    }
+
+    // public VehicleBase LoadVehicle(Vehicles vehicle)
+    // {
+
+    // }
+    // public 
 }

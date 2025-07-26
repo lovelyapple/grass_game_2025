@@ -14,6 +14,12 @@ public class ResourceContainer : MonoBehaviour
         public Sprite CHResource;
     }
     [Serializable]
+    public class DriverPrefabContainer
+    {
+        public Characters Character;
+        public GameObject DriverPrefab;
+    }
+    [Serializable]
     public class SaddleImage
     {
         public SaddleType Saddle;
@@ -31,6 +37,7 @@ public class ResourceContainer : MonoBehaviour
     [SerializeField] private List<CharacterImage> CharacterImages;
     [SerializeField] private List<SaddleImage> SaddleImages;
     [SerializeField] private List<VehicleImage> VehicleImages;
+    [SerializeField] private List<DriverPrefabContainer> DriverPrefabs;
 
     public static ResourceContainer Instance { get; private set; }
     public void Awake()
@@ -43,6 +50,12 @@ public class ResourceContainer : MonoBehaviour
         var container = CharacterImages.FirstOrDefault(x => x.Character == character);
 
         return full ? container.CFResource : container.CHResource;
+    }
+    public GameObject GetCharacterPrefab(Characters character)
+    {
+        var container = DriverPrefabs.FirstOrDefault(x => x.Character == character);
+
+        return container.DriverPrefab;
     }
     public Sprite GetSaddleImage(SaddleType saddle, bool full)
     {
