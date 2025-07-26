@@ -1,14 +1,21 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using R3;
 using UnityEngine;
 
 public class MatchModel :SingletonBase<MatchModel>
 {
     private MatchPlayerModel SelfPlayer = null;
     private List<MatchPlayerModel> _players = new List<MatchPlayerModel>();
-    private async UniTaskVoid RequestStartMatchAsync()
+    private Subject<bool> _showLoadUISubject = new Subject<bool>();
+    public Observable<bool> ShowLoadUIObservable() => _showLoadUISubject;
+    public async UniTaskVoid RequestStartMatchAsync(CancellationToken token)
     {
+        await SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Game);
+        _showLoadUISubject.OnNext(true);
+
         var playerObjs = PlayerRootObject.Instance.PlayerInfos.Values;
 
         foreach(var info in playerObjs)
@@ -32,6 +39,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
         await UniTask.WhenAll(tasks);
+        _showLoadUISubject.OnNext(false);
     }
     public void OnFieldPlayerControllerSpawned(FieldPlayerController fieldPlayerController)
     {
