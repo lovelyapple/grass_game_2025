@@ -5,8 +5,6 @@ using Fusion;
 using R3;
 using StarMessage.Models;
 using UnityEngine;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 public class PlayerInfo
 {
     public readonly PlayerRef PlayerRef;
@@ -136,7 +134,9 @@ public class RoomModel : SingletonBase<RoomModel>
                 onCompleted: _ =>
                 {
                     ClearCountDownHandler();
+                    ModelCache.Admin.OnCountDownFinished();
                     _countDownFinishedSubject.OnNext(Unit.Default);
+
                 }
             );
     }
@@ -146,6 +146,11 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         Debug.Log($"ReceivedRoomPhaseUpdate {roomPhase}");
         _roomPhaseUpdateSubject.OnNext(roomPhase);
+
+        if(roomPhase == RoomPhase.Playing)
+        {
+            MatchModel.GetInstance().RequestStartMatchAsync(new System.Threading.CancellationToken()).Forget();
+        }
     }
     public void ReceivedStartCountDown(double endTimeUnixMilliseconds)
     {

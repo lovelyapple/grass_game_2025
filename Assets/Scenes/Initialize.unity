@@ -480,6 +480,13 @@ MonoBehaviour:
   - Vehicle: 0
     CFResource: {fileID: 21300000, guid: cf24a7e5eb6f0d242af0ff34c79b4895, type: 3}
     CHResource: {fileID: 21300000, guid: 647d4c87364a9c74dbb6c5b2ba50760e, type: 3}
+  DriverPrefabs:
+  - Character: 0
+    DriverPrefab: {fileID: 4921571070845183024, guid: 624f23f5bfa03dd4ca17f5b44d0448ed, type: 3}
+  - Character: 1
+    DriverPrefab: {fileID: 5455596290721992372, guid: a41848b47bd289f4386a29dd72ac2d35, type: 3}
+  - Character: 2
+    DriverPrefab: {fileID: 1628428294843395936, guid: 28cd3beb117d21c47a0bc14080beaee4, type: 3}
 --- !u!4 &1613291600
 Transform:
   m_ObjectHideFlags: 0
@@ -923,11 +930,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VehiclePrefabs:
-  - {fileID: 5316473085275568484, guid: 0792bdddb1d712c48b8f425236c096b1, type: 3}
-  - {fileID: 5316473085275568484, guid: 12826044eb67a3d4da044ccb8ac76e17, type: 3}
+  - {fileID: 8872325899581464980, guid: 86b608ce4335c29498500b146f2dd9cf, type: 3}
+  - {fileID: 1408418759747662702, guid: 0b394e1dc1736d445932d73d860d64bd, type: 3}
+  - {fileID: 778037696992862508, guid: a33c2ef1ba097494292b6e635dd19bdc, type: 3}
   DriverPrefabs:
   - {fileID: 0}
   - {fileID: 0}
+  SaddlePrefabs: []
   RpcConnectorPrefab: {fileID: 6508582360747562318, guid: ebc2a306d40abad448dceeaf25056520, type: 3}
   PlayerInfoObjectPrefab: {fileID: 3341042249813941877, guid: 6df7524ffac1e0c4fb2ecc8ebde3f6d7, type: 3}
   RoomStateControllerPrefab: {fileID: 7418637579357611257, guid: 99561a7781cd56548a395d3d30d198ef, type: 3}
@@ -945,7 +954,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   IsAdminUser: 0
   AdminRoomId: 
-  SelfName: Empty
 --- !u!4 &8577324155244794389
 Transform:
   m_ObjectHideFlags: 0

@@ -73,4 +73,14 @@ public class PlayerRootObject : MonoBehaviour
 
         return null;
     }
+    public PlayerInfoObject GetPlayerInfoObject(int playerId)
+    {
+        if (PlayerInfos.TryGetValue(playerId, out var obj))
+        {
+            return obj;
+        }
+
+        Debug.LogError($"PlayerInfoobj is null {playerId}");
+        return null;
+    }
 }

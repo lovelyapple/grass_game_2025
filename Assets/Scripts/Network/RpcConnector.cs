@@ -35,4 +35,10 @@ public class RpcConnector : NetworkBehaviour
     {
         RoomModel.GetInstance().ReceiveCountDownCancel(endTimeUnixMilliseconds);
     }
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void Rpc_BroadcastRoomPhase(RoomPhase roomPhase)
+    {
+       Debug.Log($"RoomStateController UpdatePhase {roomPhase}");
+        RoomModel.GetInstance().ReceivedRoomPhaseUpdate(roomPhase);
+    }
 }

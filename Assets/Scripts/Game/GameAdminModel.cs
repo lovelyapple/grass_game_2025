@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -12,6 +13,7 @@ public interface IGameAdminModel
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject);
     public void OnPlayerLeave(int playerId);
     public void OnCountDownUpdate(double timeRemain);
+    public void OnCountDownFinished();
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -20,6 +22,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
     public void OnPlayerLeave(int playerId) { }
     public void OnCountDownUpdate(double timeRemain) { }
+    public void OnCountDownFinished() { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -27,7 +30,8 @@ public class GameAdminModel : IGameAdminModel
     private RoomStateController _roomStateController;
     private Dictionary<int, PlayerInfoObject> _playerInfoObjects = new Dictionary<int, PlayerInfoObject>();
     private RoomPhase _currentRoomPhase;
-    private bool _isSendRequestUpdateRoom = false;
+    private bool _isSendRequestUpdateRoomPlayerCount = false;
+    private bool _isSendRequestUpdateRoomPhase = false;
     private int? _playerCountRequesting = null;
     public void OnAdminJoined(PlayerRef playerRef)
     {
@@ -37,42 +41,46 @@ public class GameAdminModel : IGameAdminModel
     {
         _roomStateController = roomStateController;
         _currentRoomPhase = RoomPhase.Waiting;
-        UpdateRoomPhase();
-        SendUpdateRoomPhase();
+        UpdateRoomPhaseOnPlayerJoinLeave();
+        SyncUpdateRoomPhase();
     }
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
     {
         _playerInfoObjects.Add(infoObject.PlayerId, infoObject);
-        UpdateRoomPhase();
+        UpdateRoomPhaseOnPlayerJoinLeave();
     }
     public void OnPlayerLeave(int playerId)
     {
         _playerInfoObjects.Remove(playerId);
-        UpdateRoomPhase();
+        UpdateRoomPhaseOnPlayerJoinLeave();
     }
-
+    private int? _requestOverrideRoomPhase = null;
     public void OnCountDownUpdate(double timeRemain)
     {
-        if (timeRemain <= GameConstant.FinalCountDownSec && _currentRoomPhase == RoomPhase.CountDown)
+        if (timeRemain <= GameConstant.FinalCountDownSec &&
+         _currentRoomPhase == RoomPhase.CountDown)
         {
-            _currentRoomPhase = RoomPhase.CountLock;
-            UpdateRoomPhase();
+            ReuestUpdateRoomPhase(RoomPhase.CountLock);
         }
     }
-    private void UpdateRoomPhase()
+    public void OnCountDownFinished()
     {
-        RequestUpdateRoomAdmin(RoomModel.GetInstance().RoomName).Forget();
+        ReuestUpdateRoomPhase(RoomPhase.Playing);
     }
-    private async UniTask<Unit> RequestUpdateRoomAdmin(string roomName)
+    private void UpdateRoomPhaseOnPlayerJoinLeave()
+    {
+        RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(RoomModel.GetInstance().RoomName, GetCurrentPlayerCount()).Forget();
+    }
+    private async UniTask<Unit> RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(string roomName, int currentPlayerCount)
     {
         _playerCountRequesting = GetCurrentPlayerCount();
 
-        if (_isSendRequestUpdateRoom)
+        if (_isSendRequestUpdateRoomPlayerCount)
         {
             return Unit.Default;
         }
 
-        _isSendRequestUpdateRoom = true;
+        _isSendRequestUpdateRoomPlayerCount = true;
 
         var prevRoomPhase = _currentRoomPhase;
         while (_playerCountRequesting.HasValue)
@@ -81,12 +89,13 @@ public class GameAdminModel : IGameAdminModel
             _playerCountRequesting = null;
 
             _currentRoomPhase = GetRoomPhaseFromMember(playerCount, _currentRoomPhase);
+
             await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
         }
 
-        _isSendRequestUpdateRoom = false;
+        _isSendRequestUpdateRoomPlayerCount = false;
 
-        if (_currentRoomPhase != prevRoomPhase || _currentRoomPhase == RoomPhase.CountLock)
+        if (_currentRoomPhase != prevRoomPhase)
         {
             if (_currentRoomPhase == RoomPhase.CountDown)
             {
@@ -97,8 +106,37 @@ public class GameAdminModel : IGameAdminModel
                 CancelCountDownAdmin();
             }
 
-            SendUpdateRoomPhase();
+            SyncUpdateRoomPhase();
         }
+
+        return Unit.Default;
+    }
+    private void ReuestUpdateRoomPhase(RoomPhase roomPhase)
+    {
+        RequestUpdateRoomPhaseAsync(RoomModel.GetInstance().RoomName, roomPhase).Forget();
+    }
+    private async UniTask<Unit> RequestUpdateRoomPhaseAsync(string roomName, RoomPhase roomPhase)
+    {
+        _requestOverrideRoomPhase = (int)roomPhase;
+
+        if (_isSendRequestUpdateRoomPhase)
+        {
+            return Unit.Default;
+        }
+
+        _isSendRequestUpdateRoomPhase = true;
+
+        while (_requestOverrideRoomPhase.HasValue)
+        {
+            _currentRoomPhase = (RoomPhase)_requestOverrideRoomPhase.Value;
+            var playerCount = GetCurrentPlayerCount();
+            _requestOverrideRoomPhase = null;
+
+            await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
+        }
+
+        _isSendRequestUpdateRoomPhase = false;
+        SyncUpdateRoomPhase();
 
         return Unit.Default;
     }
@@ -125,7 +163,7 @@ public class GameAdminModel : IGameAdminModel
 
         return currentRoomPhase;
     }
-    #region cound_down
+    #region count_down
     private void StartCountDownAdmin()
     {
         var endTime = DateTime.UtcNow.AddSeconds(GameConstant.CountDownSec);
@@ -138,8 +176,10 @@ public class GameAdminModel : IGameAdminModel
         RpcConnector.Instance.Rpc_BroadcastCancelCountDown(0);
     }
     #endregion
-    private void SendUpdateRoomPhase()
+    private void SyncUpdateRoomPhase()
     {
+        UnityEngine.Debug.Log($"Sync Room phase {(RoomPhase)_currentRoomPhase}");
         _roomStateController.CurrentRoomPhase = (int)_currentRoomPhase;
+        RpcConnector.Instance?.Rpc_BroadcastRoomPhase(_currentRoomPhase);
     }
 }
