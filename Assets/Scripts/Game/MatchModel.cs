@@ -8,10 +8,13 @@ using UnityEngine;
 
 public class MatchModel :SingletonBase<MatchModel>
 {
-    private MatchPlayerModel SelfPlayer = null;
+    public MatchPlayerModel SelfPlayer { get; private set; }
     private List<MatchPlayerModel> _players = new List<MatchPlayerModel>();
     private Subject<bool> _showLoadUISubject = new Subject<bool>();
     public Observable<bool> ShowLoadUIObservable() => _showLoadUISubject;
+    private Subject<MatchPlayerModel> _onPlayerCtrlSpawned = new Subject<MatchPlayerModel>();
+    public Observable<MatchPlayerModel> OnPlayerCtrlSpawnedObservable() => _onPlayerCtrlSpawned;
+    public int InitializedPlayerCount { get; private set; }
     public async UniTaskVoid RequestStartMatchAsync(CancellationToken token)
     {
         await SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Game);
@@ -30,6 +33,16 @@ public class MatchModel :SingletonBase<MatchModel>
                 SelfPlayer = model;
             }
         }
+
+        _players = _players.OrderBy(x => x.PlayerId)
+        .Select((x, index) =>
+        {
+            x.SetupIndex(index);
+            return x;
+        })
+        .ToList();
+
+        InitializedPlayerCount = _players.Count;
 
         if (!GameCoreModel.Instance.IsAdminUser)
         {
@@ -50,6 +63,7 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         var playerModel = _players.FirstOrDefault(x => x.PlayerId == fieldPlayerController.PlayerId);
         playerModel.OnFieldPlayerControllerSpawned(fieldPlayerController);
+        _onPlayerCtrlSpawned.OnNext(playerModel);
     }
     private void Reset()
     {

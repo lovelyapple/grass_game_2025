@@ -6,10 +6,15 @@ public class FieldPlayerController : NetworkBehaviour
 {
     [SerializeField] Transform CharaPoint;
     [SerializeField] SpriteRenderer SaddleImage;
+    private NetworkTransform _networkTransform;
     private PlayerBase _playerBase;
     public int PlayerId { get; private set; }
     public bool IsReady = false;
-
+    private Vector3 _initPos;
+    private void Awake()
+    {
+        _networkTransform = GetComponent<NetworkTransform>();
+    }
     public override void Spawned()
     {
         base.Spawned();
@@ -27,5 +32,19 @@ public class FieldPlayerController : NetworkBehaviour
         IsReady = true;
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
+    }
+    public void SetupInitPos(Vector3 pos)
+    {
+        _initPos = pos;
+        // transform.position = pos;
+        _networkTransform.Teleport(pos);
+    }
+    public void ResetPosition()
+    {
+        if (Object.HasStateAuthority)
+        {
+            // transform.position = _initPos;
+            _networkTransform.Teleport(_initPos);
+        }
     }
 }

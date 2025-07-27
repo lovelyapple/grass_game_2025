@@ -34,6 +34,11 @@ public class DebugFuncEditor : EditorWindow
         {
             GUILayout.Label($"Count Down Idle Last Updated {RemainSeconds}");
         }
+
+        if(GUILayout.Button("SetPosition"))
+        {
+            MatchModel.GetInstance().SelfPlayer.FieldPlayerController.ResetPosition();
+        }
     }
 
     private void Update()
