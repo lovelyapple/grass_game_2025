@@ -23,13 +23,13 @@ public class PlayerBase : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_driving && _vehicleChairTransform != null)
-        {
-            if (transform.position != _vehicleChairTransform.position)
-            {
-                transform.position = _vehicleChairTransform.position;
-                _onPlayerDrivingMovingSubject.OnNext(this);
-            }
-        }
+        // if (_driving && _vehicleChairTransform != null)
+        // {
+        //     if (transform.position != _vehicleChairTransform.position)
+        //     {
+        //         transform.position = _vehicleChairTransform.position;
+        //         _onPlayerDrivingMovingSubject.OnNext(this);
+        //     }
+        // }
     }
 }

@@ -32,8 +32,7 @@ public class VehicleBase : NetworkBehaviour
     }
     public override void FixedUpdateNetwork()
     {
-        // Share Modeでは、HasInputAuthorityはTrueになる
-        if (!Object.HasStateAuthority)
+        // if(!Object.HasStateAuthority)
         {
             return;
         }
