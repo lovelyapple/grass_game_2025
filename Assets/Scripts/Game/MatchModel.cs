@@ -54,6 +54,11 @@ public class MatchModel :SingletonBase<MatchModel>
             await UniTask.WaitUntil(() => player.IsResourceReady);
         }
 
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            SelfPlayer.FieldPlayerController.RegistInput();
+        }
+
         var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
         await UniTask.WhenAll(tasks);
 

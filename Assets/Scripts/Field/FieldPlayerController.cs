@@ -11,6 +11,7 @@ public class FieldPlayerController : NetworkBehaviour
     public int PlayerId { get; private set; }
     public bool IsReady = false;
     private Vector3 _initPos;
+    private VehicleBase _vehicle;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
@@ -29,9 +30,11 @@ public class FieldPlayerController : NetworkBehaviour
         _playerBase = Instantiate(driverPrefab, CharaPoint).GetComponent<PlayerBase>();
 
         SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage((SaddleType)saddle, true);
+        _vehicle = GetComponent<VehicleBase>();
         IsReady = true;
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
+
     }
     public void SetupInitPos(Vector3 pos)
     {
@@ -46,5 +49,9 @@ public class FieldPlayerController : NetworkBehaviour
             // transform.position = _initPos;
             _networkTransform.Teleport(_initPos);
         }
+    }
+    public void RegistInput()
+    {
+        _vehicle.Registry();
     }
 }

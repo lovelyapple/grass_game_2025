@@ -25,8 +25,9 @@ public class GameInputController : MonoBehaviour
 
     private readonly ReactiveProperty<bool> _isAccelerating = new ReactiveProperty<bool>(false);
     public Observable<bool> IsAcceleratingObservable() => _isAccelerating;
+    private readonly ReactiveProperty<HorizontalMoveDir> _moveDir = new ReactiveProperty<HorizontalMoveDir>();
+    public Observable<HorizontalMoveDir> HorizontalMovingObservable() => _moveDir;
 
-    public HorizontalMoveDir MoveDir;
     private bool _isPressingAccelerateUI = false;
     private void Awake()
     {
@@ -49,15 +50,15 @@ public class GameInputController : MonoBehaviour
 
         if (Input.GetKey(KeyCode.UpArrow))
         {
-            MoveDir = HorizontalMoveDir.Right;
+            _moveDir.OnNext(HorizontalMoveDir.Right);
         }
         else if (Input.GetKey(KeyCode.DownArrow))
         {
-            MoveDir = HorizontalMoveDir.Left;
+            _moveDir.OnNext(HorizontalMoveDir.Left);
         }
         else
         {
-            MoveDir = HorizontalMoveDir.None;
+            _moveDir.OnNext(HorizontalMoveDir.None);
         }
     }
 }
