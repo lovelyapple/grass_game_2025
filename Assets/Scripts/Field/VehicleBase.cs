@@ -24,21 +24,23 @@ public class VehicleBase : NetworkBehaviour
     private const float MIN_SPEED = 0.001f;
     private const float HOR_MOVE_SPEED = 2f;
     private const float ROAD_WIDTH = 9f;
-    public void Registry(GameInputController inputController)
+    public void Registry()
     {
+        var inputController = GameInputController.Instance;
         inputController.IsAcceleratingObservable()
         .Subscribe(x => _accelerating = x)
+        .AddTo(this);
+
+        inputController.HorizontalMovingObservable()
+        .Subscribe(x => _horizontalMoveDir = x)
         .AddTo(this);
     }
     public override void FixedUpdateNetwork()
     {
-        // if(!Object.HasStateAuthority)
+        if(!Object.HasStateAuthority)
         {
             return;
         }
-
-        // _accelerating = GameInputController.Instance._isAccelerating;
-        _horizontalMoveDir = GameInputController.Instance.MoveDir;
 
         if (_accelerating)
         {
