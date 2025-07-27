@@ -1330,7 +1330,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GameUIController: {fileID: 1072535520}
-  MoveDir: 0
 --- !u!114 &1072535520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1767,6 +1766,7 @@ GameObject:
   - component: {fileID: 1431317831}
   - component: {fileID: 1431317834}
   - component: {fileID: 1431317835}
+  - component: {fileID: 1431317836}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1905,10 +1905,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d73b0a95be81246699cf0d9ecdc01863, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PreferredRunner: 0
+  PreferredRunner: 2
   Components:
   - {fileID: 1431317831}
   _guid: ae1ab63c-1b2d-4285-
+--- !u!114 &1431317836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1431317830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fee5cefba526e014e9824e155f7553db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  followSpeed: 5
+  fixedY: 15
+  fixedX: -18
 --- !u!1 &1668728133
 GameObject:
   m_ObjectHideFlags: 0
