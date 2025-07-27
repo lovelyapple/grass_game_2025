@@ -57,6 +57,7 @@ public class MatchModel :SingletonBase<MatchModel>
         if (!GameCoreModel.Instance.IsAdminUser)
         {
             SelfPlayer.FieldPlayerController.RegistInput();
+            MatchCameraController.Instance.SetupTarget(SelfPlayer.FieldPlayerController.transform);
         }
 
         var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
