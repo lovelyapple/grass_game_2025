@@ -16,5 +16,9 @@ public class GameUIController : MonoBehaviour
         col.a = 1;
         LoadUI.color = col;
         LoadUIRoot.gameObject.SetActive(true);
+
+        MatchModel.GetInstance().ShowLoadUIObservable()
+        .Subscribe(show => LoadUIRoot.gameObject.SetActive(show))
+        .AddTo(this);
     }
 }

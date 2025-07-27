@@ -13,7 +13,7 @@ public class FieldPlayerController : NetworkBehaviour
     public override void Spawned()
     {
         base.Spawned();
-        PlayerId = Object.InputAuthority.PlayerId;
+        PlayerId = Object.StateAuthority.PlayerId;
         Debug.Log($"player {PlayerId} FieldPlayerController Spawned");
 
         var obj = PlayerRootObject.Instance.GetPlayerInfoObject(PlayerId);

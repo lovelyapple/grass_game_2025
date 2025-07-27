@@ -930,8 +930,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VehiclePrefabs:
-  - {fileID: 5316473085275568484, guid: 0792bdddb1d712c48b8f425236c096b1, type: 3}
-  - {fileID: 5316473085275568484, guid: 12826044eb67a3d4da044ccb8ac76e17, type: 3}
+  - {fileID: 8872325899581464980, guid: 86b608ce4335c29498500b146f2dd9cf, type: 3}
+  - {fileID: 1408418759747662702, guid: 0b394e1dc1736d445932d73d860d64bd, type: 3}
+  - {fileID: 778037696992862508, guid: a33c2ef1ba097494292b6e635dd19bdc, type: 3}
   DriverPrefabs:
   - {fileID: 0}
   - {fileID: 0}

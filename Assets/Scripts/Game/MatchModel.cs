@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
+using StarMessage.Models;
 using UnityEngine;
 
 public class MatchModel :SingletonBase<MatchModel>
@@ -18,19 +19,22 @@ public class MatchModel :SingletonBase<MatchModel>
 
         var playerObjs = PlayerRootObject.Instance.PlayerInfos.Values;
 
-        foreach(var info in playerObjs)
+        foreach (var info in playerObjs)
         {
             var model = new MatchPlayerModel();
             model.Initialize(info);
             _players.Add(model);
 
-            if(info.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
+            if (info.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
             {
                 SelfPlayer = model;
             }
         }
 
-        SelfPlayer.LoadCtrlPlayerSelf();
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            SelfPlayer.LoadCtrlPlayerSelf();
+        }
 
         async UniTask WaitUntilReady(MatchPlayerModel player)
         {
@@ -39,6 +43,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
         await UniTask.WhenAll(tasks);
+
         _showLoadUISubject.OnNext(false);
     }
     public void OnFieldPlayerControllerSpawned(FieldPlayerController fieldPlayerController)

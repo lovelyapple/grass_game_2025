@@ -1045,8 +1045,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8698a0de6f1aa734fa930f1343c6fa85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LoadUIRoot: {fileID: 0}
-  LoadUI: {fileID: 0}
+  LoadUIRoot: {fileID: 624207412}
+  LoadUI: {fileID: 624207414}
   AccelerateButtonHandler: {fileID: 35040917}
 --- !u!114 &1072535521
 MonoBehaviour:
