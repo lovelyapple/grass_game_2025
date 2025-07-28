@@ -1,6 +1,7 @@
 using UnityEngine;
 using Fusion;
 using StarMessage.Models;
+using R3;
 
 public class FieldPlayerController : NetworkBehaviour
 {
@@ -10,8 +11,11 @@ public class FieldPlayerController : NetworkBehaviour
     private PlayerBase _playerBase;
     public int PlayerId { get; private set; }
     public bool IsReady = false;
+    public bool IsFinished = false;
     private Vector3 _initPos;
     private VehicleBase _vehicle;
+    private Subject<FieldPlayerController> _onZPosUpdated = new Subject<FieldPlayerController>();
+    public Observable<FieldPlayerController> OnZPosUpdatedObservable() => _onZPosUpdated;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();

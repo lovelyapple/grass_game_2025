@@ -1,6 +1,7 @@
 using System;
 using Fusion;
 using R3;
+using StarMessage.Models;
 using UnityEngine;
 
 public class RpcConnector : NetworkBehaviour
@@ -38,7 +39,12 @@ public class RpcConnector : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void Rpc_BroadcastRoomPhase(RoomPhase roomPhase)
     {
-       Debug.Log($"RoomStateController UpdatePhase {roomPhase}");
+        Debug.Log($"RoomStateController UpdatePhase {roomPhase}");
         RoomModel.GetInstance().ReceivedRoomPhaseUpdate(roomPhase);
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_BroadcastFinishLine(int playerId)
+    {
+        ModelCache.Admin.OnPlayerFinishedLine(playerId);
     }
 }

@@ -14,6 +14,7 @@ public interface IGameAdminModel
     public void OnPlayerLeave(int playerId);
     public void OnCountDownUpdate(double timeRemain);
     public void OnCountDownFinished();
+    public void OnPlayerFinishedLine(int playerId);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -23,6 +24,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnPlayerLeave(int playerId) { }
     public void OnCountDownUpdate(double timeRemain) { }
     public void OnCountDownFinished() { }
+    public void OnPlayerFinishedLine(int playerId) { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -66,6 +68,10 @@ public class GameAdminModel : IGameAdminModel
     public void OnCountDownFinished()
     {
         ReuestUpdateRoomPhase(RoomPhase.Playing);
+    }
+    public void OnPlayerFinishedLine(int playerId)
+    {
+        
     }
     private void UpdateRoomPhaseOnPlayerJoinLeave()
     {
