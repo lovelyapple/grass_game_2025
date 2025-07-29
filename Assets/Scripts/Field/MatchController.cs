@@ -31,6 +31,7 @@ public class MatchController : MonoBehaviour
         if(ctrl.transform.position.z >= EndLineObject.transform.position.z && !ctrl.IsFinished)
         {
             ctrl.IsFinished = true;
+            RpcConnector.Instance.Rpc_BroadcastFinishLine(ctrl.PlayerId);
         }
     }
 } 

@@ -14,7 +14,10 @@ public class MatchModel :SingletonBase<MatchModel>
     public Observable<bool> ShowLoadUIObservable() => _showLoadUISubject;
     private Subject<MatchPlayerModel> _onPlayerCtrlSpawned = new Subject<MatchPlayerModel>();
     public Observable<MatchPlayerModel> OnPlayerCtrlSpawnedObservable() => _onPlayerCtrlSpawned;
+    private readonly Subject<int> _onmatchFinishedSubject = new Subject<int>();
+    public Observable<int> OnMatchFinishedObservable() => _onmatchFinishedSubject;
     public int InitializedPlayerCount { get; private set; }
+    public int MatchWinner { get; private set; }
     public async UniTaskVoid RequestStartMatchAsync(CancellationToken token)
     {
         await SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Game);
@@ -70,6 +73,12 @@ public class MatchModel :SingletonBase<MatchModel>
         var playerModel = _players.FirstOrDefault(x => x.PlayerId == fieldPlayerController.PlayerId);
         playerModel.OnFieldPlayerControllerSpawned(fieldPlayerController);
         _onPlayerCtrlSpawned.OnNext(playerModel);
+    }
+    public void SetMatchResult(int playerId)
+    {
+        MatchWinner = playerId;
+        _onmatchFinishedSubject.OnNext(MatchWinner);
+        Debug.Log($"Match has winner {playerId}");
     }
     private void Reset()
     {

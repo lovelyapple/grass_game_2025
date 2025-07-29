@@ -57,5 +57,12 @@ public class FieldPlayerController : NetworkBehaviour
     public void RegistInput()
     {
         _vehicle.Registry();
+        _vehicle.OnPositionUpdated = () =>
+        {
+            if(!IsFinished)
+            {
+                _onZPosUpdated.OnNext(this);
+            }
+        };
     }
 }

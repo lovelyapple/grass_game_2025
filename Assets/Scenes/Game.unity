@@ -470,6 +470,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartLineObject: {fileID: 696115470}
+  EndLineObject: {fileID: 949306830}
 --- !u!1 &574830269
 GameObject:
   m_ObjectHideFlags: 0

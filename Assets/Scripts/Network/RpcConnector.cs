@@ -47,4 +47,9 @@ public class RpcConnector : NetworkBehaviour
     {
         ModelCache.Admin.OnPlayerFinishedLine(playerId);
     }
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void Rpc_BroadcastMatchFinished(int playerId)
+    {
+        MatchModel.GetInstance().SetMatchResult(playerId);
+    }
 }

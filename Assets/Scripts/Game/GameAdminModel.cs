@@ -71,7 +71,11 @@ public class GameAdminModel : IGameAdminModel
     }
     public void OnPlayerFinishedLine(int playerId)
     {
-        
+        if (MatchModel.GetInstance().MatchWinner == 0)
+        {
+            RpcConnector.Instance.Rpc_BroadcastMatchFinished(playerId);
+            ReuestUpdateRoomPhase(RoomPhase.Result);
+        }
     }
     private void UpdateRoomPhaseOnPlayerJoinLeave()
     {
