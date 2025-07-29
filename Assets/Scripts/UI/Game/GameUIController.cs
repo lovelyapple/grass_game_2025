@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +9,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] GameObject LoadUIRoot;
     [SerializeField] Image LoadUI;
     [SerializeField] private UIButtonPressHandler AccelerateButtonHandler;
+    [SerializeField] private GameResultController ResultController;
     public Observable<bool> IsPressingAccelerateButtonObservable() => AccelerateButtonHandler.IsPressingObservable();
 
     private void Awake()
@@ -20,5 +22,17 @@ public class GameUIController : MonoBehaviour
         MatchModel.GetInstance().ShowLoadUIObservable()
         .Subscribe(show => LoadUIRoot.gameObject.SetActive(show))
         .AddTo(this);
+
+        MatchModel.GetInstance().OnMatchFinishedObservable()
+        .Subscribe(async x => await RunResult(x))
+        .AddTo(this);
+    }
+
+    private async UniTask<Unit> RunResult(int playerId)
+    {
+        await ResultController.PerformAsync(playerId, this.destroyCancellationToken);
+
+        // todo next goto title or sth
+        return Unit.Default;
     }
 }
