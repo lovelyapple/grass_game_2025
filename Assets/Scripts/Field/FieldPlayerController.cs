@@ -65,4 +65,9 @@ public class FieldPlayerController : NetworkBehaviour
             }
         };
     }
+    public void ReleaseController()
+    {
+        _vehicle.OnPositionUpdated = null;
+        _vehicle.UnRegistry();
+    }
 }

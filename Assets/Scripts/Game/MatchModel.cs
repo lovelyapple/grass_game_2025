@@ -78,6 +78,12 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         MatchWinner = playerId;
         _onmatchFinishedSubject.OnNext(MatchWinner);
+
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            SelfPlayer.FieldPlayerController.ReleaseController();
+        }
+
         Debug.Log($"Match has winner {playerId}");
     }
     private void Reset()
