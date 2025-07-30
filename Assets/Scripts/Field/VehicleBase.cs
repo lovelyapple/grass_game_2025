@@ -45,6 +45,9 @@ public class VehicleBase : NetworkBehaviour
     {
         _inputDisposables?.Dispose();
         _inputDisposables = null;
+        _accelerating = false;
+        _breaking = false;
+        _horizontalMoveDir = HorizontalMoveDir.None;
     }
     public override void FixedUpdateNetwork()
     {

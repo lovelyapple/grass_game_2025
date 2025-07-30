@@ -1346,6 +1346,7 @@ MonoBehaviour:
   LoadUIRoot: {fileID: 624207412}
   LoadUI: {fileID: 624207414}
   AccelerateButtonHandler: {fileID: 35040917}
+  ResultController: {fileID: 9129431343496272164}
 --- !u!114 &1072535521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3213,7 +3214,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &5406670666005058985
 MonoBehaviour:
   m_ObjectHideFlags: 0
