@@ -140,6 +140,12 @@ public class RoomModel : SingletonBase<RoomModel>
                 }
             );
     }
+    private void ClearCountDownHandler()
+    {
+        _countdownSubscription?.Dispose();
+        _countdownSubscription = null;
+        RemainSeconds = 0;
+    }
     #endregion
     #region Rpc_CallReceiver
     public void ReceivedRoomPhaseUpdate(RoomPhase roomPhase)
@@ -162,12 +168,7 @@ public class RoomModel : SingletonBase<RoomModel>
         ClearCountDownHandler();
         _countDownCancelledSubject.OnNext(Unit.Default);
     }
-    private void ClearCountDownHandler()
-    {
-        _countdownSubscription?.Dispose();
-        _countdownSubscription = null;
-        RemainSeconds = 0;
-    }
+
     #endregion
 
 }

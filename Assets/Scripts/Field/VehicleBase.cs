@@ -24,16 +24,30 @@ public class VehicleBase : NetworkBehaviour
     private const float MIN_SPEED = 0.001f;
     private const float HOR_MOVE_SPEED = 2f;
     private const float ROAD_WIDTH = 9f;
+    public Action OnPositionUpdated = null;
+    private CompositeDisposable _inputDisposables = new();
+    private void OnDestroy()
+    {
+        UnRegistry();
+    }
     public void Registry()
     {
         var inputController = GameInputController.Instance;
         inputController.IsAcceleratingObservable()
         .Subscribe(x => _accelerating = x)
-        .AddTo(this);
+        .AddTo(_inputDisposables);
 
         inputController.HorizontalMovingObservable()
         .Subscribe(x => _horizontalMoveDir = x)
-        .AddTo(this);
+        .AddTo(_inputDisposables);
+    }
+    public void UnRegistry()
+    {
+        _inputDisposables?.Dispose();
+        _inputDisposables = null;
+        _accelerating = false;
+        _breaking = false;
+        _horizontalMoveDir = HorizontalMoveDir.None;
     }
     public override void FixedUpdateNetwork()
     {
@@ -84,6 +98,11 @@ public class VehicleBase : NetworkBehaviour
         if (_currentSpeed > 0)
         {
             transform.position = transform.position + Vector3.forward * _currentSpeed * Runner.DeltaTime;
+
+            if(OnPositionUpdated != null)
+            {
+                OnPositionUpdated();
+            }
         }
     }
 }

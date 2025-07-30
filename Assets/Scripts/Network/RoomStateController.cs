@@ -20,6 +20,10 @@ public class RoomStateController : NetworkBehaviour
     [Networked]  
     public int AdminId { get; private set; }
     public static RoomStateController Instance;
+    private void Awake()
+    {
+        DontDestroyOnLoad(this.gameObject);
+    }
     public override void Spawned()
     {
         base.Spawned();
