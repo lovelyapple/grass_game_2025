@@ -32,6 +32,18 @@ public class PlayerRootObject : MonoBehaviour
         .Subscribe(x => OnPlayerLeave(x))
         .AddTo(this);
     }
+    public void Reset()
+    {
+        _requestLeavePlayerIds.Clear();
+        foreach(var obj in PlayerInfos.Values)
+        {
+            if(obj != null)
+            {
+                Destroy(obj.gameObject);
+            }
+        }
+        PlayerInfos.Clear();
+    }
     public void OnPlayerInfoSpawnedAndRegister(PlayerInfoObject playerInfoObj)
     {
         if(_requestLeavePlayerIds.Contains(playerInfoObj.PlayerRef.PlayerId))

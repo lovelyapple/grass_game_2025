@@ -17,33 +17,48 @@ public class TitleController : MonoBehaviour
     public async UniTask<Unit> BeginSelect()
     {
         var token = this.destroyCancellationToken;
-        var result = await JoinSelectView.OpenViewAsync(token);
-        var isAdmin = result.Item1 == PlayerRole.Admin;
-        GameCoreModel.Instance.IsAdminUser = isAdmin;
+        var hasConnecting = RoomStateController.Instance;
+        var playRole = PlayerRole.Player;
+        var roomName = "";
 
-        if (isAdmin)
+        NetworkRunnerController.RefreshLocal();
+
+        if (!hasConnecting)
         {
-            ModelCache.GetInstance().LoadAdminAs(true);
-            GameCoreModel.Instance.AdminRoomId = result.Item2;
+            (playRole, roomName) = await JoinSelectView.OpenViewAsync(token);
+            var isAdmin = playRole == PlayerRole.Admin;
+            GameCoreModel.Instance.IsAdminUser = isAdmin;
+        }
 
-            var runner = NetworkRunnerController.Runner;
-            var startResult = await runner.StartGame(new StartGameArgs
-            {
-                GameMode = GameMode.Shared,
-                SessionName = result.Item2,
-                Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
-                SceneManager = runner.GetComponent<NetworkSceneManagerDefault>(),
-            });
+        RoomModel.GetInstance().Reset();
+        PlayerRootObject.Instance.Reset();
 
-            if (!startResult.Ok)
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            if (!hasConnecting)
             {
-                Debug.LogError($"admin start srever error {startResult.ErrorMessage} - {startResult.ShutdownReason}");
+                ModelCache.GetInstance().LoadAdminAs(true);
+                GameCoreModel.Instance.AdminRoomId = roomName;
+
+                var runner = NetworkRunnerController.Runner;
+                var startResult = await runner.StartGame(new StartGameArgs
+                {
+                    GameMode = GameMode.Shared,
+                    SessionName = roomName,
+                    Scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex),
+                    SceneManager = runner.GetComponent<NetworkSceneManagerDefault>(),
+                });
+
+                if (!startResult.Ok)
+                {
+                    Debug.LogError($"admin start srever error {startResult.ErrorMessage} - {startResult.ShutdownReason}");
+                }
             }
         }
         else
         {
             ModelCache.GetInstance().LoadAdminAs(false);
-            var roomName = await RoomListController.BeginSelectRoomAsync(token);
+            roomName = await RoomListController.BeginSelectRoomAsync(token);
 
             if (roomName == GameConstant.EmptyRoomName)
             {
@@ -66,7 +81,6 @@ public class TitleController : MonoBehaviour
                 return Unit.Default;
             }
         }
-
 
         await UniTask.WaitUntil(() =>
             RoomStateController.Instance != null &&

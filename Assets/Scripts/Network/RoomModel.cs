@@ -32,7 +32,11 @@ public class RoomModel : SingletonBase<RoomModel>
     private readonly Subject<int> _onPlayerLeaveSubject = new Subject<int>();
     public Observable<int> OnPlayerLeaveObservable() => _onPlayerLeaveSubject;
 
-
+    public void Reset()
+    {
+        Debug.Log("Reset RoomModel");
+        _playerInfos.Clear();
+    }
     #region NetworkCallBack
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
@@ -107,6 +111,11 @@ public class RoomModel : SingletonBase<RoomModel>
         _playerInfos.Remove(prevInfo);
         Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
         _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
+    }
+    public void ShutdownAndGotoTitle()
+    {
+        NetworkRunnerController.Runner.Shutdown();
+        SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Title).Forget();
     }
     #endregion
     #region count_down

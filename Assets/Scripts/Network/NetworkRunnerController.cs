@@ -13,6 +13,9 @@ public class NetworkRunnerController : MonoBehaviour
             _instance = this;
         }
         DontDestroyOnLoad(this.gameObject);
+    }
+    public static void RefreshLocal()
+    {
         var runner = Runner;
     }
     public static NetworkRunner Runner
