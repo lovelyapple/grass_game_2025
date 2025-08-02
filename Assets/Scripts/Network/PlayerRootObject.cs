@@ -19,6 +19,7 @@ public class PlayerRootObject : MonoBehaviour
             return _intance;
         }
     }
+    public PlayerInfoObject SelfInfoObject = null;
     public Dictionary<int, PlayerInfoObject> PlayerInfos = new Dictionary<int, PlayerInfoObject>();
     // obj がちゃんと初期化されるまでに、leaveした場合の保険
     private List<int> _requestLeavePlayerIds = new List<int>();

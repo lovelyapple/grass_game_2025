@@ -77,6 +77,7 @@ public class TitleController : MonoBehaviour
 
         if (!isAdmin)
         {
+            await UniTask.WaitUntil(() => PlayerRootObject.Instance.SelfInfoObject != null, cancellationToken: token);
             RoomReadyController.gameObject.SetActive(true);
         }
 

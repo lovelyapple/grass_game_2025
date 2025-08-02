@@ -73,6 +73,14 @@ public class RoomModel : SingletonBase<RoomModel>
 
         _onPlayerJoinSubject.OnNext((playerRef.PlayerId, isSelf));
         ModelCache.Admin.OnPlayerInfoObjectJoined(infoObject);
+
+        if(!GameCoreModel.Instance.IsAdminUser)
+        {
+            if(infoObject.PlayerId == SelfPlayerRef.PlayerId)
+            {
+                PlayerRootObject.Instance.SelfInfoObject = infoObject;
+            }
+        }
     }
     // tackter.leave → here → playerRoot.leave → admin.Leave
     public void OnPlayerLeaved(PlayerRef playerRef)
