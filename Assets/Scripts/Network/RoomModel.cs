@@ -5,17 +5,17 @@ using Fusion;
 using R3;
 using StarMessage.Models;
 using UnityEngine;
-public class PlayerInfo
-{
-    public readonly PlayerRef PlayerRef;
-    public VehicleBase Vehicle;
-    public PlayerInfo(PlayerRef playerRef)
-    {
-        PlayerRef = playerRef;
-    }
-}
 public class RoomModel : SingletonBase<RoomModel>
 {
+    private class PlayerInfo
+    {
+        public PlayerRef Ref;
+        public PlayerInfo(PlayerRef playerRef)
+        {
+            Ref = playerRef;
+        }
+        public int PlayerId => Ref.PlayerId;
+    }
     public string RoomName { get; private set; }
     public PlayerRef SelfPlayerRef { get; private set; }
     private RoomStateController _roomStateController;
@@ -59,11 +59,11 @@ public class RoomModel : SingletonBase<RoomModel>
         }
 
         var playerRef = infoObject.PlayerRef;
-        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
+        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerId == playerRef.PlayerId);
 
         if(prevInfo != null)
         {
-            Debug.LogError("same playerRef ?!?!");
+            Debug.LogError($"same playerRef ?!?! {playerRef.PlayerId}");
             return;
         }
 
@@ -87,7 +87,7 @@ public class RoomModel : SingletonBase<RoomModel>
             }
         }
 
-        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
+        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerId == playerRef.PlayerId);
 
         if (prevInfo == null)
         {
