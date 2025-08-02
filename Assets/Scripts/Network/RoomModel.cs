@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
 using StarMessage.Models;
@@ -42,7 +43,7 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         RoomName = roomName;
         SelfPlayerRef = playerRef;
-        Debug.LogWarning($"room model update room {roomName}");
+        Debug.LogWarning($"room model update room {roomName} Self Ref {SelfPlayerRef.PlayerId}");
     }
     // tracker.join → (infoObj.create → rootObj.Register) → here → admin.join
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
