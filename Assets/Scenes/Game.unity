@@ -1583,6 +1583,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LoadUIRoot: {fileID: 624207412}
   GameHudRoot: {fileID: 1035579059}
+  SpecialPointImage: {fileID: 1398112212}
+  HeatPointImage: {fileID: 1403047020}
   LoadUI: {fileID: 624207414}
   AccelerateButtonHandler: {fileID: 831578723}
   UpButtonHandler: {fileID: 1896015130}
@@ -1952,7 +1954,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 1
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0

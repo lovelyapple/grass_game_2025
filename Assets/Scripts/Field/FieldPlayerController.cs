@@ -1,21 +1,34 @@
 using UnityEngine;
 using Fusion;
 using R3;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+public class SpecialPoint
+{
+    private const float MaxPoint = 1000;
+    public float CurrentPoint;
+    public bool IsMax => CurrentPoint >= MaxPoint;
+    public float Rate => CurrentPoint / MaxPoint;
+    public void AddPoint(float point)
+    {
+        CurrentPoint = Mathf.Min(CurrentPoint + point, MaxPoint);
+    }
+}
+public class HealthPoint
+{
+    private const float MaxPoint = 1000;
+    public float CurrentPoint = MaxPoint;
+    public bool IsMax => CurrentPoint >= MaxPoint;
+    public float Rate => CurrentPoint / MaxPoint;
+    public void Decrease(float point)
+    {
+        CurrentPoint = Mathf.Max(CurrentPoint - point, 0);
+    }
+}
 
 public class FieldPlayerController : NetworkBehaviour
 {
-    public class SpecialPoint
-    {
-        private const float MaxPoint = 1000;
-        public float CurrentPoint;
-        public bool IsMax => CurrentPoint >= MaxPoint;
-    }
-    public class HeatPoint
-    {
-        private const float MaxPoint = 1000;
-        public float CurrentPoint;
-        public bool IsMax => CurrentPoint >= MaxPoint;
-    }
     [SerializeField] Transform CharaPoint;
     [SerializeField] Transform LandingTransform;
     [SerializeField] SpriteRenderer SaddleImage;
@@ -26,15 +39,12 @@ public class FieldPlayerController : NetworkBehaviour
     public bool IsFinished = false;
     private Vector3 _initPos;
     private VehicleBase _vehicle;
+    private float _saddleHeatRate;
     private SpecialPoint _specialPoint = new SpecialPoint();
-    private HeatPoint _heatPoint = new HeatPoint();
+    private HealthPoint _healthPoint = new HealthPoint();
     private bool _isDriving = true;
     private Subject<FieldPlayerController> _onZPosUpdated = new Subject<FieldPlayerController>();
     public Observable<FieldPlayerController> OnZPosUpdatedObservable() => _onZPosUpdated;
-    private Subject<SpecialPoint> _specialPointChangeSubject = new Subject<SpecialPoint>();
-    public Observable<SpecialPoint> SpecialPointChangeObservable() => _specialPointChangeSubject;
-    private Subject<HeatPoint> _heatPointChangeSubject = new Subject<HeatPoint>();
-    public Observable<HeatPoint> HeatPointChangeObservable() => _heatPointChangeSubject;
     private CompositeDisposable _inputDisposables = new();
     private void Awake()
     {
@@ -56,6 +66,8 @@ public class FieldPlayerController : NetworkBehaviour
         SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage((SaddleType)saddle, true);
         _vehicle = GetComponent<VehicleBase>();
         IsReady = true;
+
+        _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == (SaddleType)saddle).HeatRate;
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
     }
@@ -85,13 +97,27 @@ public class FieldPlayerController : NetworkBehaviour
         };
 
         _inputDisposables = new CompositeDisposable();
-        GameInputController.Instance.OnJumpInOutObservable()
-        .Subscribe(_ => ChangeDrive())
+        GameInputController.Instance.IsAcceleratingObservable()
+        .Subscribe(x => ChangeDrive(x))
         .AddTo(_inputDisposables);
     }
-    private void ChangeDrive()
+    public override void FixedUpdateNetwork()
     {
-        _isDriving = !_isDriving;
+        if (!Object.HasStateAuthority || !IsReady || RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
+        {
+            return;
+        }
+
+        if (_isDriving)
+        {
+            _healthPoint.Decrease(_saddleHeatRate * Runner.DeltaTime);
+            _specialPoint.AddPoint(_saddleHeatRate * Runner.DeltaTime);
+            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+        }
+    }
+    private void ChangeDrive(bool accelaring)
+    {
+        _isDriving = accelaring;
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isDriving);
     }
     public void ReleaseController()

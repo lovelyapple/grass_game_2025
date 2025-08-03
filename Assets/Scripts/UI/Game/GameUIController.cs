@@ -9,6 +9,8 @@ public class GameUIController : MonoBehaviour
 {
     [SerializeField] GameObject LoadUIRoot;
     [SerializeField] GameObject GameHudRoot;
+    [SerializeField] Image SpecialPointImage;
+    [SerializeField] Image HeatPointImage;
     [SerializeField] Image LoadUI;
     [SerializeField] private UIButtonPressHandler AccelerateButtonHandler;
     [SerializeField] private UIButtonPressHandler UpButtonHandler;
@@ -32,7 +34,15 @@ public class GameUIController : MonoBehaviour
         .AddTo(this);
 
         MatchModel.GetInstance().OnMatchFinishedObservable()
-        .Subscribe(async x => await RunResult(x))
+        .Subscribe(x => RunResult(x).Forget())
+        .AddTo(this);
+
+        MatchModel.GetInstance().SpecialPointChangeObservable()
+        .Subscribe(x => SpecialPointImage.fillAmount = x.Rate)
+        .AddTo(this);
+
+        MatchModel.GetInstance().HealthPointChangeObservable()
+        .Subscribe(x => HeatPointImage.fillAmount = x.Rate)
         .AddTo(this);
     }
 
