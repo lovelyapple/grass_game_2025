@@ -30,9 +30,6 @@ public class TitleController : MonoBehaviour
             GameCoreModel.Instance.IsAdminUser = isAdmin;
         }
 
-        RoomModel.GetInstance().Reset();
-        PlayerRootObject.Instance.Reset();
-
         if (GameCoreModel.Instance.IsAdminUser)
         {
             if (!hasConnecting)
@@ -54,9 +51,17 @@ public class TitleController : MonoBehaviour
                     Debug.LogError($"admin start srever error {startResult.ErrorMessage} - {startResult.ShutdownReason}");
                 }
             }
+            else
+            {
+                await UniTask.WaitUntil(() => RoomModel.GetInstance().IsEmpty, cancellationToken: token);
+                ModelCache.Admin.OnReturnRoomTop();
+            }
         }
         else
         {
+            RoomModel.GetInstance().Reset();
+            PlayerRootObject.Instance.Reset();
+
             ModelCache.GetInstance().LoadAdminAs(false);
             roomName = await RoomListController.BeginSelectRoomAsync(token);
 
@@ -87,7 +92,6 @@ public class TitleController : MonoBehaviour
             RpcConnector.Instance != null &&
             RoomModel.GetInstance().SelfPlayerRef != null,
             cancellationToken: token);
-
 
         if (!GameCoreModel.Instance.IsAdminUser)
         {

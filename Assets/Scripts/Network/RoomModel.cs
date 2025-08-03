@@ -22,6 +22,7 @@ public class RoomModel : SingletonBase<RoomModel>
     private RoomStateController _roomStateController;
     private int _admingId;
     private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
+    public bool IsEmpty => _playerInfos.Count == 0;
 
     private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
     public Observable<(int, bool)> OnPlayerJoinObservable() => _onPlayerJoinSubject;
@@ -109,6 +110,7 @@ public class RoomModel : SingletonBase<RoomModel>
         }
 
         _playerInfos.Remove(prevInfo);
+        MatchModel.GetInstance().OnPlayerLeave(playerRef.PlayerId);
         Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
         _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
     }
@@ -171,7 +173,7 @@ public class RoomModel : SingletonBase<RoomModel>
         Debug.Log($"ReceivedRoomPhaseUpdate {roomPhase}");
         _roomPhaseUpdateSubject.OnNext(roomPhase);
 
-        if(roomPhase == RoomPhase.Playing)
+        if(roomPhase == RoomPhase.MatchLoading)
         {
             MatchModel.GetInstance().RequestStartMatchAsync(new System.Threading.CancellationToken()).Forget();
         }

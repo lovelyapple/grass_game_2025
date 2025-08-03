@@ -35,10 +35,12 @@ public class GameUIController : MonoBehaviour
 
         if (GameCoreModel.Instance.IsAdminUser)
         {
+            await UniTask.WaitUntil(() => RoomModel.GetInstance().IsEmpty);
             SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Title).Forget();
         }
         else
         {
+            MatchModel.GetInstance().Reset();
             RoomModel.GetInstance().ShutdownAndGotoTitle();
         }
 
