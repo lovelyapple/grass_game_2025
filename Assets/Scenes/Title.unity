@@ -6362,6 +6362,7 @@ MonoBehaviour:
   SaddleChangeButton: {fileID: 8442819555616474890}
   VehicleChangeButton: {fileID: 8774812770539590556}
   ConfirmButton: {fileID: 5725219234717031734}
+  CloseButton: {fileID: 9205347399689149438}
 --- !u!1 &5578005995400196091
 GameObject:
   m_ObjectHideFlags: 0

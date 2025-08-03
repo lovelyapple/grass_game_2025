@@ -12,11 +12,6 @@ public class RoomPlayerTracker : MonoBehaviour, INetworkRunnerCallbacks
     {
         DontDestroyOnLoad(this.gameObject);
     }
-    public void Start()
-    {
-        NetworkRunner runner = FindFirstObjectByType<NetworkRunner>();
-        runner.AddCallbacks(this);
-    }
     public void OnInput(NetworkRunner runner, NetworkInput input) { }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) { }

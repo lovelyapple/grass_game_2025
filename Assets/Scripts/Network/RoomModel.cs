@@ -1,26 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
 using StarMessage.Models;
 using UnityEngine;
-public class PlayerInfo
-{
-    public readonly PlayerRef PlayerRef;
-    public VehicleBase Vehicle;
-    public PlayerInfo(PlayerRef playerRef)
-    {
-        PlayerRef = playerRef;
-    }
-}
 public class RoomModel : SingletonBase<RoomModel>
 {
+    private class PlayerInfo
+    {
+        public PlayerRef Ref;
+        public PlayerInfo(PlayerRef playerRef)
+        {
+            Ref = playerRef;
+        }
+        public int PlayerId => Ref.PlayerId;
+    }
     public string RoomName { get; private set; }
     public PlayerRef SelfPlayerRef { get; private set; }
     private RoomStateController _roomStateController;
     private int _admingId;
     private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
+    public bool IsEmpty => _playerInfos.Count == 0;
 
     private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
     public Observable<(int, bool)> OnPlayerJoinObservable() => _onPlayerJoinSubject;
@@ -31,7 +33,11 @@ public class RoomModel : SingletonBase<RoomModel>
     private readonly Subject<int> _onPlayerLeaveSubject = new Subject<int>();
     public Observable<int> OnPlayerLeaveObservable() => _onPlayerLeaveSubject;
 
-
+    public void Reset()
+    {
+        Debug.Log("Reset RoomModel");
+        _playerInfos.Clear();
+    }
     #region NetworkCallBack
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
@@ -42,7 +48,7 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         RoomName = roomName;
         SelfPlayerRef = playerRef;
-        Debug.LogWarning($"room model update room {roomName}");
+        Debug.LogWarning($"room model update room {roomName} Self Ref {SelfPlayerRef.PlayerId}");
     }
     // tracker.join → (infoObj.create → rootObj.Register) → here → admin.join
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
@@ -59,11 +65,11 @@ public class RoomModel : SingletonBase<RoomModel>
         }
 
         var playerRef = infoObject.PlayerRef;
-        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
+        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerId == playerRef.PlayerId);
 
         if(prevInfo != null)
         {
-            Debug.LogError("same playerRef ?!?!");
+            Debug.LogError($"same playerRef ?!?! {playerRef.PlayerId}");
             return;
         }
 
@@ -73,6 +79,14 @@ public class RoomModel : SingletonBase<RoomModel>
 
         _onPlayerJoinSubject.OnNext((playerRef.PlayerId, isSelf));
         ModelCache.Admin.OnPlayerInfoObjectJoined(infoObject);
+
+        if(!GameCoreModel.Instance.IsAdminUser)
+        {
+            if(infoObject.PlayerId == SelfPlayerRef.PlayerId)
+            {
+                PlayerRootObject.Instance.SelfInfoObject = infoObject;
+            }
+        }
     }
     // tackter.leave → here → playerRoot.leave → admin.Leave
     public void OnPlayerLeaved(PlayerRef playerRef)
@@ -87,7 +101,7 @@ public class RoomModel : SingletonBase<RoomModel>
             }
         }
 
-        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerRef == playerRef);
+        var prevInfo = _playerInfos.FirstOrDefault(x => x.PlayerId == playerRef.PlayerId);
 
         if (prevInfo == null)
         {
@@ -96,8 +110,14 @@ public class RoomModel : SingletonBase<RoomModel>
         }
 
         _playerInfos.Remove(prevInfo);
+        MatchModel.GetInstance().OnPlayerLeave(playerRef.PlayerId);
         Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
         _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
+    }
+    public void ShutdownAndGotoTitle()
+    {
+        NetworkRunnerController.Runner.Shutdown();
+        SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Title).Forget();
     }
     #endregion
     #region count_down
@@ -153,7 +173,7 @@ public class RoomModel : SingletonBase<RoomModel>
         Debug.Log($"ReceivedRoomPhaseUpdate {roomPhase}");
         _roomPhaseUpdateSubject.OnNext(roomPhase);
 
-        if(roomPhase == RoomPhase.Playing)
+        if(roomPhase == RoomPhase.MatchLoading)
         {
             MatchModel.GetInstance().RequestStartMatchAsync(new System.Threading.CancellationToken()).Forget();
         }

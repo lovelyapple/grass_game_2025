@@ -20,6 +20,7 @@ public class RoomReadyController : MonoBehaviour
     [SerializeField] Button SaddleChangeButton;
     [SerializeField] Button VehicleChangeButton;
     [SerializeField] Button ConfirmButton;
+    [SerializeField] Button CloseButton;
     private List<Button> ActionButtonList;
     private void Awake()
     {
@@ -56,6 +57,10 @@ public class RoomReadyController : MonoBehaviour
 
         RandomButton.OnClickAsObservable()
         .Subscribe(_ => ShaffleSelfEquipment())
+        .AddTo(this);
+
+        CloseButton.OnClickAsObservable()
+        .Subscribe(_ => RoomModel.GetInstance().ShutdownAndGotoTitle())
         .AddTo(this);
 
         RoomModel.GetInstance().RoomPhaseUpdateObservable()

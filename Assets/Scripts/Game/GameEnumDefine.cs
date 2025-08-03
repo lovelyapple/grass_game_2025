@@ -19,6 +19,7 @@ public enum RoomPhase :byte
     Waiting,
     CountDown,
     CountLock,
+    MatchLoading,
     Playing,
     Result,
 }

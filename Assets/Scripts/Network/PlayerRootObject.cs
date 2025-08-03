@@ -19,6 +19,7 @@ public class PlayerRootObject : MonoBehaviour
             return _intance;
         }
     }
+    public PlayerInfoObject SelfInfoObject = null;
     public Dictionary<int, PlayerInfoObject> PlayerInfos = new Dictionary<int, PlayerInfoObject>();
     // obj がちゃんと初期化されるまでに、leaveした場合の保険
     private List<int> _requestLeavePlayerIds = new List<int>();
@@ -30,6 +31,18 @@ public class PlayerRootObject : MonoBehaviour
         RoomModel.GetInstance().OnPlayerLeaveObservable()
         .Subscribe(x => OnPlayerLeave(x))
         .AddTo(this);
+    }
+    public void Reset()
+    {
+        _requestLeavePlayerIds.Clear();
+        foreach(var obj in PlayerInfos.Values)
+        {
+            if(obj != null)
+            {
+                Destroy(obj.gameObject);
+            }
+        }
+        PlayerInfos.Clear();
     }
     public void OnPlayerInfoSpawnedAndRegister(PlayerInfoObject playerInfoObj)
     {

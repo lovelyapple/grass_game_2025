@@ -47,6 +47,7 @@ public class RoomService
     }
     public static async UniTask<Unit> UpdateRoom(RoomInfo roomInfo, CancellationToken token)
     {
+        Debug.Log($"RoomService.UpdateRoom {roomInfo.status}");
         string url = $"{WEB_API_URL}?token={APP_TOKEN}";
         var json = JsonUtility.ToJson(roomInfo);
         byte[] jsonBytes = Encoding.UTF8.GetBytes(json);

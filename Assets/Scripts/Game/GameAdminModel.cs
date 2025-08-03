@@ -14,7 +14,9 @@ public interface IGameAdminModel
     public void OnPlayerLeave(int playerId);
     public void OnCountDownUpdate(double timeRemain);
     public void OnCountDownFinished();
+    public void OnMatchStart();
     public void OnPlayerFinishedLine(int playerId);
+    public void OnReturnRoomTop();
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -23,8 +25,10 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
     public void OnPlayerLeave(int playerId) { }
     public void OnCountDownUpdate(double timeRemain) { }
+    public void OnMatchStart() { }
     public void OnCountDownFinished() { }
     public void OnPlayerFinishedLine(int playerId) { }
+    public void OnReturnRoomTop() { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -67,6 +71,10 @@ public class GameAdminModel : IGameAdminModel
     }
     public void OnCountDownFinished()
     {
+        ReuestUpdateRoomPhase(RoomPhase.MatchLoading);
+    }
+    public void OnMatchStart()
+    {
         ReuestUpdateRoomPhase(RoomPhase.Playing);
     }
     public void OnPlayerFinishedLine(int playerId)
@@ -76,6 +84,10 @@ public class GameAdminModel : IGameAdminModel
             RpcConnector.Instance.Rpc_BroadcastMatchFinished(playerId);
             ReuestUpdateRoomPhase(RoomPhase.Result);
         }
+    }
+    public void OnReturnRoomTop()
+    {
+        ReuestUpdateRoomPhase(RoomPhase.Waiting);
     }
     private void UpdateRoomPhaseOnPlayerJoinLeave()
     {

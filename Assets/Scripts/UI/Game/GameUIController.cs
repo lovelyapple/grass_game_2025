@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using R3;
+using StarMessage.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,7 +33,17 @@ public class GameUIController : MonoBehaviour
     {
         await ResultController.PerformAsync(playerId, this.destroyCancellationToken);
 
-        // todo next goto title or sth
+        if (GameCoreModel.Instance.IsAdminUser)
+        {
+            await UniTask.WaitUntil(() => RoomModel.GetInstance().IsEmpty);
+            SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Title).Forget();
+        }
+        else
+        {
+            MatchModel.GetInstance().Reset();
+            RoomModel.GetInstance().ShutdownAndGotoTitle();
+        }
+
         return Unit.Default;
     }
 }
