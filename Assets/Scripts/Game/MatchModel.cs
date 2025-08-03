@@ -105,4 +105,13 @@ public class MatchModel :SingletonBase<MatchModel>
 
         Debug.Log($"Match has winner {playerId}");
     }
+    public void ReceivedPlayerJumpInOut(int playerId, bool jumpIn)
+    {
+        var model = _players.Find(x => x.PlayerId == playerId);
+
+        if(model != null)
+        {
+            model.FieldPlayerController.OnReceivedJumpInOut(jumpIn);
+        }
+    }
 }

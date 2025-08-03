@@ -52,4 +52,10 @@ public class RpcConnector : NetworkBehaviour
     {
         MatchModel.GetInstance().SetMatchResult(playerId);
     }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_OnPlayerJumpInOut(int playerId, bool isDrive)
+    {
+        MatchModel.GetInstance().ReceivedPlayerJumpInOut(playerId, isDrive);
+    }
 }

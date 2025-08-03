@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class UIButtonPressHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    [SerializeField] private Button targetButton;
+    [SerializeField] private GameObject FrontObject;
     private ReactiveProperty<bool> _isPressingSubject = new ReactiveProperty<bool>(false);
     public Observable<bool> IsPressingObservable() => _isPressingSubject;
     private bool isPressing = false;
@@ -29,17 +29,18 @@ public class UIButtonPressHandler : MonoBehaviour, IPointerDownHandler, IPointer
         // Debug.Log($"Point down pointerClick {eventData.pointerClick?.name}");
         // Debug.Log($"Point down pointerEnter {eventData.pointerEnter?.name}");
         // pointerPress が反応しない？Clickを使う
-        if (eventData.pointerEnter == targetButton.gameObject)
+        if (eventData.pointerEnter == FrontObject)
         {
             _isPressingSubject.Value = true;
             // _isPressingSubject.ForceNotify();
             // Debug.Log("OnPointer down");
         }
+        // Button.ispointdown
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (eventData.pointerPress == targetButton.gameObject)
+        if (eventData.pointerPress == FrontObject)
         {
             _isPressingSubject.Value = false;
             // _isPressingSubject.ForceNotify();

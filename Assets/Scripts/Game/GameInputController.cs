@@ -27,14 +27,38 @@ public class GameInputController : MonoBehaviour
     public Observable<bool> IsAcceleratingObservable() => _isAccelerating;
     private readonly ReactiveProperty<HorizontalMoveDir> _moveDir = new ReactiveProperty<HorizontalMoveDir>();
     public Observable<HorizontalMoveDir> HorizontalMovingObservable() => _moveDir;
+    private readonly Subject<Unit> _onJumpInOut = new Subject<Unit>();
+    public Observable<Unit> OnJumpInOutObservable() => _onJumpInOut;
 
     private bool _isPressingAccelerateUI = false;
+    private bool _isPressingUpUI = false;
+    private bool _isPressingDownUI = false;
     private void Awake()
     {
         _instance = this;
         GameUIController.IsPressingAccelerateButtonObservable()
         .Subscribe(isPressing => _isPressingAccelerateUI = isPressing)
         .AddTo(this);
+
+        GameUIController.IsPressingUpButtonObservable()
+        .Subscribe(isPressing => _isPressingUpUI = isPressing)
+        .AddTo(this);
+
+        GameUIController.IsPressingDownButtonObservable()
+        .Subscribe(isPressing => _isPressingDownUI = isPressing)
+        .AddTo(this);
+
+        var clickStream = GameUIController.OnClickJumpInDowmButtonObservable()
+        .Select(_ => Unit.Default);
+
+        var keyStream = Observable
+            .EveryUpdate()                       // Update以降で監視
+            .Where(_ => Input.GetKeyDown(KeyCode.LeftControl))
+            .Select(_ => Unit.Default);
+
+        Observable.Merge(clickStream, keyStream)
+            .Subscribe(_ => _onJumpInOut.OnNext(Unit.Default))
+            .AddTo(this);
     }
 
     void Update()
@@ -48,17 +72,22 @@ public class GameInputController : MonoBehaviour
             _isAccelerating.Value = false;
         }
 
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKey(KeyCode.UpArrow) || _isPressingUpUI)
         {
             _moveDir.OnNext(HorizontalMoveDir.Right);
         }
-        else if (Input.GetKey(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.DownArrow) || _isPressingDownUI)
         {
             _moveDir.OnNext(HorizontalMoveDir.Left);
         }
         else
         {
             _moveDir.OnNext(HorizontalMoveDir.None);
+        }
+
+        if(Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            _onJumpInOut.OnNext(Unit.Default);
         }
     }
 }
