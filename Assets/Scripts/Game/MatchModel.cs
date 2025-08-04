@@ -74,6 +74,7 @@ public class MatchModel :SingletonBase<MatchModel>
             SelfPlayer.LoadCtrlPlayerSelf();
         }
 
+        // ロード途中に抜けると死ぬ
         async UniTask WaitUntilReady(MatchPlayerModel player)
         {
             await UniTask.WaitUntil(() => player.IsResourceReady);
@@ -116,7 +117,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         if(model != null)
         {
-            model.FieldPlayerController.OnReceivedJumpInOut(jumpIn);
+            model.GetModelObservable().Do(x => x.OnReceivedJumpInOut(jumpIn));
         }
     }
     public void UpdateHeatAndSepcialPoint(SpecialPoint specialPoint, HealthPoint healthPoint)
