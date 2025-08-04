@@ -8,10 +8,19 @@ using UnityEngine.UI;
 public class GameUIController : MonoBehaviour
 {
     [SerializeField] GameObject LoadUIRoot;
+    [SerializeField] GameObject GameHudRoot;
+    [SerializeField] Image SpecialPointImage;
+    [SerializeField] Image HeatPointImage;
     [SerializeField] Image LoadUI;
     [SerializeField] private UIButtonPressHandler AccelerateButtonHandler;
+    [SerializeField] private UIButtonPressHandler UpButtonHandler;
+    [SerializeField] private UIButtonPressHandler DownButtonHandler;
+    [SerializeField] private Button JumpInDownButton;
     [SerializeField] private GameResultController ResultController;
     public Observable<bool> IsPressingAccelerateButtonObservable() => AccelerateButtonHandler.IsPressingObservable();
+    public Observable<bool> IsPressingUpButtonObservable() => UpButtonHandler.IsPressingObservable();
+    public Observable<bool> IsPressingDownButtonObservable() => DownButtonHandler.IsPressingObservable();
+    public Observable<Unit> OnClickJumpInDowmButtonObservable() => JumpInDownButton.OnClickAsObservable();
 
     private void Awake()
     {
@@ -25,12 +34,22 @@ public class GameUIController : MonoBehaviour
         .AddTo(this);
 
         MatchModel.GetInstance().OnMatchFinishedObservable()
-        .Subscribe(async x => await RunResult(x))
+        .Subscribe(x => RunResult(x).Forget())
+        .AddTo(this);
+
+        MatchModel.GetInstance().SpecialPointChangeObservable()
+        .Subscribe(x => SpecialPointImage.fillAmount = x.Rate)
+        .AddTo(this);
+
+        MatchModel.GetInstance().HealthPointChangeObservable()
+        .Subscribe(x => HeatPointImage.fillAmount = x.Rate)
         .AddTo(this);
     }
 
     private async UniTask<Unit> RunResult(int playerId)
     {
+        GameHudRoot.SetActive(false);
+
         await ResultController.PerformAsync(playerId, this.destroyCancellationToken);
 
         if (GameCoreModel.Instance.IsAdminUser)

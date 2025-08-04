@@ -1,11 +1,36 @@
 using UnityEngine;
 using Fusion;
-using StarMessage.Models;
 using R3;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+public class SpecialPoint
+{
+    private const float MaxPoint = 1000;
+    public float CurrentPoint;
+    public bool IsMax => CurrentPoint >= MaxPoint;
+    public float Rate => CurrentPoint / MaxPoint;
+    public void AddPoint(float point)
+    {
+        CurrentPoint = Mathf.Min(CurrentPoint + point, MaxPoint);
+    }
+}
+public class HealthPoint
+{
+    private const float MaxPoint = 1000;
+    public float CurrentPoint = MaxPoint;
+    public bool IsMax => CurrentPoint >= MaxPoint;
+    public float Rate => CurrentPoint / MaxPoint;
+    public void Decrease(float point)
+    {
+        CurrentPoint = Mathf.Max(CurrentPoint - point, 0);
+    }
+}
 
 public class FieldPlayerController : NetworkBehaviour
 {
     [SerializeField] Transform CharaPoint;
+    [SerializeField] Transform LandingTransform;
     [SerializeField] SpriteRenderer SaddleImage;
     private NetworkTransform _networkTransform;
     private PlayerBase _playerBase;
@@ -14,8 +39,13 @@ public class FieldPlayerController : NetworkBehaviour
     public bool IsFinished = false;
     private Vector3 _initPos;
     private VehicleBase _vehicle;
+    private float _saddleHeatRate;
+    private SpecialPoint _specialPoint = new SpecialPoint();
+    private HealthPoint _healthPoint = new HealthPoint();
+    private bool _isDriving = true;
     private Subject<FieldPlayerController> _onZPosUpdated = new Subject<FieldPlayerController>();
     public Observable<FieldPlayerController> OnZPosUpdatedObservable() => _onZPosUpdated;
+    private CompositeDisposable _inputDisposables = new();
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
@@ -37,8 +67,9 @@ public class FieldPlayerController : NetworkBehaviour
         _vehicle = GetComponent<VehicleBase>();
         IsReady = true;
 
-        MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
+        _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == (SaddleType)saddle).HeatRate;
 
+        MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
     }
     public void SetupInitPos(Vector3 pos)
     {
@@ -64,10 +95,52 @@ public class FieldPlayerController : NetworkBehaviour
                 _onZPosUpdated.OnNext(this);
             }
         };
+
+        _inputDisposables = new CompositeDisposable();
+        GameInputController.Instance.IsAcceleratingObservable()
+        .Subscribe(x => ChangeDrive(x))
+        .AddTo(_inputDisposables);
+    }
+    public override void FixedUpdateNetwork()
+    {
+        if (!Object.HasStateAuthority || !IsReady || RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
+        {
+            return;
+        }
+
+        if (_isDriving)
+        {
+            _healthPoint.Decrease(_saddleHeatRate * Runner.DeltaTime);
+            _specialPoint.AddPoint(_saddleHeatRate * Runner.DeltaTime);
+            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+        }
+    }
+    private void ChangeDrive(bool accelaring)
+    {
+        _isDriving = accelaring;
+        RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isDriving);
     }
     public void ReleaseController()
     {
         _vehicle.OnPositionUpdated = null;
         _vehicle.UnRegistry();
+        _inputDisposables?.Dispose();
+        _inputDisposables = null;
+    }
+
+    public void OnReceivedJumpInOut(bool jumpDown)
+    {
+        if (jumpDown)
+        {
+            _playerBase.transform.SetParent(CharaPoint);
+            _playerBase.transform.localPosition = Vector3.zero;
+        }
+        else
+        {
+            _playerBase.transform.SetParent(LandingTransform);
+            _playerBase.transform.localPosition = Vector3.zero;
+        }
+
+        _vehicle.IsPushing = !jumpDown;
     }
 }

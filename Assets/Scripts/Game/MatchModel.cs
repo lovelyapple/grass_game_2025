@@ -16,6 +16,11 @@ public class MatchModel :SingletonBase<MatchModel>
     public Observable<MatchPlayerModel> OnPlayerCtrlSpawnedObservable() => _onPlayerCtrlSpawned;
     private readonly Subject<int> _onmatchFinishedSubject = new Subject<int>();
     public Observable<int> OnMatchFinishedObservable() => _onmatchFinishedSubject;
+    private Subject<SpecialPoint> _specialPointChangeSubject = new Subject<SpecialPoint>();
+    public Observable<SpecialPoint> SpecialPointChangeObservable() => _specialPointChangeSubject;
+    private Subject<HealthPoint> _healthPointChangeSubject = new Subject<HealthPoint>();
+    public Observable<HealthPoint> HealthPointChangeObservable() => _healthPointChangeSubject;
+
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
     public void Reset()
@@ -69,6 +74,7 @@ public class MatchModel :SingletonBase<MatchModel>
             SelfPlayer.LoadCtrlPlayerSelf();
         }
 
+        // ロード途中に抜けると死ぬ
         async UniTask WaitUntilReady(MatchPlayerModel player)
         {
             await UniTask.WaitUntil(() => player.IsResourceReady);
@@ -104,5 +110,19 @@ public class MatchModel :SingletonBase<MatchModel>
         }
 
         Debug.Log($"Match has winner {playerId}");
+    }
+    public void ReceivedPlayerJumpInOut(int playerId, bool jumpIn)
+    {
+        var model = _players.Find(x => x.PlayerId == playerId);
+
+        if(model != null)
+        {
+            model.GetModelObservable().Do(x => x.OnReceivedJumpInOut(jumpIn));
+        }
+    }
+    public void UpdateHeatAndSepcialPoint(SpecialPoint specialPoint, HealthPoint healthPoint)
+    {
+        _specialPointChangeSubject.OnNext(specialPoint);
+        _healthPointChangeSubject.OnNext(healthPoint);
     }
 }

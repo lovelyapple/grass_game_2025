@@ -29,12 +29,25 @@ public class GameInputController : MonoBehaviour
     public Observable<HorizontalMoveDir> HorizontalMovingObservable() => _moveDir;
 
     private bool _isPressingAccelerateUI = false;
+    private bool _isPressingUpUI = false;
+    private bool _isPressingDownUI = false;
     private void Awake()
     {
         _instance = this;
         GameUIController.IsPressingAccelerateButtonObservable()
         .Subscribe(isPressing => _isPressingAccelerateUI = isPressing)
         .AddTo(this);
+
+        GameUIController.IsPressingUpButtonObservable()
+        .Subscribe(isPressing => _isPressingUpUI = isPressing)
+        .AddTo(this);
+
+        GameUIController.IsPressingDownButtonObservable()
+        .Subscribe(isPressing => _isPressingDownUI = isPressing)
+        .AddTo(this);
+
+        var clickStream = GameUIController.OnClickJumpInDowmButtonObservable()
+        .Select(_ => Unit.Default);
     }
 
     void Update()
@@ -48,11 +61,11 @@ public class GameInputController : MonoBehaviour
             _isAccelerating.Value = false;
         }
 
-        if (Input.GetKey(KeyCode.UpArrow))
+        if (Input.GetKey(KeyCode.UpArrow) || _isPressingUpUI)
         {
             _moveDir.OnNext(HorizontalMoveDir.Right);
         }
-        else if (Input.GetKey(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.DownArrow) || _isPressingDownUI)
         {
             _moveDir.OnNext(HorizontalMoveDir.Left);
         }

@@ -13,6 +13,7 @@ public class VehicleParameter
 public class VehicleBase : NetworkBehaviour
 {
     public Transform SaddleTransform;
+
     [SerializeField] VehicleParameter Parameter;
 
     public float _currentSpeed;
@@ -24,6 +25,7 @@ public class VehicleBase : NetworkBehaviour
     private const float MIN_SPEED = 0.001f;
     private const float HOR_MOVE_SPEED = 2f;
     private const float ROAD_WIDTH = 9f;
+    public bool IsPushing;
     public Action OnPositionUpdated = null;
     private CompositeDisposable _inputDisposables = new();
     private void OnDestroy()
@@ -56,7 +58,7 @@ public class VehicleBase : NetworkBehaviour
             return;
         }
 
-        if (_accelerating)
+        if (_accelerating && !IsPushing)
         {
             _currentSpeed += Runner.DeltaTime * Parameter.Acceleration;
 
