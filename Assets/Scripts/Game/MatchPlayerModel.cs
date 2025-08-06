@@ -10,7 +10,7 @@ public class MatchPlayerModel
     private EquipmentSetInfo _equipmentInfo;
     public bool IsResourceReady => FieldPlayerController != null && FieldPlayerController.IsReady;
     public int PlayerIndex{ get; private set; }
-    readonly Subject<MatchPlayerModel> _onReady = new Subject<MatchPlayerModel>();
+    readonly ReplaySubject<MatchPlayerModel> _onReady = new ReplaySubject<MatchPlayerModel>(1);
     private Observable<MatchPlayerModel> ReadyAsObservable() => _onReady;
     public void Initialize(PlayerInfoObject obj)
     {
@@ -48,5 +48,8 @@ public class MatchPlayerModel
 
         return Unit.Default;
     }
-    public Observable<FieldPlayerController> GetModelObservable() => ReadyAsObservable().Where(x => x.FieldPlayerController != null).Select(x => x.FieldPlayerController);
+    public Observable<FieldPlayerController> GetModelObservable() =>
+        ReadyAsObservable()
+        .Where(x => x.FieldPlayerController != null)
+        .Select(x => x.FieldPlayerController);
 }
