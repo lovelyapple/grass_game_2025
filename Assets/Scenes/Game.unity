@@ -983,7 +983,7 @@ GameObject:
   - component: {fileID: 780254134}
   - component: {fileID: 780254133}
   m_Layer: 5
-  m_Name: ButtonJump
+  m_Name: ButtonSkill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1589,7 +1589,7 @@ MonoBehaviour:
   AccelerateButtonHandler: {fileID: 831578723}
   UpButtonHandler: {fileID: 1896015130}
   DownButtonHandler: {fileID: 1782606580}
-  JumpInDownButton: {fileID: 780254133}
+  UseSkillButton: {fileID: 780254133}
   ResultController: {fileID: 9129431343496272164}
 --- !u!114 &1072535521
 MonoBehaviour:
@@ -2455,7 +2455,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Jump
+  m_text: Use
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

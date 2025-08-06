@@ -27,26 +27,20 @@ public class VehicleBase : NetworkBehaviour
     private const float ROAD_WIDTH = 9f;
     public bool IsPushing;
     public Action OnPositionUpdated = null;
-    private CompositeDisposable _inputDisposables = new();
     private void OnDestroy()
     {
         UnRegistry();
     }
-    public void Registry()
+    public void SetAccelerate(bool accelaring)
     {
-        var inputController = GameInputController.Instance;
-        inputController.IsAcceleratingObservable()
-        .Subscribe(x => _accelerating = x)
-        .AddTo(_inputDisposables);
-
-        inputController.HorizontalMovingObservable()
-        .Subscribe(x => _horizontalMoveDir = x)
-        .AddTo(_inputDisposables);
+        _accelerating = accelaring;
+    }
+    public void SetHorizontalMove(HorizontalMoveDir horizontalMoveDir)
+    {
+        _horizontalMoveDir = horizontalMoveDir;
     }
     public void UnRegistry()
     {
-        _inputDisposables?.Dispose();
-        _inputDisposables = null;
         _accelerating = false;
         _breaking = false;
         _horizontalMoveDir = HorizontalMoveDir.None;
