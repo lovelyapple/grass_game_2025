@@ -586,6 +586,13 @@ MonoBehaviour:
     HeatRate: 45
   - Type: 2
     HeatRate: 90
+  CharaParameters:
+  - Type: 0
+    HPRecoverRate: 1
+  - Type: 1
+    HPRecoverRate: 1.5
+  - Type: 2
+    HPRecoverRate: 2
 --- !u!1 &1680813169
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,6 +12,7 @@ public class SkillBase : MonoBehaviour
     }
     public virtual float SkillDuration() { return 5f; }
     public virtual void UseSkill() { }
+    public virtual float AddSpeed() { return 0; }
     public virtual void FinishPlaySkill() 
     {
         PlayingSkill = false;

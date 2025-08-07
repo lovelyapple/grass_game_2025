@@ -7,6 +7,12 @@ public class SaddleParameter
     public SaddleType Type;
     public float HeatRate;
 }
+[Serializable]
+public class CharaParameter
+{
+    public Characters Type;
+    public float HPRecoverRate = 1.0f;
+}
 public class ParameterHolder : MonoBehaviour
 {
     private static ParameterHolder _instance;
@@ -22,4 +28,5 @@ public class ParameterHolder : MonoBehaviour
         }
     }
     public List<SaddleParameter> SaddleParameters;
+    public List<CharaParameter> CharaParameters;
 }
