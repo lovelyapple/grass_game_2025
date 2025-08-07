@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using R3;
 using UnityEngine;
 
@@ -31,5 +32,17 @@ public static class CommonHelper
             );
 
         return countdownSubscription;
+    }
+}
+public static class ReadyObservableExtensions
+{
+    // Await可能なDo
+    public static async UniTask DoAsync<T>(
+        this Observable<T> source,
+        Action<T> action
+    )
+    {
+        var value = await source.FirstAsync(); // 最初の値を待つ
+        action(value);
     }
 }

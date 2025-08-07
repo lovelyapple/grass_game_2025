@@ -28,6 +28,11 @@ public enum PlayerRole
     Player = 1,
     Admin = 2,
 }
+public enum SKillContinueType
+{
+    SPCost,
+    OneShot,
+}
 public static class GameConstant 
 {
     public const int MaxRoomCount = 3;

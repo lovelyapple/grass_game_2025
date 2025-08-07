@@ -25,28 +25,27 @@ public class VehicleBase : NetworkBehaviour
     private const float MIN_SPEED = 0.001f;
     private const float HOR_MOVE_SPEED = 2f;
     private const float ROAD_WIDTH = 9f;
+    private float _addSpeed = 0f;
     public bool IsPushing;
     public Action OnPositionUpdated = null;
-    private CompositeDisposable _inputDisposables = new();
     private void OnDestroy()
     {
         UnRegistry();
     }
-    public void Registry()
+    public void SetSkillSpeed(float speed)
     {
-        var inputController = GameInputController.Instance;
-        inputController.IsAcceleratingObservable()
-        .Subscribe(x => _accelerating = x)
-        .AddTo(_inputDisposables);
-
-        inputController.HorizontalMovingObservable()
-        .Subscribe(x => _horizontalMoveDir = x)
-        .AddTo(_inputDisposables);
+        _addSpeed = speed;
+    }
+    public void SetAccelerate(bool accelaring)
+    {
+        _accelerating = accelaring;
+    }
+    public void SetHorizontalMove(HorizontalMoveDir horizontalMoveDir)
+    {
+        _horizontalMoveDir = horizontalMoveDir;
     }
     public void UnRegistry()
     {
-        _inputDisposables?.Dispose();
-        _inputDisposables = null;
         _accelerating = false;
         _breaking = false;
         _horizontalMoveDir = HorizontalMoveDir.None;
@@ -62,7 +61,7 @@ public class VehicleBase : NetworkBehaviour
         {
             _currentSpeed += Runner.DeltaTime * Parameter.Acceleration;
 
-            _currentSpeed = Mathf.Clamp(_currentSpeed, 0, Parameter.MaxSpeed);
+            _currentSpeed = Mathf.Clamp(_currentSpeed, 0, Parameter.MaxSpeed + _addSpeed);
         }
         else if (_breaking)
         {

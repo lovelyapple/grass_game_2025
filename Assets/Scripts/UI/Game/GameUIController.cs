@@ -15,12 +15,12 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private UIButtonPressHandler AccelerateButtonHandler;
     [SerializeField] private UIButtonPressHandler UpButtonHandler;
     [SerializeField] private UIButtonPressHandler DownButtonHandler;
-    [SerializeField] private Button JumpInDownButton;
+    [SerializeField] private Button UseSkillButton;
     [SerializeField] private GameResultController ResultController;
     public Observable<bool> IsPressingAccelerateButtonObservable() => AccelerateButtonHandler.IsPressingObservable();
     public Observable<bool> IsPressingUpButtonObservable() => UpButtonHandler.IsPressingObservable();
     public Observable<bool> IsPressingDownButtonObservable() => DownButtonHandler.IsPressingObservable();
-    public Observable<Unit> OnClickJumpInDowmButtonObservable() => JumpInDownButton.OnClickAsObservable();
+    public Observable<Unit> OnClickUseSkillButtonObservable() => UseSkillButton.OnClickAsObservable();
 
     private void Awake()
     {

@@ -27,6 +27,10 @@ public class GameInputController : MonoBehaviour
     public Observable<bool> IsAcceleratingObservable() => _isAccelerating;
     private readonly ReactiveProperty<HorizontalMoveDir> _moveDir = new ReactiveProperty<HorizontalMoveDir>();
     public Observable<HorizontalMoveDir> HorizontalMovingObservable() => _moveDir;
+    private readonly Subject<Unit> _useClickUseSkillSubject = new Subject<Unit>();
+    public Observable<Unit> OnClickUseSkillKeySujbect() => _useClickUseSkillSubject;
+    private readonly Subject<Unit> _useSkillSubject = new Subject<Unit>();
+    public Observable<Unit> UseSkillObservable() => _useSkillSubject;
 
     private bool _isPressingAccelerateUI = false;
     private bool _isPressingUpUI = false;
@@ -46,8 +50,9 @@ public class GameInputController : MonoBehaviour
         .Subscribe(isPressing => _isPressingDownUI = isPressing)
         .AddTo(this);
 
-        var clickStream = GameUIController.OnClickJumpInDowmButtonObservable()
-        .Select(_ => Unit.Default);
+        Observable.Merge(GameUIController.OnClickUseSkillButtonObservable(), OnClickUseSkillKeySujbect())
+        .Subscribe(_ => _useSkillSubject.OnNext(Unit.Default))
+        .AddTo(this);
     }
 
     void Update()
@@ -72,6 +77,11 @@ public class GameInputController : MonoBehaviour
         else
         {
             _moveDir.OnNext(HorizontalMoveDir.None);
+        }
+
+        if(Input.GetKeyDown(KeyCode.Return))
+        {
+            _useSkillSubject.OnNext(Unit.Default);
         }
     }
 }

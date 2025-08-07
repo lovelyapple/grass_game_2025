@@ -58,4 +58,17 @@ public class RpcConnector : NetworkBehaviour
     {
         MatchModel.GetInstance().ReceivedPlayerJumpInOut(playerId, isDrive);
     }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_BroadcastOnPlayerUseSkill(int playerId)
+    {
+        MatchModel.GetInstance().ReceivedPlayerUseSkill(playerId);
+    }
+
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_BroadcastOnPlayerFinishSkill(int playerId)
+    {
+        MatchModel.GetInstance().ReceivedPlayeFinishSkill(playerId);
+    }
 }

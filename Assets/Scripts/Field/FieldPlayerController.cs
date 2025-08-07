@@ -4,6 +4,8 @@ using R3;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 public class SpecialPoint
 {
     private const float MaxPoint = 1000;
@@ -13,6 +15,10 @@ public class SpecialPoint
     public void AddPoint(float point)
     {
         CurrentPoint = Mathf.Min(CurrentPoint + point, MaxPoint);
+    }
+    public void Reset()
+    {
+        CurrentPoint = 0;
     }
 }
 public class HealthPoint
@@ -24,6 +30,10 @@ public class HealthPoint
     public void Decrease(float point)
     {
         CurrentPoint = Mathf.Max(CurrentPoint - point, 0);
+    }
+    public void AddPoint(float point)
+    {
+        CurrentPoint = Mathf.Min(CurrentPoint + point, MaxPoint);
     }
 }
 
@@ -40,9 +50,13 @@ public class FieldPlayerController : NetworkBehaviour
     private Vector3 _initPos;
     private VehicleBase _vehicle;
     private float _saddleHeatRate;
+    private float _hpRecoverRate;
     private SpecialPoint _specialPoint = new SpecialPoint();
     private HealthPoint _healthPoint = new HealthPoint();
-    private bool _isDriving = true;
+    private SkillBase _skillBase;
+    private bool _isPlayerDriving = true;
+    private bool _forceDriving = false;
+    private bool _recovering = false;
     private Subject<FieldPlayerController> _onZPosUpdated = new Subject<FieldPlayerController>();
     public Observable<FieldPlayerController> OnZPosUpdatedObservable() => _onZPosUpdated;
     private CompositeDisposable _inputDisposables = new();
@@ -63,11 +77,15 @@ public class FieldPlayerController : NetworkBehaviour
         var driverPrefab = ResourceContainer.Instance.GetCharacterPrefab((Characters)chara);
         _playerBase = Instantiate(driverPrefab, CharaPoint).GetComponent<PlayerBase>();
 
+        _skillBase = _playerBase.GetComponent<SkillBase>();
+        _skillBase.Init(this);
+
         SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage((SaddleType)saddle, true);
         _vehicle = GetComponent<VehicleBase>();
         IsReady = true;
 
         _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == (SaddleType)saddle).HeatRate;
+        _hpRecoverRate = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).HPRecoverRate;
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
     }
@@ -87,7 +105,6 @@ public class FieldPlayerController : NetworkBehaviour
     }
     public void RegistInput()
     {
-        _vehicle.Registry();
         _vehicle.OnPositionUpdated = () =>
         {
             if(!IsFinished)
@@ -97,8 +114,21 @@ public class FieldPlayerController : NetworkBehaviour
         };
 
         _inputDisposables = new CompositeDisposable();
-        GameInputController.Instance.IsAcceleratingObservable()
-        .Subscribe(x => ChangeDrive(x))
+        var inputController  = GameInputController.Instance;
+
+        inputController.IsAcceleratingObservable()
+        .Where(_ => _vehicle != null && !_recovering)
+        .Subscribe(x => PlayerChangeDrive(x))
+        .AddTo(_inputDisposables);
+
+        inputController.HorizontalMovingObservable()
+        .Where(_ => _vehicle != null && !_recovering)
+        .Subscribe(x => PlayerSetHorizontal(x))
+        .AddTo(_inputDisposables);
+
+        inputController.UseSkillObservable()
+        .Where(_ => !_recovering && _specialPoint.IsMax)
+        .Subscribe(x => PlayerOnInputUseSkill())
         .AddTo(_inputDisposables);
     }
     public override void FixedUpdateNetwork()
@@ -108,18 +138,107 @@ public class FieldPlayerController : NetworkBehaviour
             return;
         }
 
-        if (_isDriving)
+        if (_isPlayerDriving && !_forceDriving && _healthPoint.CurrentPoint > 0 && !_recovering)
         {
             _healthPoint.Decrease(_saddleHeatRate * Runner.DeltaTime);
             _specialPoint.AddPoint(_saddleHeatRate * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+
+            if(_healthPoint.CurrentPoint <= 0)
+            {
+                ForceBreak();
+                RecoverHealthAll().Forget();
+            }
         }
     }
-    private void ChangeDrive(bool accelaring)
+
+    #region  player_input
+    private void PlayerChangeDrive(bool accelaring)
     {
-        _isDriving = accelaring;
-        RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isDriving);
+        if (_isPlayerDriving == accelaring)
+        {
+            return;
+        }
+
+        _isPlayerDriving = accelaring;
+        _vehicle.SetAccelerate(accelaring || _forceDriving);
+        RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
+    private void ForceBreak()
+    {
+        _isPlayerDriving = false;
+        _forceDriving = false;
+        _vehicle.SetAccelerate(_isPlayerDriving || _forceDriving);
+        RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
+    }
+    private void PlayerSetFixDriving(bool forceDriving)
+    {
+        _forceDriving = forceDriving;
+        _vehicle.SetAccelerate(_forceDriving);
+        RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _forceDriving);
+    }
+    private void PlayerSetHorizontal(HorizontalMoveDir horizontalMoveDir)
+    {
+        _vehicle.SetHorizontalMove(horizontalMoveDir);
+    }
+    private void PlayerOnInputUseSkill()
+    {
+        PlayerSkillLocalAsync().Forget();
+    }
+    private async UniTask<Unit> PlayerSkillLocalAsync()
+    {
+        var token = this.GetCancellationTokenOnDestroy();
+        try
+        {
+            RpcConnector.Instance.Rpc_BroadcastOnPlayerUseSkill(PlayerId);
+            await UniTask.WaitUntil(() => _skillBase.PlayingSkill, cancellationToken: token);
+
+            if(_skillBase is SkillOfficeWorker)
+            {
+                _vehicle.SetSkillSpeed(5);
+                PlayerSetFixDriving(true);
+                await UniTask.WaitForSeconds(_skillBase.SkillDuration());
+                PlayerSetFixDriving(false);
+            }
+
+            RpcConnector.Instance.Rpc_BroadcastOnPlayerFinishSkill(PlayerId);
+        }
+        catch(Exception e)
+        {
+            throw e;
+        }
+        finally
+        {
+            _vehicle.SetSkillSpeed(0);
+            _specialPoint.Reset();
+            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+        }
+
+        return Unit.Default;
+    }
+    private async UniTask<Unit> RecoverHealthAll()
+    {
+        _recovering = true;
+        var token = new CancellationTokenSource().Token;
+        try
+        {
+            while (!_healthPoint.IsMax)
+            {
+                token.ThrowIfCancellationRequested();
+
+                _healthPoint.AddPoint(100f * _hpRecoverRate * Time.deltaTime);
+                await UniTask.Yield(PlayerLoopTiming.Update, token); // 毎フレーム待つ
+                MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+            }
+        }
+        finally
+        {
+            _recovering = false;
+        }
+
+        return Unit.Default;
+    }
+    #endregion
     public void ReleaseController()
     {
         _vehicle.OnPositionUpdated = null;
@@ -142,5 +261,18 @@ public class FieldPlayerController : NetworkBehaviour
         }
 
         _vehicle.IsPushing = !jumpDown;
+    }
+    public void OnReceivedUseSkill()
+    {
+        Debug.Log("Use skill");
+        _skillBase.UseSkill();
+    }
+    public void OnReceivedFinishSkill()
+    {
+        _skillBase.FinishPlaySkill();
+    }
+    public GameObject GetCharaObj()
+    {
+        return _playerBase.gameObject;
     }
 }

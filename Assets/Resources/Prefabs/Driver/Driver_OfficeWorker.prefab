@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4346047619087256819}
   - component: {fileID: 6491546087278638532}
   - component: {fileID: 8189133354812324086}
+  - component: {fileID: 4171930519334007051}
   m_Layer: 0
   m_Name: Driver_OfficeWorker
   m_TagString: Untagged
@@ -126,6 +127,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Parameter:
     DriverName: DriverRed
+--- !u!114 &4171930519334007051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5455596290721992372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46890e18e19481b4b9acb57cc04f545c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayingSkill: 0
+  PlayerController: {fileID: 0}
 --- !u!1 &6064136281247256475
 GameObject:
   m_ObjectHideFlags: 0

@@ -117,7 +117,25 @@ public class MatchModel :SingletonBase<MatchModel>
 
         if(model != null)
         {
-            model.GetModelObservable().Do(x => x.OnReceivedJumpInOut(jumpIn));
+            model.GetModelObservable().DoAsync(x => x.OnReceivedJumpInOut(jumpIn)).Forget();
+        }
+    }
+    public void ReceivedPlayerUseSkill(int playerId)
+    {
+        var model = _players.Find(x => x.PlayerId == playerId);
+
+        if (model != null)
+        {
+            model.GetModelObservable().DoAsync(x => x.OnReceivedUseSkill()).Forget();
+        }
+    }
+    public void ReceivedPlayeFinishSkill(int playerId)
+    {
+        var model = _players.Find(x => x.PlayerId == playerId);
+
+        if (model != null)
+        {
+            model.GetModelObservable().DoAsync(x => x.OnReceivedFinishSkill()).Forget();
         }
     }
     public void UpdateHeatAndSepcialPoint(SpecialPoint specialPoint, HealthPoint healthPoint)
