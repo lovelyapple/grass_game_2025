@@ -33,6 +33,10 @@ public enum SKillContinueType
     SPCost,
     OneShot,
 }
+public enum StatusEffectType
+{
+    DirectionReward
+}
 public static class GameConstant 
 {
     public const int MaxRoomCount = 3;

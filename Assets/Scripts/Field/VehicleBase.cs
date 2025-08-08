@@ -26,11 +26,16 @@ public class VehicleBase : NetworkBehaviour
     private const float HOR_MOVE_SPEED = 2f;
     private const float ROAD_WIDTH = 9f;
     private float _addSpeed = 0f;
+    private bool _isRevertMoving = false;
     public bool IsPushing;
     public Action OnPositionUpdated = null;
     private void OnDestroy()
     {
         UnRegistry();
+    }
+    public void SetRevert(bool isRevertMoving)
+    {
+        _isRevertMoving = isRevertMoving;
     }
     public void SetSkillSpeed(float speed)
     {
@@ -58,7 +63,7 @@ public class VehicleBase : NetworkBehaviour
         }
 
         if (_accelerating && !IsPushing)
-        {
+        { 
             _currentSpeed += Runner.DeltaTime * Parameter.Acceleration;
 
             _currentSpeed = Mathf.Clamp(_currentSpeed, 0, Parameter.MaxSpeed + _addSpeed);
@@ -85,20 +90,23 @@ public class VehicleBase : NetworkBehaviour
 
         if (_horizontalMoveDir == HorizontalMoveDir.Left)
         {
-            var position = transform.position + Vector3.left * HOR_MOVE_SPEED * Runner.DeltaTime;
+            var dir = _isRevertMoving ? Vector3.right : Vector3.left;
+            var position = transform.position + dir * HOR_MOVE_SPEED * Runner.DeltaTime;
             position.x = Mathf.Clamp(position.x, -ROAD_WIDTH, ROAD_WIDTH);
             transform.position = position;
         }
         else if (_horizontalMoveDir == HorizontalMoveDir.Right)
         {
-            var position = transform.position + Vector3.right * HOR_MOVE_SPEED * Runner.DeltaTime;
+            var dir = _isRevertMoving ? Vector3.left : Vector3.right;
+            var position = transform.position + dir * HOR_MOVE_SPEED * Runner.DeltaTime;
             position.x = Mathf.Clamp(position.x, -ROAD_WIDTH, ROAD_WIDTH);
             transform.position = position;
         }
 
         if (_currentSpeed > 0)
         {
-            transform.position = transform.position + Vector3.forward * _currentSpeed * Runner.DeltaTime;
+            var dir = _isRevertMoving ? Vector3.back : Vector3.forward;
+            transform.position = transform.position + dir * _currentSpeed * Runner.DeltaTime;
 
             if(OnPositionUpdated != null)
             {
