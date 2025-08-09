@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class StatusEffectMoveRevert : IStatusEffect
 {
+    public StatusEffectType EffectType => StatusEffectType.DirectionRevert;
     public Action OnFinished { get; set; }
     public float Duation => 5f;
     public void OnExecute(CancellationToken token, Action onFinished) 

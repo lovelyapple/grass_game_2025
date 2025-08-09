@@ -138,9 +138,27 @@ public class MatchModel :SingletonBase<MatchModel>
             model.GetModelObservable().DoAsync(x => x.OnReceivedFinishSkill()).Forget();
         }
     }
+    public void ReceivedRequestTouchStatusEffect(int playerId, int effectType)
+    {
+        var model = _players.Find(x => x.PlayerId == playerId);
+
+        if (model != null)
+        {
+            model.GetModelObservable().DoAsync(x => x.OnReceivedStatusEffect(effectType)).Forget();
+        }
+    }
     public void UpdateHeatAndSepcialPoint(SpecialPoint specialPoint, HealthPoint healthPoint)
     {
         _specialPointChangeSubject.OnNext(specialPoint);
         _healthPointChangeSubject.OnNext(healthPoint);
+    }
+    public void OnSelfUseStatusEffectSkill(int effectType)
+    {
+        var otherPlayers = _players.Where(x => x.PlayerId != SelfPlayer.PlayerId).ToList();
+
+        foreach(var player in otherPlayers)
+        {
+            RpcConnector.Instance.Rpc_BroadcastOnRequestTouchPlayerStatusEffect(player.PlayerId, effectType);
+        }
     }
 }

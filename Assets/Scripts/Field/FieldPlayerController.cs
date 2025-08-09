@@ -207,7 +207,7 @@ public class FieldPlayerController : NetworkBehaviour
             {
                 await UniTask.WaitForSeconds(_skillBase.SkillDuration());
 
-                
+                MatchModel.GetInstance().OnSelfUseStatusEffectSkill((int)StatusEffectType.DirectionRevert);
             }
 
             RpcConnector.Instance.Rpc_BroadcastOnPlayerFinishSkill(PlayerId);
@@ -282,17 +282,25 @@ public class FieldPlayerController : NetworkBehaviour
     }
     public void OnReceivedStatusEffect(int statusEffectType)
     {
+        if(_iCurrentStatueEffect != null)
+        {
+            Debug.Log($"すでにStatusEffectがかかっているため、スキップ");
+            return;
+        }
+
         switch((StatusEffectType)statusEffectType)
         {
-            case StatusEffectType.DirectionReward:
+            case StatusEffectType.DirectionRevert:
                 _iCurrentStatueEffect = new StatusEffectMoveRevert();
                 _vehicle.SetRevert(true);
                 _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
                 {
                     _vehicle.SetRevert(false);
+                    _iCurrentStatueEffect = null;
                 });
                 break;
         }
+
         _onStatusEffectExecute.OnNext(_iCurrentStatueEffect);
     }
     public GameObject GetCharaObj()
