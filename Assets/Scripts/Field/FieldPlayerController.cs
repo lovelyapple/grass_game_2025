@@ -59,6 +59,9 @@ public class FieldPlayerController : NetworkBehaviour
     private bool _recovering = false;
     private Subject<FieldPlayerController> _onZPosUpdated = new Subject<FieldPlayerController>();
     public Observable<FieldPlayerController> OnZPosUpdatedObservable() => _onZPosUpdated;
+    private Subject<IStatusEffect> _onStatusEffectExecute = new Subject<IStatusEffect>();
+    public Observable<IStatusEffect> OnStatusEffectExecuteObservable() => _onStatusEffectExecute;
+    private IStatusEffect _iCurrentStatueEffect = null;
     private CompositeDisposable _inputDisposables = new();
     private void Awake()
     {
@@ -200,6 +203,12 @@ public class FieldPlayerController : NetworkBehaviour
                 await UniTask.WaitForSeconds(_skillBase.SkillDuration());
                 PlayerSetFixDriving(false);
             }
+            else if(_skillBase is SkillJK)
+            {
+                await UniTask.WaitForSeconds(_skillBase.SkillDuration());
+
+                MatchModel.GetInstance().OnSelfUseStatusEffectSkill((int)StatusEffectType.DirectionRevert);
+            }
 
             RpcConnector.Instance.Rpc_BroadcastOnPlayerFinishSkill(PlayerId);
         }
@@ -270,6 +279,29 @@ public class FieldPlayerController : NetworkBehaviour
     public void OnReceivedFinishSkill()
     {
         _skillBase.FinishPlaySkill();
+    }
+    public void OnReceivedStatusEffect(int statusEffectType)
+    {
+        if(_iCurrentStatueEffect != null)
+        {
+            Debug.Log($"すでにStatusEffectがかかっているため、スキップ");
+            return;
+        }
+
+        switch((StatusEffectType)statusEffectType)
+        {
+            case StatusEffectType.DirectionRevert:
+                _iCurrentStatueEffect = new StatusEffectMoveRevert();
+                _vehicle.SetRevert(true);
+                _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
+                {
+                    _vehicle.SetRevert(false);
+                    _iCurrentStatueEffect = null;
+                });
+                break;
+        }
+
+        _onStatusEffectExecute.OnNext(_iCurrentStatueEffect);
     }
     public GameObject GetCharaObj()
     {

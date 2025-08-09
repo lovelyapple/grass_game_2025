@@ -71,4 +71,9 @@ public class RpcConnector : NetworkBehaviour
     {
         MatchModel.GetInstance().ReceivedPlayeFinishSkill(playerId);
     }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_BroadcastOnRequestTouchPlayerStatusEffect(int targetId, int effectType)
+    {
+        MatchModel.GetInstance().ReceivedRequestTouchStatusEffect(targetId, effectType);
+    }
 }
