@@ -36,7 +36,8 @@ public enum SKillContinueType
 public enum StatusEffectType
 {
     None,
-    DirectionRevert
+    DirectionRevert,
+    Stun
 }
 public static class GameConstant 
 {

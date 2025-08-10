@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using Unity.Mathematics;
 public class SpecialPoint
 {
-    private const float MaxPoint = 1000;
+    private const float MaxPoint = 200;
     public float CurrentPoint;
     public bool IsMax => CurrentPoint >= MaxPoint;
     public float Rate => CurrentPoint / MaxPoint;
@@ -42,6 +43,9 @@ public class FieldPlayerController : NetworkBehaviour
     [SerializeField] Transform CharaPoint;
     [SerializeField] Transform LandingTransform;
     [SerializeField] SpriteRenderer SaddleImage;
+    [SerializeField] StatusEffectView StatusEffectView;
+    [SerializeField] Transform DownPoint;
+
     private NetworkTransform _networkTransform;
     private PlayerBase _playerBase;
     public int PlayerId { get; private set; }
@@ -130,7 +134,7 @@ public class FieldPlayerController : NetworkBehaviour
         .AddTo(_inputDisposables);
 
         inputController.UseSkillObservable()
-        .Where(_ => !_recovering && _specialPoint.IsMax)
+        // .Where(_ => !_recovering && _specialPoint.IsMax)
         .Subscribe(x => PlayerOnInputUseSkill())
         .AddTo(_inputDisposables);
     }
@@ -200,7 +204,9 @@ public class FieldPlayerController : NetworkBehaviour
             {
                 _vehicle.SetSkillSpeed(5);
                 PlayerSetFixDriving(true);
-                await UniTask.WaitForSeconds(_skillBase.SkillDuration());
+                var task1 = UniTask.WaitForSeconds(_skillBase.SkillDuration());
+                var task2 = UniTask.WaitUntil(() => _iCurrentStatueEffect != null);
+                await UniTask.WhenAny(task1, task2);
                 PlayerSetFixDriving(false);
             }
             else if(_skillBase is SkillJK)
@@ -208,6 +214,12 @@ public class FieldPlayerController : NetworkBehaviour
                 await UniTask.WaitForSeconds(_skillBase.SkillDuration());
 
                 MatchModel.GetInstance().OnSelfUseStatusEffectSkill((int)StatusEffectType.DirectionRevert);
+            }
+            else if (_skillBase is SkillSumo)
+            {
+                await UniTask.WaitForSeconds(_skillBase.SkillDuration());
+
+                MatchModel.GetInstance().OnSelfUseStatusEffectSkill((int)StatusEffectType.Stun);
             }
 
             RpcConnector.Instance.Rpc_BroadcastOnPlayerFinishSkill(PlayerId);
@@ -293,10 +305,30 @@ public class FieldPlayerController : NetworkBehaviour
             case StatusEffectType.DirectionRevert:
                 _iCurrentStatueEffect = new StatusEffectMoveRevert();
                 _vehicle.SetRevert(true);
+                StatusEffectView.SetImage(StatusEffectType.DirectionRevert);
                 _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
                 {
                     _vehicle.SetRevert(false);
+                    StatusEffectView.TurnOff();
                     _iCurrentStatueEffect = null;
+                });
+                break;
+
+            case StatusEffectType.Stun:
+                _iCurrentStatueEffect = new StatusEffectStun();
+                _vehicle.SetStun(true);
+                StatusEffectView.SetImage(StatusEffectType.Stun);
+                _playerBase.transform.SetParent(DownPoint);
+                _playerBase.transform.localPosition = Vector3.zero;
+                _playerBase.transform.localEulerAngles = Vector3.zero;
+                _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
+                {
+                    _vehicle.SetStun(false);
+                    _iCurrentStatueEffect = null;
+                    StatusEffectView.TurnOff();
+                    _playerBase.transform.SetParent(CharaPoint);
+                    _playerBase.transform.localEulerAngles = Vector3.zero;
+                    _playerBase.transform.localPosition = Vector3.zero;
                 });
                 break;
         }

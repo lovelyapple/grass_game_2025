@@ -27,6 +27,7 @@ public class VehicleBase : NetworkBehaviour
     private const float ROAD_WIDTH = 9f;
     private float _addSpeed = 0f;
     private bool _isRevertMoving = false;
+    private bool _isStun = false;
     public bool IsPushing;
     public Action OnPositionUpdated = null;
     private void OnDestroy()
@@ -36,6 +37,10 @@ public class VehicleBase : NetworkBehaviour
     public void SetRevert(bool isRevertMoving)
     {
         _isRevertMoving = isRevertMoving;
+    }
+    public void SetStun(bool stun)
+    {
+        _isStun = stun;
     }
     public void SetSkillSpeed(float speed)
     {
@@ -62,7 +67,7 @@ public class VehicleBase : NetworkBehaviour
             return;
         }
 
-        if (_accelerating && !IsPushing)
+        if (_accelerating && !IsPushing & !_isStun)
         { 
             _currentSpeed += Runner.DeltaTime * Parameter.Acceleration;
 
