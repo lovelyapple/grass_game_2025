@@ -552,6 +552,11 @@ MonoBehaviour:
     DriverPrefab: {fileID: 5455596290721992372, guid: a41848b47bd289f4386a29dd72ac2d35, type: 3}
   - Character: 2
     DriverPrefab: {fileID: 1628428294843395936, guid: 28cd3beb117d21c47a0bc14080beaee4, type: 3}
+  StatusEffectIcons:
+  - EffectType: 1
+    Icon: {fileID: 21300000, guid: 7b8a7bb318190c04caa52e1a45f0fbcb, type: 3}
+  - EffectType: 2
+    Icon: {fileID: 21300000, guid: 155c36174022d5441b2652b332badd87, type: 3}
 --- !u!4 &1613291600
 Transform:
   m_ObjectHideFlags: 0

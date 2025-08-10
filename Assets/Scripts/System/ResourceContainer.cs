@@ -33,11 +33,17 @@ public class ResourceContainer : MonoBehaviour
         public Sprite CFResource;
         public Sprite CHResource;
     }
-
+    [Serializable]
+    public class StatusEffectIcon
+    {
+        public StatusEffectType EffectType;
+        public Sprite Icon;
+    }
     [SerializeField] private List<CharacterImage> CharacterImages;
     [SerializeField] private List<SaddleImage> SaddleImages;
     [SerializeField] private List<VehicleImage> VehicleImages;
     [SerializeField] private List<DriverPrefabContainer> DriverPrefabs;
+    [SerializeField] private List<StatusEffectIcon> StatusEffectIcons;
 
     public static ResourceContainer Instance { get; private set; }
     public void Awake()
@@ -68,5 +74,9 @@ public class ResourceContainer : MonoBehaviour
         var container = VehicleImages.FirstOrDefault(x => x.Vehicle == vehicle);
 
         return full ? container.CFResource : container.CHResource;
+    }
+    public Sprite GetStatusEffectIcon(StatusEffectType type)
+    {
+        return StatusEffectIcons.FirstOrDefault(x => x.EffectType == type).Icon;
     }
 }
