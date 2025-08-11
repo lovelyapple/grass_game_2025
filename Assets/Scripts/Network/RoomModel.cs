@@ -105,6 +105,13 @@ public class RoomModel : SingletonBase<RoomModel>
 
         if (prevInfo == null)
         {
+            if ( playerRef.PlayerId == 1)
+            {
+                Debug.LogError("Admin left room ");
+                ShutdownAndGotoTitle();
+                return;
+            }
+
             Debug.LogError($"playerRef not found ?!?! id:{playerRef.PlayerId}");
             return;
         }

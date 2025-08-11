@@ -105,12 +105,34 @@ public class GameAdminModel : IGameAdminModel
         _isSendRequestUpdateRoomPlayerCount = true;
 
         var prevRoomPhase = _currentRoomPhase;
+        var needGotoTitle = false;
+
         while (_playerCountRequesting.HasValue)
         {
             var playerCount = _playerCountRequesting.Value;
             _playerCountRequesting = null;
 
-            _currentRoomPhase = GetRoomPhaseFromMember(playerCount, _currentRoomPhase);
+            if (prevRoomPhase == RoomPhase.Waiting)
+            {
+                if (playerCount >= GameConstant.GameStartPlayerCount)
+                {
+                    _currentRoomPhase =  RoomPhase.CountDown;
+                }
+            }
+            else if (prevRoomPhase == RoomPhase.CountDown || prevRoomPhase == RoomPhase.CountLock)
+            {
+                if (playerCount < GameConstant.GameStartPlayerCount)
+                {
+                    _currentRoomPhase =  RoomPhase.Waiting;
+                }
+            }
+            else if (prevRoomPhase == RoomPhase.MatchLoading || prevRoomPhase == RoomPhase.Playing)
+            {
+                if(playerCount == 0)
+                {
+                    needGotoTitle = true;
+                }
+            }
 
             await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
         }
@@ -129,6 +151,11 @@ public class GameAdminModel : IGameAdminModel
             }
 
             SyncUpdateRoomPhase();
+        }
+
+        if(needGotoTitle)
+        {
+            SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Title).Forget();
         }
 
         return Unit.Default;
@@ -165,25 +192,6 @@ public class GameAdminModel : IGameAdminModel
     private int GetCurrentPlayerCount()
     {
         return _playerInfoObjects.Keys.Count(x => x != _adminRef.PlayerId);
-    }
-    private RoomPhase GetRoomPhaseFromMember(int member, RoomPhase currentRoomPhase)
-    {
-        if (currentRoomPhase == RoomPhase.Waiting)
-        {
-            if (member >= GameConstant.GameStartPlayerCount)
-            {
-                return RoomPhase.CountDown;
-            }
-        }
-        else if (currentRoomPhase == RoomPhase.CountDown)
-        {
-            if (member < GameConstant.GameStartPlayerCount)
-            {
-                return RoomPhase.Waiting;
-            }
-        }
-
-        return currentRoomPhase;
     }
     #region count_down
     private void StartCountDownAdmin()
