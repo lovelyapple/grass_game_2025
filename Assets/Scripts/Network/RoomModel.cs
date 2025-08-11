@@ -8,10 +8,10 @@ using StarMessage.Models;
 using UnityEngine;
 public class RoomModel : SingletonBase<RoomModel>
 {
-    private class PlayerInfo
+    public class PlayerRefInfo
     {
         public PlayerRef Ref;
-        public PlayerInfo(PlayerRef playerRef)
+        public PlayerRefInfo(PlayerRef playerRef)
         {
             Ref = playerRef;
         }
@@ -21,7 +21,8 @@ public class RoomModel : SingletonBase<RoomModel>
     public PlayerRef SelfPlayerRef { get; private set; }
     private RoomStateController _roomStateController;
     private int _admingId;
-    private List<PlayerInfo> _playerInfos = new List<PlayerInfo>();
+    private List<PlayerRefInfo> _playerInfos = new List<PlayerRefInfo>();
+    public List<PlayerRefInfo> PlayerInfos => _playerInfos;
     public bool IsEmpty => _playerInfos.Count == 0;
 
     private readonly Subject<(int, bool)> _onPlayerJoinSubject = new Subject<(int, bool)>();
@@ -74,7 +75,7 @@ public class RoomModel : SingletonBase<RoomModel>
         }
 
         var isSelf = playerRef.PlayerId == SelfPlayerRef.PlayerId;
-        _playerInfos.Add(new PlayerInfo(playerRef));
+        _playerInfos.Add(new PlayerRefInfo(playerRef));
         Debug.Log($"player joined id {playerRef.PlayerId} {playerRef.RawEncoded}");
 
         _onPlayerJoinSubject.OnNext((playerRef.PlayerId, isSelf));

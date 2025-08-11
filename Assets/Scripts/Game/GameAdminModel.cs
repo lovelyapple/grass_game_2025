@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -8,6 +7,7 @@ using Fusion;
 using R3;
 public interface IGameAdminModel
 {
+    public bool IsAdmin { get; }
     public void OnAdminJoined(PlayerRef playerRef);
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController);
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject);
@@ -17,9 +17,12 @@ public interface IGameAdminModel
     public void OnMatchStart();
     public void OnPlayerFinishedLine(int playerId);
     public void OnReturnRoomTop();
+    public void UpdateAdimnView();
+    public Observable<Unit> RequestUpateAdminViewObservable();
 }
 public class NullGameAdminModel : IGameAdminModel
 {
+    public bool IsAdmin => false;
     public void OnAdminJoined(PlayerRef playerRef) { }
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController) { }
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
@@ -29,9 +32,13 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnCountDownFinished() { }
     public void OnPlayerFinishedLine(int playerId) { }
     public void OnReturnRoomTop() { }
+    private Subject<Unit> _dummySubject = new Subject<Unit>();
+    public void UpdateAdimnView() { }
+    public Observable<Unit> RequestUpateAdminViewObservable() { return _dummySubject; }
 }
 public class GameAdminModel : IGameAdminModel
 {
+    public bool IsAdmin => true;
     private PlayerRef _adminRef;
     private RoomStateController _roomStateController;
     private Dictionary<int, PlayerInfoObject> _playerInfoObjects = new Dictionary<int, PlayerInfoObject>();
@@ -39,9 +46,13 @@ public class GameAdminModel : IGameAdminModel
     private bool _isSendRequestUpdateRoomPlayerCount = false;
     private bool _isSendRequestUpdateRoomPhase = false;
     private int? _playerCountRequesting = null;
+    private Subject<Unit> _requestUpdateAdimView = new Subject<Unit>();
+    public Observable<Unit> RequestUpateAdminViewObservable() { return _requestUpdateAdimView; }
+    public void UpdateAdimnView() { _requestUpdateAdimView.OnNext(Unit.Default); }
     public void OnAdminJoined(PlayerRef playerRef)
     {
         _adminRef = playerRef;
+        AdminPanelController.Open();
     }
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {

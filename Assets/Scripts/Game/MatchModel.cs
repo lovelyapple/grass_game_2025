@@ -11,6 +11,7 @@ public class MatchModel :SingletonBase<MatchModel>
 {
     public MatchPlayerModel SelfPlayer { get; private set; }
     private List<MatchPlayerModel> _players = new List<MatchPlayerModel>();
+    public List<MatchPlayerModel> Players => _players;
     private Subject<bool> _showLoadUISubject = new Subject<bool>();
     public Observable<bool> ShowLoadUIObservable() => _showLoadUISubject;
     private Subject<MatchPlayerModel> _onPlayerCtrlSpawned = new Subject<MatchPlayerModel>();
