@@ -11,6 +11,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] GameObject GameHudRoot;
     [SerializeField] Image SpecialPointImage;
     [SerializeField] Image HeatPointImage;
+    [SerializeField] GameUISkillController SkillController;
     [SerializeField] Image LoadUI;
     [SerializeField] private UIButtonPressHandler AccelerateButtonHandler;
     [SerializeField] private UIButtonPressHandler UpButtonHandler;
@@ -49,6 +50,7 @@ public class GameUIController : MonoBehaviour
     private async UniTask<Unit> RunResult(int playerId)
     {
         GameHudRoot.SetActive(false);
+        SkillController.ClearAll();
 
         await ResultController.PerformAsync(playerId, this.destroyCancellationToken);
 

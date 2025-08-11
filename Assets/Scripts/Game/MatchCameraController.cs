@@ -3,6 +3,7 @@ using UnityEngine;
 public class MatchCameraController : MonoBehaviour
 {
     public static MatchCameraController Instance { get; private set; }
+    [SerializeField] VerticalCameraShake VerticalCameraShakeCtrl;
     [SerializeField] private Transform target;  // プレイヤーのTransform
     [SerializeField] private float followSpeed = 5f;
     [SerializeField] private float fixedY = 5f; // 固定するY座標
@@ -31,5 +32,10 @@ public class MatchCameraController : MonoBehaviour
     public void SetupTarget(Transform trn)
     {
         target = trn;
+    }
+    [ContextMenu("Execute")]
+    public void ShakeCamera()
+    {
+        VerticalCameraShakeCtrl.Shake(duration: 1.5f, amplitude: 0.3f, frequency: 18f);
     }
 }

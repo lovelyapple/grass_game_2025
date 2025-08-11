@@ -39,11 +39,18 @@ public class ResourceContainer : MonoBehaviour
         public StatusEffectType EffectType;
         public Sprite Icon;
     }
+    [Serializable]
+    public class StatusEffectFx
+    {
+        public Characters CharaType;
+        public GameObject Prefab;
+    }
     [SerializeField] private List<CharacterImage> CharacterImages;
     [SerializeField] private List<SaddleImage> SaddleImages;
     [SerializeField] private List<VehicleImage> VehicleImages;
     [SerializeField] private List<DriverPrefabContainer> DriverPrefabs;
     [SerializeField] private List<StatusEffectIcon> StatusEffectIcons;
+    [SerializeField] private List<StatusEffectFx> StatusEffectFxPrefab;
 
     public static ResourceContainer Instance { get; private set; }
     public void Awake()
@@ -78,5 +85,9 @@ public class ResourceContainer : MonoBehaviour
     public Sprite GetStatusEffectIcon(StatusEffectType type)
     {
         return StatusEffectIcons.FirstOrDefault(x => x.EffectType == type).Icon;
+    }
+    public GameObject GetStatusEffectFx(Characters type)
+    {
+        return StatusEffectFxPrefab.FirstOrDefault(x => x.CharaType == type).Prefab;
     }
 }
