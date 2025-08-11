@@ -10,6 +10,6 @@ public class StatusEffectView : MonoBehaviour
     }
     public void TurnOff()
     {
-        IconRender.gameObject.SetActive(false);
+        IconRender?.gameObject.SetActive(false);
     }
 }

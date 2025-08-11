@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
@@ -20,6 +21,8 @@ public class MatchModel :SingletonBase<MatchModel>
     public Observable<SpecialPoint> SpecialPointChangeObservable() => _specialPointChangeSubject;
     private Subject<HealthPoint> _healthPointChangeSubject = new Subject<HealthPoint>();
     public Observable<HealthPoint> HealthPointChangeObservable() => _healthPointChangeSubject;
+    private Subject<int> _onAnyOneUseSkillSubject = new Subject<int>();
+    public Observable<int> OnAnyOneUseSkillObservable() => _onAnyOneUseSkillSubject;
 
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
@@ -126,7 +129,22 @@ public class MatchModel :SingletonBase<MatchModel>
 
         if (model != null)
         {
-            model.GetModelObservable().DoAsync(x => x.OnReceivedUseSkill()).Forget();
+            model.GetModelObservable().DoAsync(x =>
+            {
+                x.OnReceivedUseSkill();
+                if(x.SkillBase is SkillJK)
+                {
+                    _onAnyOneUseSkillSubject.OnNext((int)Characters.JK);
+                }
+                else if(x.SkillBase is SkillOfficeWorker)
+                {
+                    _onAnyOneUseSkillSubject.OnNext((int)Characters.OfficeWorker);
+                }
+                else
+                {
+                    _onAnyOneUseSkillSubject.OnNext((int)Characters.Sumo);
+                }
+            }).Forget();
         }
     }
     public void ReceivedPlayeFinishSkill(int playerId)

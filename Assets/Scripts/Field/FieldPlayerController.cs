@@ -57,8 +57,8 @@ public class FieldPlayerController : NetworkBehaviour
     private float _hpRecoverRate;
     private SpecialPoint _specialPoint = new SpecialPoint();
     private HealthPoint _healthPoint = new HealthPoint();
-    private SkillBase _skillBase;
-    private bool _isPlayerDriving = true;
+    public SkillBase SkillBase{ get; private set; }
+    private bool _isPlayerDriving = false;
     private bool _forceDriving = false;
     private bool _recovering = false;
     private Subject<FieldPlayerController> _onZPosUpdated = new Subject<FieldPlayerController>();
@@ -84,8 +84,8 @@ public class FieldPlayerController : NetworkBehaviour
         var driverPrefab = ResourceContainer.Instance.GetCharacterPrefab((Characters)chara);
         _playerBase = Instantiate(driverPrefab, CharaPoint).GetComponent<PlayerBase>();
 
-        _skillBase = _playerBase.GetComponent<SkillBase>();
-        _skillBase.Init(this);
+        SkillBase = _playerBase.GetComponent<SkillBase>();
+        SkillBase.Init(this);
 
         SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage((SaddleType)saddle, true);
         _vehicle = GetComponent<VehicleBase>();
@@ -198,26 +198,26 @@ public class FieldPlayerController : NetworkBehaviour
         try
         {
             RpcConnector.Instance.Rpc_BroadcastOnPlayerUseSkill(PlayerId);
-            await UniTask.WaitUntil(() => _skillBase.PlayingSkill, cancellationToken: token);
+            await UniTask.WaitUntil(() => SkillBase.PlayingSkill, cancellationToken: token);
 
-            if(_skillBase is SkillOfficeWorker)
+            if(SkillBase is SkillOfficeWorker)
             {
                 _vehicle.SetSkillSpeed(5);
                 PlayerSetFixDriving(true);
-                var task1 = UniTask.WaitForSeconds(_skillBase.SkillDuration());
+                var task1 = UniTask.WaitForSeconds(SkillBase.SkillDuration());
                 var task2 = UniTask.WaitUntil(() => _iCurrentStatueEffect != null);
                 await UniTask.WhenAny(task1, task2);
                 PlayerSetFixDriving(false);
             }
-            else if(_skillBase is SkillJK)
+            else if(SkillBase is SkillJK)
             {
-                await UniTask.WaitForSeconds(_skillBase.SkillDuration());
+                await UniTask.WaitForSeconds(SkillBase.SkillDuration());
 
                 MatchModel.GetInstance().OnSelfUseStatusEffectSkill((int)StatusEffectType.DirectionRevert);
             }
-            else if (_skillBase is SkillSumo)
+            else if (SkillBase is SkillSumo)
             {
-                await UniTask.WaitForSeconds(_skillBase.SkillDuration());
+                await UniTask.WaitForSeconds(SkillBase.SkillDuration());
 
                 MatchModel.GetInstance().OnSelfUseStatusEffectSkill((int)StatusEffectType.Stun);
             }
@@ -286,11 +286,11 @@ public class FieldPlayerController : NetworkBehaviour
     public void OnReceivedUseSkill()
     {
         Debug.Log("Use skill");
-        _skillBase.UseSkill();
+        SkillBase.UseSkill();
     }
     public void OnReceivedFinishSkill()
     {
-        _skillBase.FinishPlaySkill();
+        SkillBase.FinishPlaySkill();
     }
     public void OnReceivedStatusEffect(int statusEffectType)
     {
@@ -321,14 +321,25 @@ public class FieldPlayerController : NetworkBehaviour
                 _playerBase.transform.SetParent(DownPoint);
                 _playerBase.transform.localPosition = Vector3.zero;
                 _playerBase.transform.localEulerAngles = Vector3.zero;
+                MatchCameraController.Instance.ShakeCamera();
                 _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
                 {
                     _vehicle.SetStun(false);
                     _iCurrentStatueEffect = null;
                     StatusEffectView.TurnOff();
-                    _playerBase.transform.SetParent(CharaPoint);
-                    _playerBase.transform.localEulerAngles = Vector3.zero;
-                    _playerBase.transform.localPosition = Vector3.zero;
+
+                    if (_isPlayerDriving)
+                    {
+                        _playerBase.transform.SetParent(CharaPoint);
+                        _playerBase.transform.localEulerAngles = Vector3.zero;
+                        _playerBase.transform.localPosition = Vector3.zero;
+                    }
+                    else
+                    {
+                        _playerBase.transform.SetParent(LandingTransform);
+                        _playerBase.transform.localEulerAngles = Vector3.zero;
+                        _playerBase.transform.localPosition = Vector3.zero;
+                    }
                 });
                 break;
         }
