@@ -51,9 +51,9 @@ public class AdminPlayerCellView : MonoBehaviour
 
         PlayerInfoObject.gameObject.SetActive(true);
         PlayerName.text = infoObject.PlayerName;
-        Vehcile.text = infoObject.PlayerEquipment.Vehicle.ToString();
-        Saddle.text = infoObject.PlayerEquipment.SaddleType.ToString();
-        Chara.text = infoObject.PlayerEquipment.Character.ToString();
+        Vehcile.text =((Vehicles)infoObject.PlayerEquipment.Vehicle).ToString();
+        Saddle.text = ((SaddleType)infoObject.PlayerEquipment.SaddleType).ToString();
+        Chara.text = ((Characters)infoObject.PlayerEquipment.Character).ToString();
 
         var playerModel = MatchModel.GetInstance().Players.Find(x => x.PlayerId == playerId);
 
