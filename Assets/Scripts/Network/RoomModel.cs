@@ -89,6 +89,8 @@ public class RoomModel : SingletonBase<RoomModel>
                 PlayerRootObject.Instance.SelfInfoObject = infoObject;
             }
         }
+
+        ModelCache.Admin.UpdateAdimnView();
     }
     // tackter.leave → here → playerRoot.leave → admin.Leave
     public void OnPlayerLeaved(PlayerRef playerRef)
@@ -122,6 +124,7 @@ public class RoomModel : SingletonBase<RoomModel>
         MatchModel.GetInstance().OnPlayerLeave(playerRef.PlayerId);
         Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
         _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
+        ModelCache.Admin.UpdateAdimnView();
     }
     public void ShutdownAndGotoTitle()
     {
@@ -148,7 +151,7 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         GameStartAtTime = DateTimeOffset.FromUnixTimeMilliseconds((long)endTimeUnixMilliseconds).UtcDateTime;
         RemainSeconds = (GameStartAtTime - DateTime.UtcNow).TotalSeconds;
-        UnityEngine.Debug.LogWarning($"Start CountDown Client {RemainSeconds}");
+        Debug.LogWarning($"Start CountDown Client {RemainSeconds}");
         _onRoomCountDownStart.OnNext(Unit.Default);
 
         _countdownSubscription = Observable.Interval(System.TimeSpan.FromSeconds(1))
@@ -197,7 +200,16 @@ public class RoomModel : SingletonBase<RoomModel>
         ClearCountDownHandler();
         _countDownCancelledSubject.OnNext(Unit.Default);
     }
-
+    public void ReceiveKickPlayer(int playerId)
+    {
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            if (playerId == SelfPlayerRef.PlayerId)
+            {
+                ShutdownAndGotoTitle();
+            }
+        }
+    }
     #endregion
 
 }

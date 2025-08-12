@@ -31,4 +31,9 @@ public class RoomStateController : NetworkBehaviour
         ModelCache.Admin.OnRoomStateControllerSpawn(this);
         Instance = this;
     }
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        base.Despawned(runner, hasState);
+        Instance = null;
+    }
 }

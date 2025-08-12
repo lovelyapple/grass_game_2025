@@ -1,6 +1,9 @@
 using System.Linq;
+using R3;
+using StarMessage.Models;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AdminPlayerCellView : MonoBehaviour
 {
@@ -14,6 +17,13 @@ public class AdminPlayerCellView : MonoBehaviour
     [SerializeField] GameObject PlayerInfoObject;
     [SerializeField] GameObject MatchPlayerodel;
     [SerializeField] GameObject FeildController;
+    [SerializeField] Button KickButton;
+    public void Awake()
+    {
+        KickButton.OnClickAsObservable()
+        .Subscribe(x => ModelCache.Admin.KickPlayer(_playerId))
+        .AddTo(this);
+    }
     public void Setup(int playerId)
     {
         _playerId = playerId;

@@ -19,6 +19,7 @@ public interface IGameAdminModel
     public void OnReturnRoomTop();
     public void UpdateAdimnView();
     public Observable<Unit> RequestUpateAdminViewObservable();
+    public void KickPlayer(int playerId);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -35,6 +36,7 @@ public class NullGameAdminModel : IGameAdminModel
     private Subject<Unit> _dummySubject = new Subject<Unit>();
     public void UpdateAdimnView() { }
     public Observable<Unit> RequestUpateAdminViewObservable() { return _dummySubject; }
+    public void KickPlayer(int playerId) { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -99,6 +101,10 @@ public class GameAdminModel : IGameAdminModel
     public void OnReturnRoomTop()
     {
         ReuestUpdateRoomPhase(RoomPhase.Waiting);
+    }
+    public void KickPlayer(int playerId)
+    {
+        RpcConnector.Instance.Rpc_BroadcastKickPlayer(playerId);
     }
     private void UpdateRoomPhaseOnPlayerJoinLeave()
     {
