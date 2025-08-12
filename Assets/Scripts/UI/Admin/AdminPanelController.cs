@@ -17,9 +17,11 @@ public class AdminPanelController : MonoBehaviour
     {
         _instance = this;
         DontDestroyOnLoad(gameObject);
+        gameObject.SetActive(false);
     }
     public static void Open()
     {
+        _instance.gameObject.SetActive(true);
         _instance.Setup();
     }
     public void Setup()
