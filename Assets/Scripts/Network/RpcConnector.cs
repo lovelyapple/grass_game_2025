@@ -76,4 +76,9 @@ public class RpcConnector : NetworkBehaviour
     {
         MatchModel.GetInstance().ReceivedRequestTouchStatusEffect(targetId, effectType);
     }
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void Rpc_BroadcastKickPlayer(int targetId)
+    {
+        RoomModel.GetInstance().ReceiveKickPlayer(targetId);
+    }
 }

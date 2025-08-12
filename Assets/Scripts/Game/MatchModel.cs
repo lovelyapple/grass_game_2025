@@ -11,6 +11,7 @@ public class MatchModel :SingletonBase<MatchModel>
 {
     public MatchPlayerModel SelfPlayer { get; private set; }
     private List<MatchPlayerModel> _players = new List<MatchPlayerModel>();
+    public List<MatchPlayerModel> Players => _players;
     private Subject<bool> _showLoadUISubject = new Subject<bool>();
     public Observable<bool> ShowLoadUIObservable() => _showLoadUISubject;
     private Subject<MatchPlayerModel> _onPlayerCtrlSpawned = new Subject<MatchPlayerModel>();
@@ -23,13 +24,16 @@ public class MatchModel :SingletonBase<MatchModel>
     public Observable<HealthPoint> HealthPointChangeObservable() => _healthPointChangeSubject;
     private Subject<int> _onAnyOneUseSkillSubject = new Subject<int>();
     public Observable<int> OnAnyOneUseSkillObservable() => _onAnyOneUseSkillSubject;
-
+    private bool _preInitFinished = false;
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
+
     public void Reset()
     {
         _players.Clear();
         MatchWinner = 0;
+        InitializedPlayerCount = 0;
+        _preInitFinished = false;
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -55,7 +59,7 @@ public class MatchModel :SingletonBase<MatchModel>
             var model = new MatchPlayerModel();
             model.Initialize(info);
             _players.Add(model);
-
+            Debug.Log($"RequestStartMatchAsync add player {model.PlayerId}");
             if (info.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
             {
                 SelfPlayer = model;
@@ -71,6 +75,7 @@ public class MatchModel :SingletonBase<MatchModel>
         .ToList();
 
         InitializedPlayerCount = _players.Count;
+        _preInitFinished = true;
 
         if (!GameCoreModel.Instance.IsAdminUser)
         {
@@ -83,14 +88,14 @@ public class MatchModel :SingletonBase<MatchModel>
             await UniTask.WaitUntil(() => player.IsResourceReady);
         }
 
+        var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
+        await UniTask.WhenAll(tasks);
+
         if (!GameCoreModel.Instance.IsAdminUser)
         {
             SelfPlayer.FieldPlayerController.RegistInput();
             MatchCameraController.Instance.SetupTarget(SelfPlayer.FieldPlayerController.transform);
         }
-
-        var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
-        await UniTask.WhenAll(tasks);
 
         ModelCache.Admin.OnMatchStart();
 
@@ -98,9 +103,17 @@ public class MatchModel :SingletonBase<MatchModel>
     }
     public void OnFieldPlayerControllerSpawned(FieldPlayerController fieldPlayerController)
     {
-        var playerModel = _players.FirstOrDefault(x => x.PlayerId == fieldPlayerController.PlayerId);
+        SetFieldPlayerControllerAsync(fieldPlayerController).Forget();
+    }
+    private async UniTask<Unit> SetFieldPlayerControllerAsync(FieldPlayerController fieldPlayerController)
+    {
+        await UniTask.WaitUntil(() => _preInitFinished && fieldPlayerController != null);
+
+        var playerModel = GetPlayer(fieldPlayerController.PlayerId);
         playerModel.OnFieldPlayerControllerSpawned(fieldPlayerController);
         _onPlayerCtrlSpawned.OnNext(playerModel);
+
+        return Unit.Default;
     }
     public void SetMatchResult(int playerId)
     {
@@ -116,7 +129,7 @@ public class MatchModel :SingletonBase<MatchModel>
     }
     public void ReceivedPlayerJumpInOut(int playerId, bool jumpIn)
     {
-        var model = _players.Find(x => x.PlayerId == playerId);
+        var model = GetPlayer(playerId);
 
         if(model != null)
         {
@@ -125,7 +138,7 @@ public class MatchModel :SingletonBase<MatchModel>
     }
     public void ReceivedPlayerUseSkill(int playerId)
     {
-        var model = _players.Find(x => x.PlayerId == playerId);
+        var model = GetPlayer(playerId);
 
         if (model != null)
         {
@@ -149,7 +162,7 @@ public class MatchModel :SingletonBase<MatchModel>
     }
     public void ReceivedPlayeFinishSkill(int playerId)
     {
-        var model = _players.Find(x => x.PlayerId == playerId);
+        var model = GetPlayer(playerId);
 
         if (model != null)
         {
@@ -158,7 +171,7 @@ public class MatchModel :SingletonBase<MatchModel>
     }
     public void ReceivedRequestTouchStatusEffect(int playerId, int effectType)
     {
-        var model = _players.Find(x => x.PlayerId == playerId);
+        var model = GetPlayer(playerId);
 
         if (model != null)
         {
@@ -178,5 +191,16 @@ public class MatchModel :SingletonBase<MatchModel>
         {
             RpcConnector.Instance.Rpc_BroadcastOnRequestTouchPlayerStatusEffect(player.PlayerId, effectType);
         }
+    }
+    private MatchPlayerModel GetPlayer(int playerId)
+    {
+        var player = _players.FirstOrDefault(x => x.PlayerId == playerId);
+
+        if(player == null)
+        {
+            Debug.LogError($"MatchPlayerModel not found {playerId}");
+        }
+
+        return player;
     }
 }

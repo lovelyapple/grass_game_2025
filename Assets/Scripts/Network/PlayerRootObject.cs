@@ -43,6 +43,7 @@ public class PlayerRootObject : MonoBehaviour
             }
         }
         PlayerInfos.Clear();
+        SelfInfoObject = null;
     }
     public void OnPlayerInfoSpawnedAndRegister(PlayerInfoObject playerInfoObj)
     {

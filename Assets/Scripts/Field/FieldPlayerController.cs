@@ -2,11 +2,9 @@ using UnityEngine;
 using Fusion;
 using R3;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using System.Threading;
-using Unity.Mathematics;
 public class SpecialPoint
 {
     private const float MaxPoint = 200;
@@ -140,7 +138,7 @@ public class FieldPlayerController : NetworkBehaviour
     }
     public override void FixedUpdateNetwork()
     {
-        if (!Object.HasStateAuthority || !IsReady || RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
+        if (!Object.HasStateAuthority || !IsReady || RoomStateController.Instance == null || RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
         {
             return;
         }
