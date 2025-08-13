@@ -23,9 +23,15 @@ public class SpecialPoint
 public class HealthPoint
 {
     private const float MaxPoint = 1000;
+    public float TotalPoint = MaxPoint;
     public float CurrentPoint = MaxPoint;
-    public bool IsMax => CurrentPoint >= MaxPoint;
-    public float Rate => CurrentPoint / MaxPoint;
+    public bool IsMax => CurrentPoint >= TotalPoint;
+    public float Rate => CurrentPoint / TotalPoint;
+    public void Init(float appendHP)
+    {
+        TotalPoint = MaxPoint + appendHP;
+        CurrentPoint = TotalPoint;
+    }
     public void Decrease(float point)
     {
         CurrentPoint = Mathf.Max(CurrentPoint - point, 0);
@@ -52,9 +58,9 @@ public class FieldPlayerController : NetworkBehaviour
     private Vector3 _initPos;
     private VehicleBase _vehicle;
     private float _saddleHeatRate;
-    private float _hpRecoverRate;
+    private float _appendHp;
     private SpecialPoint _specialPoint = new SpecialPoint();
-    private HealthPoint _healthPoint = new HealthPoint();
+    public HealthPoint HealthPoint = new HealthPoint();
     public SkillBase SkillBase{ get; private set; }
     private bool _isPlayerDriving = false;
     private bool _forceDriving = false;
@@ -90,7 +96,8 @@ public class FieldPlayerController : NetworkBehaviour
         IsReady = true;
 
         _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == (SaddleType)saddle).HeatRate;
-        _hpRecoverRate = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).HPRecoverRate;
+        _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).AppendHP;
+        HealthPoint.Init(_appendHp);
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
     }
@@ -143,13 +150,13 @@ public class FieldPlayerController : NetworkBehaviour
             return;
         }
 
-        if (_isPlayerDriving && !_forceDriving && _healthPoint.CurrentPoint > 0 && !_recovering)
+        if (_isPlayerDriving && !_forceDriving && HealthPoint.CurrentPoint > 0 && !_recovering)
         {
-            _healthPoint.Decrease(_saddleHeatRate * Runner.DeltaTime);
+            HealthPoint.Decrease(_saddleHeatRate * Runner.DeltaTime);
             _specialPoint.AddPoint(_saddleHeatRate * Runner.DeltaTime);
-            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
 
-            if(_healthPoint.CurrentPoint <= 0)
+            if(HealthPoint.CurrentPoint <= 0)
             {
                 ForceBreak();
                 RecoverHealthAll().Forget();
@@ -230,7 +237,7 @@ public class FieldPlayerController : NetworkBehaviour
         {
             _vehicle.SetSkillSpeed(0);
             _specialPoint.Reset();
-            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
         }
 
         return Unit.Default;
@@ -241,13 +248,13 @@ public class FieldPlayerController : NetworkBehaviour
         var token = new CancellationTokenSource().Token;
         try
         {
-            while (!_healthPoint.IsMax)
+            while (!HealthPoint.IsMax)
             {
                 token.ThrowIfCancellationRequested();
 
-                _healthPoint.AddPoint(100f * _hpRecoverRate * Time.deltaTime);
+                HealthPoint.AddPoint(100f * Time.deltaTime);
                 await UniTask.Yield(PlayerLoopTiming.Update, token); // 毎フレーム待つ
-                MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, _healthPoint);
+                MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
             }
         }
         finally

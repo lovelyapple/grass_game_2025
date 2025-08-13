@@ -2951,7 +2951,7 @@ MonoBehaviour:
   LoadUIRoot: {fileID: 624207412}
   GameHudRoot: {fileID: 1035579059}
   SpecialPointImage: {fileID: 1398112212}
-  HeatPointImage: {fileID: 1403047020}
+  HeatPointController: {fileID: 1419252783}
   SkillController: {fileID: 1122381762}
   LoadUI: {fileID: 624207414}
   AccelerateButtonHandler: {fileID: 831578723}
@@ -3633,8 +3633,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.000061035156}
-  m_SizeDelta: {x: 1887.65, y: 63.535}
+  m_AnchoredPosition: {x: 0.41, y: 0.69}
+  m_SizeDelta: {x: 1878.31, y: 56.03}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1403047020
 MonoBehaviour:
@@ -3661,7 +3661,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 1
+  m_FillAmount: 0.471
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -3793,6 +3793,7 @@ GameObject:
   - component: {fileID: 1419252780}
   - component: {fileID: 1419252782}
   - component: {fileID: 1419252781}
+  - component: {fileID: 1419252783}
   m_Layer: 5
   m_Name: HealthPoint
   m_TagString: Untagged
@@ -3840,14 +3841,14 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: ae788cab10a0c1546a1c609abb822bef, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
-  m_FillOrigin: 0
+  m_FillOrigin: 1
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
 --- !u!222 &1419252782
@@ -3858,6 +3859,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1419252779}
   m_CullTransparentMesh: 1
+--- !u!114 &1419252783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1419252779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9ed1ec1af71252448eb1e6b0f33c228, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RootImage: {fileID: 1419252781}
+  HPValueImage: {fileID: 1403047020}
 --- !u!1 &1431317830
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] GameObject LoadUIRoot;
     [SerializeField] GameObject GameHudRoot;
     [SerializeField] Image SpecialPointImage;
-    [SerializeField] Image HeatPointImage;
+    [SerializeField] GameUIHPBarController HeatPointController;
     [SerializeField] GameUISkillController SkillController;
     [SerializeField] Image LoadUI;
     [SerializeField] private UIButtonPressHandler AccelerateButtonHandler;
@@ -43,7 +43,11 @@ public class GameUIController : MonoBehaviour
         .AddTo(this);
 
         MatchModel.GetInstance().HealthPointChangeObservable()
-        .Subscribe(x => HeatPointImage.fillAmount = x.Rate)
+        .Subscribe(x => HeatPointController.UpdateCurrentHp(x))
+        .AddTo(this);
+
+        MatchModel.GetInstance().OnPlayerCtrlSpawnedObservable()
+        .Subscribe(x => HeatPointController.UpdateCurrentHp(x.FieldPlayerController.HealthPoint))
         .AddTo(this);
     }
 

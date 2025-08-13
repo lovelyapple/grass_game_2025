@@ -637,18 +637,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SaddleParameters:
   - Type: 0
-    HeatRate: 60
+    HeatRate: 30
   - Type: 1
     HeatRate: 45
   - Type: 2
     HeatRate: 90
   CharaParameters:
   - Type: 0
-    HPRecoverRate: 1
+    AppendHP: 0
   - Type: 1
-    HPRecoverRate: 1.5
+    AppendHP: 300
   - Type: 2
-    HPRecoverRate: 2
+    AppendHP: 500
 --- !u!1 &1680813169
 GameObject:
   m_ObjectHideFlags: 0

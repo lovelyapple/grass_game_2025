@@ -11,7 +11,7 @@ public class SaddleParameter
 public class CharaParameter
 {
     public Characters Type;
-    public float HPRecoverRate = 1.0f;
+    public float AppendHP = 1.0f;
 }
 public class ParameterHolder : MonoBehaviour
 {
