@@ -139,7 +139,7 @@ public class FieldPlayerController : NetworkBehaviour
         .AddTo(_inputDisposables);
 
         inputController.UseSkillObservable()
-        // .Where(_ => !_recovering && _specialPoint.IsMax)
+        .Where(_ => !_recovering && _specialPoint.IsMax)
         .Subscribe(x => PlayerOnInputUseSkill())
         .AddTo(_inputDisposables);
     }
@@ -299,9 +299,9 @@ public class FieldPlayerController : NetworkBehaviour
     }
     public void OnReceivedStatusEffect(int statusEffectType)
     {
-        if(_iCurrentStatueEffect != null)
+        if(_iCurrentStatueEffect != null || !_isPlayerDriving)
         {
-            Debug.Log($"すでにStatusEffectがかかっているため、スキップ");
+            Debug.Log($"すでにStatusEffectがかかっているか、運転していないため、スキップ");
             return;
         }
 
