@@ -646,9 +646,9 @@ MonoBehaviour:
   - Type: 0
     AppendHP: 0
   - Type: 1
-    AppendHP: 300
+    AppendHP: 100
   - Type: 2
-    AppendHP: 500
+    AppendHP: 200
 --- !u!1 &1680813169
 GameObject:
   m_ObjectHideFlags: 0
