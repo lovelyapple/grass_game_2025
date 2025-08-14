@@ -6,11 +6,14 @@ public class MatchController : MonoBehaviour
 {
     [SerializeField] FieldStartLineObject StartLineObject;
     [SerializeField] Transform EndLineObject;
+    public float RaceDistance => EndLineObject.position.z - StartLineObject.transform.position.z;
     private void Awake()
     {
         MatchModel.GetInstance().OnPlayerCtrlSpawnedObservable()
         .Subscribe(player => OnPlayerSpawned(player))
         .AddTo(this);
+
+        MatchModel.GetInstance().RaceDistance = RaceDistance;
     }  
     private void OnPlayerSpawned(MatchPlayerModel player)
     {
