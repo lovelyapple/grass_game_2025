@@ -22,7 +22,7 @@ public class SpecialPoint
 }
 public class HealthPoint
 {
-    private const float MaxPoint = 1000;
+    private const float MaxPoint = 300;
     public float TotalPoint = MaxPoint;
     public float CurrentPoint = MaxPoint;
     public bool IsMax => CurrentPoint >= TotalPoint;
@@ -71,6 +71,8 @@ public class FieldPlayerController : NetworkBehaviour
     public Observable<IStatusEffect> OnStatusEffectExecuteObservable() => _onStatusEffectExecute;
     private IStatusEffect _iCurrentStatueEffect = null;
     private CompositeDisposable _inputDisposables = new();
+    private const float HPRECOVER_SELF_RATE = 5f;
+    private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
@@ -162,6 +164,11 @@ public class FieldPlayerController : NetworkBehaviour
                 RecoverHealthAll().Forget();
             }
         }
+        else if (!_recovering)
+        {
+            HealthPoint.AddPoint(HPRECOVER_SELF_RATE * Runner.DeltaTime);
+            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
+        }
     }
 
     #region  player_input
@@ -242,6 +249,8 @@ public class FieldPlayerController : NetworkBehaviour
 
         return Unit.Default;
     }
+
+
     private async UniTask<Unit> RecoverHealthAll()
     {
         _recovering = true;
@@ -252,7 +261,7 @@ public class FieldPlayerController : NetworkBehaviour
             {
                 token.ThrowIfCancellationRequested();
 
-                HealthPoint.AddPoint(100f * Time.deltaTime);
+                HealthPoint.AddPoint(HP_RECOVER_RATE_FROM_EMPTY * Time.deltaTime);
                 await UniTask.Yield(PlayerLoopTiming.Update, token); // 毎フレーム待つ
                 MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
             }
