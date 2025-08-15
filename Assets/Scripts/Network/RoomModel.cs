@@ -39,6 +39,8 @@ public class RoomModel : SingletonBase<RoomModel>
         Debug.Log("Reset RoomModel");
         _playerInfos.Clear();
         SelfPlayerRef = PlayerRef.None;
+        _adminId = 0;
+        RoomName = "";
     }
     #region NetworkCallBack
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
