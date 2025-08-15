@@ -12,13 +12,10 @@ public class GameUIRaceProgressController : MonoBehaviour
     private class MarkPoint
     {
         public int PlayerId;
+        public Transform PlayerTransform;
         public RectTransform Marker;
-        public IDisposable Disposable;
         public void Release()
         {
-            Disposable?.Dispose();
-            Disposable = null;
-
             if(Marker != null)
             {
                 Destroy(Marker.gameObject);
@@ -32,14 +29,14 @@ public class GameUIRaceProgressController : MonoBehaviour
     {
         PlayerTranPrefab.gameObject.SetActive(false);
         MatchModel.GetInstance().OnPlayerCtrlSpawnedObservable()
-        .Subscribe(player => RegsitryPlayer(player))
+        .Subscribe(RegistryPlayer)
         .AddTo(this);
 
         RoomModel.GetInstance().OnPlayerLeaveObservable()
-        .Subscribe(id => OnPlayerLeave(id))
+        .Subscribe(OnPlayerLeave)
         .AddTo(this);
     }
-    private void RegsitryPlayer(MatchPlayerModel playerModel)
+    private void RegistryPlayer(MatchPlayerModel playerModel)
     {
         var mark = _markers.FirstOrDefault(x => x.PlayerId == playerModel.PlayerId);
         
@@ -62,18 +59,31 @@ public class GameUIRaceProgressController : MonoBehaviour
         if(!GameCoreModel.Instance.IsAdminUser && RoomModel.GetInstance().SelfPlayerRef.PlayerId == playerModel.PlayerId)
         {
             var image = mark.Marker.GetComponentInChildren<Image>();
-            image.color = Color.red;
+            image.color = Color.red; 
             mark.Marker.transform.localScale = Vector3.one * 1.2f;
-        } 
+        }
 
-        mark.Disposable = playerModel.FieldPlayerController.OnZPosUpdatedObservable()
-        .Subscribe(x =>
-        {
-            var progress = MatchModel.GetInstance().TranslatePlayerProgress(x.transform.position.z);
-            UpdatePlayerTran(progress, mark.Marker);
-        })
-        .AddTo(this);
+        mark.PlayerTransform = playerModel.FieldPlayerController.transform;
+        
+        var progress = MatchModel.GetInstance().TranslatePlayerProgress(mark.PlayerTransform.position.z);
+        UpdatePlayerTran(progress, mark.Marker);
+        _markers.Add(mark);
     }
+
+    private void LateUpdate()
+    {
+        foreach (var mark in _markers)
+        {
+            if (mark.PlayerTransform == null)
+            {
+                continue;
+            }
+
+            var progress = MatchModel.GetInstance().TranslatePlayerProgress(mark.PlayerTransform.position.z);
+            UpdatePlayerTran(progress, mark.Marker);
+        }
+    }
+
     private void OnPlayerLeave(int playerId)
     {
         var mark = _markers.FirstOrDefault(x => x.PlayerId == playerId);
