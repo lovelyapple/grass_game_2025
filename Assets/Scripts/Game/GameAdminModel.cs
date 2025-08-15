@@ -17,7 +17,7 @@ public interface IGameAdminModel
     public void OnMatchStart();
     public void OnPlayerFinishedLine(int playerId);
     public void OnReturnRoomTop();
-    public void UpdateAdimnView();
+    public void UpdateAdminView();
     public Observable<Unit> RequestUpateAdminViewObservable();
     public void KickPlayer(int playerId);
 }
@@ -34,7 +34,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnPlayerFinishedLine(int playerId) { }
     public void OnReturnRoomTop() { }
     private Subject<Unit> _dummySubject = new Subject<Unit>();
-    public void UpdateAdimnView() { }
+    public void UpdateAdminView() { }
     public Observable<Unit> RequestUpateAdminViewObservable() { return _dummySubject; }
     public void KickPlayer(int playerId) { }
 }
@@ -50,7 +50,7 @@ public class GameAdminModel : IGameAdminModel
     private int? _playerCountRequesting = null;
     private Subject<Unit> _requestUpdateAdimView = new Subject<Unit>();
     public Observable<Unit> RequestUpateAdminViewObservable() { return _requestUpdateAdimView; }
-    public void UpdateAdimnView() { _requestUpdateAdimView.OnNext(Unit.Default); }
+    public void UpdateAdminView() { _requestUpdateAdimView.OnNext(Unit.Default); }
     public void OnAdminJoined(PlayerRef playerRef)
     {
         _adminRef = playerRef;
@@ -79,28 +79,29 @@ public class GameAdminModel : IGameAdminModel
         if (timeRemain <= GameConstant.FinalCountDownSec &&
          _currentRoomPhase == RoomPhase.CountDown)
         {
-            ReuestUpdateRoomPhase(RoomPhase.CountLock);
+            RequestUpdateRoomPhase(RoomPhase.CountLock);
         }
     }
     public void OnCountDownFinished()
     {
-        ReuestUpdateRoomPhase(RoomPhase.MatchLoading);
+        RequestUpdateRoomPhase(RoomPhase.MatchLoading);
     }
     public void OnMatchStart()
     {
-        ReuestUpdateRoomPhase(RoomPhase.Playing);
+        _roomStateController.RoomCountDownTime = 0;
+        RequestUpdateRoomPhase(RoomPhase.Playing);
     }
     public void OnPlayerFinishedLine(int playerId)
     {
         if (MatchModel.GetInstance().MatchWinner == 0)
         {
             RpcConnector.Instance.Rpc_BroadcastMatchFinished(playerId);
-            ReuestUpdateRoomPhase(RoomPhase.Result);
+            RequestUpdateRoomPhase(RoomPhase.Result);
         }
     }
     public void OnReturnRoomTop()
     {
-        ReuestUpdateRoomPhase(RoomPhase.Waiting);
+        RequestUpdateRoomPhase(RoomPhase.Waiting);
     }
     public void KickPlayer(int playerId)
     {
@@ -177,7 +178,7 @@ public class GameAdminModel : IGameAdminModel
 
         return Unit.Default;
     }
-    private void ReuestUpdateRoomPhase(RoomPhase roomPhase)
+    private void RequestUpdateRoomPhase(RoomPhase roomPhase)
     {
         RequestUpdateRoomPhaseAsync(RoomModel.GetInstance().RoomName, roomPhase).Forget();
     }
@@ -215,8 +216,10 @@ public class GameAdminModel : IGameAdminModel
     {
         var endTime = DateTime.UtcNow.AddSeconds(GameConstant.CountDownSec);
         double unixTimeMs = new DateTimeOffset(endTime).ToUnixTimeMilliseconds();
+        _roomStateController.RoomCountDownTime = unixTimeMs;
         RpcConnector.Instance.Rpc_BroadcastStartCountDown(unixTimeMs);
         UnityEngine.Debug.LogWarning($"Start CountDown Admin");
+        
     }
     private void CancelCountDownAdmin()
     {

@@ -19,6 +19,8 @@ public class RoomStateController : NetworkBehaviour
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked]  
     public int AdminId { get; private set; }
+    [Networked]
+    public double RoomCountDownTime { get; set; }
     public static RoomStateController Instance;
     private void Awake()
     {
