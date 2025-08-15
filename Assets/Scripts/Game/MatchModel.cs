@@ -31,6 +31,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
     public void Reset()
     {
+        SelfPlayer = null;
         _players.Clear();
         MatchWinner = 0;
         InitializedPlayerCount = 0;
