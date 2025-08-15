@@ -38,7 +38,7 @@ public class HealthPoint
     }
     public void AddPoint(float point)
     {
-        CurrentPoint = Mathf.Min(CurrentPoint + point, MaxPoint);
+        CurrentPoint = Mathf.Min(CurrentPoint + point, TotalPoint);
     }
 }
 
