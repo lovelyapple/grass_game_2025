@@ -1885,8 +1885,8 @@ MonoBehaviour:
   VerticalCameraShakeCtrl: {fileID: 1431317837}
   target: {fileID: 0}
   followSpeed: 5
-  fixedY: 15
-  fixedX: -18
+  fixedY: 10.74
+  fixedX: -19
 --- !u!1 &762623763
 GameObject:
   m_ObjectHideFlags: 0
