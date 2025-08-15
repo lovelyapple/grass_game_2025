@@ -38,7 +38,7 @@ public class HealthPoint
     }
     public void AddPoint(float point)
     {
-        CurrentPoint = Mathf.Min(CurrentPoint + point, MaxPoint);
+        CurrentPoint = Mathf.Min(CurrentPoint + point, TotalPoint);
     }
 }
 
@@ -207,6 +207,9 @@ public class FieldPlayerController : NetworkBehaviour
     private async UniTask<Unit> PlayerSkillLocalAsync()
     {
         var token = this.GetCancellationTokenOnDestroy();
+        _specialPoint.Reset();
+        MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
+
         try
         {
             RpcConnector.Instance.Rpc_BroadcastOnPlayerUseSkill(PlayerId);
@@ -243,8 +246,6 @@ public class FieldPlayerController : NetworkBehaviour
         finally
         {
             _vehicle.SetSkillSpeed(0);
-            _specialPoint.Reset();
-            MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
         }
 
         return Unit.Default;

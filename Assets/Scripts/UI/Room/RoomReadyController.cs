@@ -96,6 +96,19 @@ public class RoomReadyController : MonoBehaviour
         CountDownlabel.text = "--";
 
         SetButtonActive(RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.Waiting);
+
+        // Roomに入った時にすでにカウンター始まった時
+        if (RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.CountDown || 
+            RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.CountLock ||
+            RoomStateController.Instance.RoomCountDownTime != 0)
+        {
+            RoomModel.GetInstance().ReceivedStartCountDown(RoomStateController.Instance.RoomCountDownTime);
+
+            if (RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.CountDown)
+            {
+                SetButtonActive(true);
+            }
+        }
     }
     private void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {

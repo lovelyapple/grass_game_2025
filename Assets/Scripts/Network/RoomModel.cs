@@ -90,7 +90,7 @@ public class RoomModel : SingletonBase<RoomModel>
             }
         }
 
-        ModelCache.Admin.UpdateAdimnView();
+        ModelCache.Admin.UpdateAdminView();
     }
     // tackter.leave → here → playerRoot.leave → admin.Leave
     public void OnPlayerLeaved(PlayerRef playerRef)
@@ -124,7 +124,7 @@ public class RoomModel : SingletonBase<RoomModel>
         MatchModel.GetInstance().OnPlayerLeave(playerRef.PlayerId);
         Debug.Log($"player leaved id {playerRef.PlayerId} {playerRef.RawEncoded}");
         _onPlayerLeaveSubject.OnNext(playerRef.PlayerId);
-        ModelCache.Admin.UpdateAdimnView();
+        ModelCache.Admin.UpdateAdminView();
     }
     public void ShutdownAndGotoTitle()
     {

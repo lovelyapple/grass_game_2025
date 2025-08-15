@@ -27,6 +27,7 @@ public class MatchModel :SingletonBase<MatchModel>
     private bool _preInitFinished = false;
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
+    public float RaceDistance { get; set; }
 
     public void Reset()
     {
@@ -202,5 +203,9 @@ public class MatchModel :SingletonBase<MatchModel>
         }
 
         return player;
+    }
+    public float TranslatePlayerProgress(float zPosition)
+    {
+        return zPosition / (RaceDistance + 0.01f);
     }
 }
