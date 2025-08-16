@@ -73,6 +73,8 @@ public class FieldPlayerController : NetworkBehaviour
     private CompositeDisposable _inputDisposables = new();
     private const float HPRECOVER_SELF_RATE = 5f;
     private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
+    private SaddleType _saddleType;
+    private AudioSource _saddleSeCache = null;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
@@ -84,7 +86,7 @@ public class FieldPlayerController : NetworkBehaviour
         Debug.Log($"player {PlayerId} FieldPlayerController Spawned");
 
         var obj = PlayerRootObject.Instance.GetPlayerInfoObject(PlayerId);
-        var saddle = obj.PlayerEquipment.SaddleType;
+        _saddleType = (SaddleType)obj.PlayerEquipment.SaddleType;
         var chara = obj.PlayerEquipment.Character;
 
         var driverPrefab = ResourceContainer.Instance.GetCharacterPrefab((Characters)chara);
@@ -93,11 +95,11 @@ public class FieldPlayerController : NetworkBehaviour
         SkillBase = _playerBase.GetComponent<SkillBase>();
         SkillBase.Init(this);
 
-        SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage((SaddleType)saddle, true);
+        SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage(_saddleType, true);
         _vehicle = GetComponent<VehicleBase>();
         IsReady = true;
 
-        _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == (SaddleType)saddle).HeatRate;
+        _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == _saddleType).HeatRate;
         _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).AppendHP;
         HealthPoint.Init(_appendHp);
 
@@ -144,6 +146,8 @@ public class FieldPlayerController : NetworkBehaviour
         .Where(_ => !_recovering && _specialPoint.IsMax)
         .Subscribe(x => PlayerOnInputUseSkill())
         .AddTo(_inputDisposables);
+
+        _saddleSeCache = SoundManager.GetSaddleAudio(_saddleType);
     }
     public override void FixedUpdateNetwork()
     {
@@ -181,6 +185,7 @@ public class FieldPlayerController : NetworkBehaviour
 
         _isPlayerDriving = accelaring;
         _vehicle.SetAccelerate(accelaring || _forceDriving);
+        _saddleSeCache?.gameObject.SetActive(accelaring);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void ForceBreak()
@@ -188,6 +193,7 @@ public class FieldPlayerController : NetworkBehaviour
         _isPlayerDriving = false;
         _forceDriving = false;
         _vehicle.SetAccelerate(_isPlayerDriving || _forceDriving);
+        _saddleSeCache?.gameObject.SetActive(false);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void PlayerSetFixDriving(bool forceDriving)
