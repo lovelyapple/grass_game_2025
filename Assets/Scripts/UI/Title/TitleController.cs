@@ -23,6 +23,8 @@ public class TitleController : MonoBehaviour
 
         NetworkRunnerController.RefreshLocal();
 
+        SoundManager.PlayerBGM(bgmType: BgmType.Title);
+
         if (!hasConnecting)
         {
             (playRole, roomName) = await JoinSelectView.OpenViewAsync(token);

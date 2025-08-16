@@ -39,6 +39,13 @@ public enum StatusEffectType
     DirectionRevert,
     Stun
 }
+public enum BgmType
+{
+    None,
+    Title,
+    Game,
+    Result,
+}
 public static class GameConstant 
 {
     public const int MaxRoomCount = 3;
