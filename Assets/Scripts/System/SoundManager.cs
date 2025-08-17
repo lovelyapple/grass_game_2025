@@ -39,7 +39,9 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioSource TitleBGM;
     [SerializeField] AudioSource GameBGM;
     [SerializeField] AudioSource ResultBGM;
-
+    
+    private const float DEFAULT_BGM_VOLUM = 0.1f;
+    private AudioSource _currentBgmSource;
     [SerializeField] List<SeData> SeDataList = new List<SeData>();
     [SerializeField] List<SeController> SeControllers = new List<SeController>();
     public static AudioMixerGroup SeMixerGroup() => _instance.GameAudioMixer.FindMatchingGroups("SE")[0];
@@ -68,44 +70,56 @@ public class SoundManager : MonoBehaviour
     }
     public static AudioSource GetSaddleAudio(SaddleType saddleType)
     {
+        AudioSource source = null;
         switch(saddleType)
         {
             case SaddleType.Ice:
-                return _instance.SaddleIce;
+                source =  _instance.SaddleIce;
+                break;
 
             case SaddleType.Leather:
-                return _instance.SaddleLeather;
-
+                source = _instance.SaddleLeather;
+                break;
             default:
             case SaddleType.Iron:
-                return _instance.SaddleTeppan;
+                source = _instance.SaddleTeppan;
+                break;
         }
+
+        var instance = Instantiate(source);
+        return instance;
     }
-    public static void PlayerBGM(BgmType bgmType)
+    public static void PlayBgm(BgmType bgmType)
     {
-        switch(bgmType)
+        _instance.PlayBGMInner(bgmType);
+    }
+    private void PlayBGMInner(BgmType bgmType)
+    {
+        if(_currentBgmSource != null)
+        {
+            _currentBgmSource.gameObject.SetActive(false);
+        }
+
+        switch (bgmType)
         {
             case BgmType.Title:
-                _instance.TitleBGM.gameObject.SetActive(true);
-                _instance.GameBGM.gameObject.SetActive(false);
-                _instance.ResultBGM.gameObject.SetActive(false);
+                _currentBgmSource = _instance.TitleBGM;
                 break;
             case BgmType.Game:
-                _instance.TitleBGM.gameObject.SetActive(false);
-                _instance.GameBGM.gameObject.SetActive(true);
-                _instance.ResultBGM.gameObject.SetActive(false);
+                _currentBgmSource = _instance.GameBGM;
                 break;
             case BgmType.Result:
-                _instance.TitleBGM.gameObject.SetActive(false);
-                _instance.GameBGM.gameObject.SetActive(false);
-                _instance.ResultBGM.gameObject.SetActive(true);
+                _currentBgmSource = _instance.ResultBGM;
                 break;
 
             case BgmType.None:
-                _instance.TitleBGM.gameObject.SetActive(false);
-                _instance.GameBGM.gameObject.SetActive(false);
-                _instance.ResultBGM.gameObject.SetActive(false);
+                _currentBgmSource = null;
                 break;
+        }
+
+        if (_currentBgmSource != null)
+        {
+            _currentBgmSource.gameObject.SetActive(true);
         }
     }
 

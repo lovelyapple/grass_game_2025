@@ -631,7 +631,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: e0c6d536f150f474095d9e3ca6ce8a54, type: 3}
   m_Resource: {fileID: 8300000, guid: e0c6d536f150f474095d9e3ca6ce8a54, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1387,7 +1387,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 4ea0aefe1499c1a48a697f8f60f9ee0a, type: 3}
   m_Resource: {fileID: 8300000, guid: 4ea0aefe1499c1a48a697f8f60f9ee0a, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.139
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -1651,7 +1651,7 @@ MonoBehaviour:
   SaddleOthers: {fileID: 331001965}
   TitleBGM: {fileID: 868530326}
   GameBGM: {fileID: 1348381977}
-  ResultBGM: {fileID: 0}
+  ResultBGM: {fileID: 1926159213}
   SeDataList: []
   SeControllers:
   - {fileID: 167897657}
@@ -1876,7 +1876,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: f93c42f1acc0a1c4683698f799b7a3e6, type: 3}
   m_Resource: {fileID: 8300000, guid: f93c42f1acc0a1c4683698f799b7a3e6, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.158
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -2820,7 +2820,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: ab99205d754b6e84d812233834f6faa9, type: 3}
   m_Resource: {fileID: 8300000, guid: ab99205d754b6e84d812233834f6faa9, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.158
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
   Mute: 0

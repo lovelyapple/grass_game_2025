@@ -1887,6 +1887,7 @@ MonoBehaviour:
   followSpeed: 5
   fixedY: 10.74
   fixedX: -19
+  CameraListener: {fileID: 1431317831}
 --- !u!1 &762623763
 GameObject:
   m_ObjectHideFlags: 0

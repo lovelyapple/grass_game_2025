@@ -71,10 +71,11 @@ public class FieldPlayerController : NetworkBehaviour
     public Observable<IStatusEffect> OnStatusEffectExecuteObservable() => _onStatusEffectExecute;
     private IStatusEffect _iCurrentStatueEffect = null;
     private CompositeDisposable _inputDisposables = new();
-    private const float HPRECOVER_SELF_RATE = 5f;
+    private const float HPRECOVER_SELF_RATE = 15f;
     private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
     private SaddleType _saddleType;
     private AudioSource _saddleSeCache = null;
+    private AudioListener _audioListener = null;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
@@ -104,6 +105,15 @@ public class FieldPlayerController : NetworkBehaviour
         HealthPoint.Init(_appendHp);
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
+        _saddleSeCache = SoundManager.GetSaddleAudio(_saddleType);
+        _saddleSeCache.transform.SetParent(this.transform);
+
+        if(PlayerId != RoomModel.GetInstance().SelfPlayerRef.PlayerId)
+        {
+            var source = _saddleSeCache.GetComponent<AudioSource>();
+            source.spatialBlend = 0.92f;
+            source.volume = 1.0f;
+        }
     }
     public void SetupInitPos(Vector3 pos)
     {
@@ -147,7 +157,8 @@ public class FieldPlayerController : NetworkBehaviour
         .Subscribe(x => PlayerOnInputUseSkill())
         .AddTo(_inputDisposables);
 
-        _saddleSeCache = SoundManager.GetSaddleAudio(_saddleType);
+        MatchCameraController.Instance.SwitchPlayerLisitener(true);
+        _audioListener = gameObject.AddComponent<AudioListener>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -185,7 +196,6 @@ public class FieldPlayerController : NetworkBehaviour
 
         _isPlayerDriving = accelaring;
         _vehicle.SetAccelerate(accelaring || _forceDriving);
-        _saddleSeCache?.gameObject.SetActive(accelaring);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void ForceBreak()
@@ -193,7 +203,6 @@ public class FieldPlayerController : NetworkBehaviour
         _isPlayerDriving = false;
         _forceDriving = false;
         _vehicle.SetAccelerate(_isPlayerDriving || _forceDriving);
-        _saddleSeCache?.gameObject.SetActive(false);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void PlayerSetFixDriving(bool forceDriving)
@@ -287,22 +296,30 @@ public class FieldPlayerController : NetworkBehaviour
         _vehicle.UnRegistry();
         _inputDisposables?.Dispose();
         _inputDisposables = null;
+
+        if (_audioListener != null)
+        {
+            _audioListener.enabled = false;
+            Destroy(_audioListener);
+        }
     }
 
-    public void OnReceivedJumpInOut(bool jumpDown)
+    public void OnReceivedJumpInOut(bool jumdIn)
     {
-        if (jumpDown)
+        if (jumdIn)
         {
             _playerBase.transform.SetParent(CharaPoint);
             _playerBase.transform.localPosition = Vector3.zero;
+            _saddleSeCache?.gameObject.SetActive(true);
         }
         else
         {
             _playerBase.transform.SetParent(LandingTransform);
             _playerBase.transform.localPosition = Vector3.zero;
+            _saddleSeCache?.gameObject.SetActive(false);
         }
 
-        _vehicle.IsPushing = !jumpDown;
+        _vehicle.IsPushing = !jumdIn;
     }
     public void OnReceivedUseSkill()
     {
