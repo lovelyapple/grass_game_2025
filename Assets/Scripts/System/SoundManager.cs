@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using R3;
 using UnityEngine;
 using UnityEngine.Audio;
-
+public enum SeType
+{
+    Cheers,
+    MatchFinished,
+    Max,
+}
 public class SoundManager : MonoBehaviour
 {
-    public enum SeType
-    {
-        Applause,
-        MatchFinished,
-        Max,
-    }
+
     [Serializable]
     public class SeData
     {
@@ -41,6 +44,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioSource ResultBGM;
     
     private const float DEFAULT_BGM_VOLUM = 0.1f;
+    private const float LOW_BGM_VOLUM = 0.05f;
     private AudioSource _currentBgmSource;
     [SerializeField] List<SeData> SeDataList = new List<SeData>();
     [SerializeField] List<SeController> SeControllers = new List<SeController>();
@@ -120,7 +124,30 @@ public class SoundManager : MonoBehaviour
         if (_currentBgmSource != null)
         {
             _currentBgmSource.gameObject.SetActive(true);
+            _currentBgmSource.volume = DEFAULT_BGM_VOLUM;
         }
+    }
+    public static void RequestLowSmoothPGM(CancellationToken token)
+    {
+        _instance.LowSmoothBgmAsync(token).Forget();
+    }
+    private async UniTask<Unit> LowSmoothBgmAsync(CancellationToken token)
+    {
+        if(_currentBgmSource == null)
+        {
+            return Unit.Default;
+        }
+
+        while(_currentBgmSource != null && _currentBgmSource.volume < LOW_BGM_VOLUM && !token.IsCancellationRequested)
+        {
+            _currentBgmSource.volume -= Time.deltaTime;
+
+            await UniTask.Yield();
+        }
+
+        _currentBgmSource.volume = LOW_BGM_VOLUM;
+
+        return Unit.Default;
     }
 
     [SerializeField] AudioClip test;

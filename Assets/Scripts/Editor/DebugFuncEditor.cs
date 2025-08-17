@@ -9,6 +9,7 @@ public class DebugFuncEditor : EditorWindow
     private IDisposable _countdownSubscription;
     public double RemainSeconds { get; private set; }
     private int _seTestTimes = 1;
+    private SeType _seType;
     [MenuItem("Debug/DebugFunc")]
     public static void Open()
     {
@@ -46,6 +47,12 @@ public class DebugFuncEditor : EditorWindow
         {
             for(int i = 0; i < _seTestTimes; i++)
             SoundManager.Test();
+        }
+
+        _seType = (SeType)EditorGUILayout.EnumPopup(_seType);
+        if(GUILayout.Button("PlaySe"))
+        {
+            SoundManager.PlayOneShot(_seType);
         }
     }
 

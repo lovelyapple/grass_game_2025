@@ -79,6 +79,12 @@ public class FieldPlayerController : NetworkBehaviour
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
+        MatchModel.GetInstance().OnMatchFinishedObservable()
+        .Where(_ => _saddleSeCache != null)
+        .Subscribe(_ => {
+            _saddleSeCache.enabled = false;
+         })
+        .AddTo(this);
     }
     public override void Spawned()
     {
@@ -329,6 +335,12 @@ public class FieldPlayerController : NetworkBehaviour
     public void OnReceivedFinishSkill()
     {
         SkillBase.FinishPlaySkill();
+
+        if (_saddleSeCache != null)
+        {
+            _saddleSeCache.Stop();
+            _saddleSeCache.enabled = false;
+        }
     }
     public void OnReceivedStatusEffect(int statusEffectType)
     {

@@ -32,6 +32,8 @@ public class TitleController : MonoBehaviour
             GameCoreModel.Instance.IsAdminUser = isAdmin;
         }
 
+        SoundManager.RequestLowSmoothPGM(token);
+
         if (GameCoreModel.Instance.IsAdminUser)
         {
             if (!hasConnecting)
@@ -88,6 +90,7 @@ public class TitleController : MonoBehaviour
                 return Unit.Default;
             }
         }
+
 
         await UniTask.WaitUntil(() =>
             RoomStateController.Instance != null &&

@@ -37,7 +37,7 @@ public class SeController : MonoBehaviour
 
             var timeOutTask2 = UniTask.WaitForSeconds(_endTimeOutSec, cancellationToken: destroyToken);
             var waitEnd = UniTask.WaitUntil(() => !Source.isPlaying, cancellationToken: destroyToken);
-            await UniTask.WhenAny(timeOutTask1, waitStart);
+            await UniTask.WhenAny(timeOutTask2, waitEnd);
         }
         catch (Exception ex)
         {

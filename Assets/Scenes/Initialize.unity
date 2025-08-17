@@ -1652,7 +1652,11 @@ MonoBehaviour:
   TitleBGM: {fileID: 868530326}
   GameBGM: {fileID: 1348381977}
   ResultBGM: {fileID: 1926159213}
-  SeDataList: []
+  SeDataList:
+  - Type: 0
+    Clip: {fileID: 8300000, guid: 2ed8479a5c5eee74aadcc81a501e1b90, type: 3}
+  - Type: 1
+    Clip: {fileID: 8300000, guid: 8ddc8e6a92cf2bb4595d21ef649f1828, type: 3}
   SeControllers:
   - {fileID: 167897657}
   - {fileID: 918668009}

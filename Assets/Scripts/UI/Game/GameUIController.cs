@@ -56,6 +56,11 @@ public class GameUIController : MonoBehaviour
         GameHudRoot.SetActive(false);
         SkillController.ClearAll();
 
+        MatchCameraController.Instance.SwitchPlayerLisitener(false);
+        SoundManager.PlayOneShot(SeType.Cheers);
+        SoundManager.PlayOneShot(SeType.MatchFinished);
+        SoundManager.PlayBgm(BgmType.Result);
+
         await ResultController.PerformAsync(playerId, this.destroyCancellationToken);
 
         if (GameCoreModel.Instance.IsAdminUser)
