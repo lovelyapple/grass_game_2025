@@ -23,12 +23,16 @@ public class TitleController : MonoBehaviour
 
         NetworkRunnerController.RefreshLocal();
 
+        SoundManager.PlayBgm(bgmType: BgmType.Title);
+
         if (!hasConnecting)
         {
             (playRole, roomName) = await JoinSelectView.OpenViewAsync(token);
             var isAdmin = playRole == PlayerRole.Admin;
             GameCoreModel.Instance.IsAdminUser = isAdmin;
         }
+
+        SoundManager.RequestLowSmoothPGM(token);
 
         if (GameCoreModel.Instance.IsAdminUser)
         {
@@ -86,6 +90,7 @@ public class TitleController : MonoBehaviour
                 return Unit.Default;
             }
         }
+
 
         await UniTask.WaitUntil(() =>
             RoomStateController.Instance != null &&

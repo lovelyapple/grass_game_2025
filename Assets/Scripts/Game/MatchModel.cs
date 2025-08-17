@@ -54,6 +54,8 @@ public class MatchModel :SingletonBase<MatchModel>
         await SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Game);
         _showLoadUISubject.OnNext(true);
 
+        SoundManager.PlayBgm(bgmType: BgmType.Game);
+
         var playerObjs = PlayerRootObject.Instance.PlayerInfos.Values;
 
         foreach (var info in playerObjs)

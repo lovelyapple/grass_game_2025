@@ -8,6 +8,8 @@ public class DebugFuncEditor : EditorWindow
     private DateTime GameStartAtTime;
     private IDisposable _countdownSubscription;
     public double RemainSeconds { get; private set; }
+    private int _seTestTimes = 1;
+    private SeType _seType;
     [MenuItem("Debug/DebugFunc")]
     public static void Open()
     {
@@ -38,6 +40,19 @@ public class DebugFuncEditor : EditorWindow
         if(GUILayout.Button("SetPosition"))
         {
             MatchModel.GetInstance().SelfPlayer.FieldPlayerController.ResetPosition();
+        }
+        _seTestTimes = EditorGUILayout.IntField(_seTestTimes);
+
+        if (GUILayout.Button("TestSound"))
+        {
+            for(int i = 0; i < _seTestTimes; i++)
+            SoundManager.Test();
+        }
+
+        _seType = (SeType)EditorGUILayout.EnumPopup(_seType);
+        if(GUILayout.Button("PlaySe"))
+        {
+            SoundManager.PlayOneShot(_seType);
         }
     }
 

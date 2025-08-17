@@ -71,11 +71,20 @@ public class FieldPlayerController : NetworkBehaviour
     public Observable<IStatusEffect> OnStatusEffectExecuteObservable() => _onStatusEffectExecute;
     private IStatusEffect _iCurrentStatueEffect = null;
     private CompositeDisposable _inputDisposables = new();
-    private const float HPRECOVER_SELF_RATE = 5f;
+    private const float HPRECOVER_SELF_RATE = 15f;
     private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
+    private SaddleType _saddleType;
+    private AudioSource _saddleSeCache = null;
+    private AudioListener _audioListener = null;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
+        MatchModel.GetInstance().OnMatchFinishedObservable()
+        .Where(_ => _saddleSeCache != null)
+        .Subscribe(_ => {
+            _saddleSeCache.enabled = false;
+         })
+        .AddTo(this);
     }
     public override void Spawned()
     {
@@ -84,7 +93,7 @@ public class FieldPlayerController : NetworkBehaviour
         Debug.Log($"player {PlayerId} FieldPlayerController Spawned");
 
         var obj = PlayerRootObject.Instance.GetPlayerInfoObject(PlayerId);
-        var saddle = obj.PlayerEquipment.SaddleType;
+        _saddleType = (SaddleType)obj.PlayerEquipment.SaddleType;
         var chara = obj.PlayerEquipment.Character;
 
         var driverPrefab = ResourceContainer.Instance.GetCharacterPrefab((Characters)chara);
@@ -93,15 +102,24 @@ public class FieldPlayerController : NetworkBehaviour
         SkillBase = _playerBase.GetComponent<SkillBase>();
         SkillBase.Init(this);
 
-        SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage((SaddleType)saddle, true);
+        SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage(_saddleType, true);
         _vehicle = GetComponent<VehicleBase>();
         IsReady = true;
 
-        _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == (SaddleType)saddle).HeatRate;
+        _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == _saddleType).HeatRate;
         _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).AppendHP;
         HealthPoint.Init(_appendHp);
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
+        _saddleSeCache = SoundManager.GetSaddleAudio(_saddleType);
+        _saddleSeCache.transform.SetParent(this.transform);
+
+        if(PlayerId != RoomModel.GetInstance().SelfPlayerRef.PlayerId)
+        {
+            var source = _saddleSeCache.GetComponent<AudioSource>();
+            source.spatialBlend = 0.92f;
+            source.volume = 1.0f;
+        }
     }
     public void SetupInitPos(Vector3 pos)
     {
@@ -144,6 +162,9 @@ public class FieldPlayerController : NetworkBehaviour
         .Where(_ => !_recovering && _specialPoint.IsMax)
         .Subscribe(x => PlayerOnInputUseSkill())
         .AddTo(_inputDisposables);
+
+        MatchCameraController.Instance.SwitchPlayerLisitener(true);
+        _audioListener = gameObject.AddComponent<AudioListener>();
     }
     public override void FixedUpdateNetwork()
     {
@@ -281,22 +302,30 @@ public class FieldPlayerController : NetworkBehaviour
         _vehicle.UnRegistry();
         _inputDisposables?.Dispose();
         _inputDisposables = null;
+
+        if (_audioListener != null)
+        {
+            _audioListener.enabled = false;
+            Destroy(_audioListener);
+        }
     }
 
-    public void OnReceivedJumpInOut(bool jumpDown)
+    public void OnReceivedJumpInOut(bool jumdIn)
     {
-        if (jumpDown)
+        if (jumdIn)
         {
             _playerBase.transform.SetParent(CharaPoint);
             _playerBase.transform.localPosition = Vector3.zero;
+            _saddleSeCache?.gameObject.SetActive(true);
         }
         else
         {
             _playerBase.transform.SetParent(LandingTransform);
             _playerBase.transform.localPosition = Vector3.zero;
+            _saddleSeCache?.gameObject.SetActive(false);
         }
 
-        _vehicle.IsPushing = !jumpDown;
+        _vehicle.IsPushing = !jumdIn;
     }
     public void OnReceivedUseSkill()
     {
@@ -306,6 +335,12 @@ public class FieldPlayerController : NetworkBehaviour
     public void OnReceivedFinishSkill()
     {
         SkillBase.FinishPlaySkill();
+
+        if (_saddleSeCache != null)
+        {
+            _saddleSeCache.Stop();
+            _saddleSeCache.enabled = false;
+        }
     }
     public void OnReceivedStatusEffect(int statusEffectType)
     {

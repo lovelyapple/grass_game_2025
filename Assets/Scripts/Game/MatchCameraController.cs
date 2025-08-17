@@ -8,6 +8,7 @@ public class MatchCameraController : MonoBehaviour
     [SerializeField] private float followSpeed = 5f;
     [SerializeField] private float fixedY = 5f; // 固定するY座標
     [SerializeField] private float fixedX = -10f; // 固定するZ座標
+    [SerializeField] AudioListener CameraListener;
     private void Awake()
     {
         Instance = this;
@@ -32,6 +33,10 @@ public class MatchCameraController : MonoBehaviour
     public void SetupTarget(Transform trn)
     {
         target = trn;
+    }
+    public void SwitchPlayerLisitener(bool usePlayer)
+    {
+        CameraListener.enabled = !usePlayer;
     }
     [ContextMenu("Execute")]
     public void ShakeCamera()
