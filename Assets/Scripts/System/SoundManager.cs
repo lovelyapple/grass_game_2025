@@ -6,21 +6,8 @@ using Cysharp.Threading.Tasks;
 using R3;
 using UnityEngine;
 using UnityEngine.Audio;
-public enum SeType
-{
-    Cheers,
-    MatchFinished,
-    Max,
-}
 public class SoundManager : MonoBehaviour
 {
-
-    [Serializable]
-    public class SeData
-    {
-        public SeType Type;
-        public AudioClip Clip; 
-    }
     private static SoundManager _instance;
     public AudioSource seSource;
     public void Awake()
@@ -42,11 +29,13 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioSource TitleBGM;
     [SerializeField] AudioSource GameBGM;
     [SerializeField] AudioSource ResultBGM;
-    
+
+    [SerializeField] SeDataHolder SeHolder;
+
     private const float DEFAULT_BGM_VOLUM = 0.1f;
     private const float LOW_BGM_VOLUM = 0.05f;
     private AudioSource _currentBgmSource;
-    [SerializeField] List<SeData> SeDataList = new List<SeData>();
+
     [SerializeField] List<SeController> SeControllers = new List<SeController>();
     public static AudioMixerGroup SeMixerGroup() => _instance.GameAudioMixer.FindMatchingGroups("SE")[0];
     public static void PlaySE(AudioClip clip)
@@ -60,7 +49,7 @@ public class SoundManager : MonoBehaviour
     }
     private void PlayerOneShot(SeType seType)
     {
-        var seClip = SeDataList.FirstOrDefault(x => x.Type == seType).Clip;
+        var seClip = SeHolder.GetSeData(seType);
 
         var emptyCtrl = SeControllers.FirstOrDefault(x => x.IsEmpty);
 

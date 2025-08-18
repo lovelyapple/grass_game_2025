@@ -9,7 +9,7 @@ using UnityEngine.Audio;
 public class SeController : MonoBehaviour
 {
     private const float _startTimeOutSec = 3f;
-        private const float _endTimeOutSec = 5f;
+    private const float _endTimeOutSec = 5f;
     [SerializeField] AudioSource Source;
     private AudioMixerGroup _mixerGroup;
     public bool IsEmpty => !Source.isPlaying;
