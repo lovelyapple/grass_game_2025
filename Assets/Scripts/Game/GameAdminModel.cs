@@ -161,7 +161,10 @@ public class GameAdminModel : IGameAdminModel
         {
             if (_currentRoomPhase == RoomPhase.CountDown)
             {
-                StartCountDownAdmin();
+                if (!needGotoTitle)
+                {
+                    StartCountDownAdmin();
+                }
             }
             else if (_currentRoomPhase == RoomPhase.Waiting)
             {
