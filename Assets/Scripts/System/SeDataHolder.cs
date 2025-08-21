@@ -7,6 +7,7 @@ public enum SeType
     Cheers,
     MatchFinished,
     Button_Common_Se,
+    Button_Confirm_Se,
     Se_Skill_Camera_Flash,
     Se_Skill_Car_Rush,
     Se_Skill_Drop_Down,
