@@ -33,7 +33,7 @@ public class RoomListController : MonoBehaviour
         var closeBtnObservable = ControllerReceiver.OnTapButtonObservable()
         .Where(btn => btn == CloseButton).Select(x => Unit.Default);
 
-        Observable.Merge(refreshBtnObservable, CloseButton.OnClickAsObservable())
+        Observable.Merge(closeBtnObservable, CloseButton.OnClickAsObservable())
         .Subscribe(_ =>
         {
             gameObject.SetActive(false);
