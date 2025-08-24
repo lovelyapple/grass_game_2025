@@ -51,6 +51,7 @@ public class ResourceContainer : MonoBehaviour
     [SerializeField] private List<DriverPrefabContainer> DriverPrefabs;
     [SerializeField] private List<StatusEffectIcon> StatusEffectIcons;
     [SerializeField] private List<StatusEffectFx> StatusEffectFxPrefab;
+    [SerializeField] private Image ButtonFramePrefab;
 
     public static ResourceContainer Instance { get; private set; }
     public void Awake()
@@ -89,5 +90,9 @@ public class ResourceContainer : MonoBehaviour
     public GameObject GetStatusEffectFx(Characters type)
     {
         return StatusEffectFxPrefab.FirstOrDefault(x => x.CharaType == type).Prefab;
+    }
+    public Image GetButtonSelectFrame()
+    {
+        return ButtonFramePrefab;
     }
 }

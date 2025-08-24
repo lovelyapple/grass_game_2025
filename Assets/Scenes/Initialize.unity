@@ -564,6 +564,7 @@ MonoBehaviour:
     Prefab: {fileID: 5113205534830423114, guid: 8a78e4dde106c5a4d8ccbb3546de4134, type: 3}
   - CharaType: 2
     Prefab: {fileID: 7509047084589990653, guid: 9e18b1f57707ab34f9f483b599261569, type: 3}
+  ButtonFramePrefab: {fileID: 5553957042231871514, guid: 729a36d9f504794469186dd3d236a5b6, type: 3}
 --- !u!4 &1613291600
 Transform:
   m_ObjectHideFlags: 0
