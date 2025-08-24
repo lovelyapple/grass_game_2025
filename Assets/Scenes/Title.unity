@@ -14677,6 +14677,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22a80108fca37aa418ef885ca26563af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ControllerReceiver: {fileID: 9075347100812304479}
   RoomNameLabel: {fileID: 5212594904513148644}
   PlayerCountLabel: {fileID: 7601766774755030452}
   RoomStateLabel: {fileID: 4002368400401075573}
@@ -16736,6 +16737,7 @@ GameObject:
   - component: {fileID: 6915523310703835257}
   - component: {fileID: 5313443184198575608}
   - component: {fileID: 5530697165853890962}
+  - component: {fileID: 9075347100812304479}
   m_Layer: 5
   m_Name: RoomDetailController
   m_TagString: Untagged
@@ -16743,6 +16745,19 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
+--- !u!114 &9075347100812304479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9075347100812304478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ba8d4a2039365b41b77d1630fa40e16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentUIButtons: []
 --- !u!222 &9105348113205389059
 CanvasRenderer:
   m_ObjectHideFlags: 0
