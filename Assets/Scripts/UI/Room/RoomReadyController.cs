@@ -6,9 +6,12 @@ using System.Linq;
 using UnityEngine.UI;
 using TMPro;
 using StarMessage.Models;
+using Sytem.Controller;
+using Unity.Collections;
 
 public class RoomReadyController : MonoBehaviour
 {
+    [SerializeField] ControllerSelectButtonsReceiver ControllerReceiver;
     [SerializeField] TextMeshProUGUI RoomNameLabel;
     [SerializeField] TextMeshProUGUI PlayerCountLabel;
     [SerializeField] TextMeshProUGUI RoomStateLabel;
@@ -39,27 +42,45 @@ public class RoomReadyController : MonoBehaviour
         .Subscribe(x => OnPlayerLeave(x))
         .AddTo(this);
 
-        CharaChangeButton.OnClickAsObservable()
+        ControllerReceiver.AddButton(CharaChangeButton);
+        var charaBtn = ControllerReceiver.OnTapButtonObservable()
+        .Where(x => x == CharaChangeButton && CharaChangeButton.interactable).Select(x => Unit.Default);
+        Observable.Merge(charaBtn, CharaChangeButton.OnClickAsObservable())
         .Subscribe(_ => OnClickCharaChange())
         .AddTo(this);
 
-        SaddleChangeButton.OnClickAsObservable()
+        ControllerReceiver.AddButton(SaddleChangeButton);
+        var saddleBtn = ControllerReceiver.OnTapButtonObservable()
+        .Where(x => x == SaddleChangeButton && SaddleChangeButton.interactable).Select(x => Unit.Default);
+        Observable.Merge(saddleBtn, SaddleChangeButton.OnClickAsObservable())
         .Subscribe(_ => OnClickSaddleChange())
         .AddTo(this);
 
-        VehicleChangeButton.OnClickAsObservable()
+        ControllerReceiver.AddButton(VehicleChangeButton);
+        var vehicleBtn = ControllerReceiver.OnTapButtonObservable()
+        .Where(x => x == VehicleChangeButton && VehicleChangeButton.interactable).Select(x => Unit.Default);
+        Observable.Merge(vehicleBtn, VehicleChangeButton.OnClickAsObservable())
         .Subscribe(_ => OnClickVehicleChange())
         .AddTo(this);
-        
-        ConfirmButton.OnClickAsObservable()
-        .Subscribe(_ => OnConfirm())
-        .AddTo(this);
 
-        RandomButton.OnClickAsObservable()
+        ControllerReceiver.AddButton(RandomButton);
+        var randomBtn = ControllerReceiver.OnTapButtonObservable()
+        .Where(x => x == RandomButton && RandomButton.interactable).Select(x => Unit.Default);
+        Observable.Merge(randomBtn, RandomButton.OnClickAsObservable())
         .Subscribe(_ => ShaffleSelfEquipment())
         .AddTo(this);
 
-        CloseButton.OnClickAsObservable()
+        ControllerReceiver.AddButton(ConfirmButton);
+        var confirmBtn = ControllerReceiver.OnTapButtonObservable()
+        .Where(x => x == ConfirmButton && ConfirmButton.interactable).Select(x => Unit.Default);
+        Observable.Merge(confirmBtn, ConfirmButton.OnClickAsObservable())
+        .Subscribe(_ => OnConfirm())
+        .AddTo(this);
+
+        ControllerReceiver.AddButton(CloseButton);
+        var closeBtn = ControllerReceiver.OnTapButtonObservable()
+        .Where(x => x == CloseButton && CloseButton.interactable).Select(x => Unit.Default);
+        Observable.Merge(closeBtn, CloseButton.OnClickAsObservable())
         .Subscribe(_ => RoomModel.GetInstance().ShutdownAndGotoTitle())
         .AddTo(this);
 

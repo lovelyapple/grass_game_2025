@@ -57,7 +57,7 @@ public class GameInputController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space) || _isPressingAccelerateUI)
+        if (Input.GetKey(KeyCode.Space) || _isPressingAccelerateUI || Input.GetKey(KeyCode.Joystick1Button2))
         {
             _isAccelerating.Value = true;
         }
@@ -66,11 +66,11 @@ public class GameInputController : MonoBehaviour
             _isAccelerating.Value = false;
         }
 
-        if (Input.GetKey(KeyCode.UpArrow) || _isPressingUpUI)
+        if (Input.GetKey(KeyCode.UpArrow) || _isPressingUpUI || Input.GetAxis("Vertical") > 0)
         {
             _moveDir.OnNext(HorizontalMoveDir.Right);
         }
-        else if (Input.GetKey(KeyCode.DownArrow) || _isPressingDownUI)
+        else if (Input.GetKey(KeyCode.DownArrow) || _isPressingDownUI || Input.GetAxis("Vertical") <0)
         {
             _moveDir.OnNext(HorizontalMoveDir.Left);
         }
@@ -79,7 +79,7 @@ public class GameInputController : MonoBehaviour
             _moveDir.OnNext(HorizontalMoveDir.None);
         }
 
-        if(Input.GetKeyDown(KeyCode.Return))
+        if(Input.GetKeyDown(KeyCode.Return) || Input.GetKey(KeyCode.Joystick1Button0))
         {
             _useSkillSubject.OnNext(Unit.Default);
         }

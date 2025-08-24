@@ -62,7 +62,10 @@ public class RoomModel : SingletonBase<RoomModel>
             // この段階Amdinのstateまた生成されていない...
             if (NetworkRunnerController.Runner.SessionInfo.PlayerCount == 1)
             {
-                NetworkRunnerController.Runner.Shutdown();
+                CommonDialogController.Show("Room was shut down, \n Back to Title", () =>
+                {
+                    ShutdownAndGotoTitle();
+                });
                 Debug.LogError($"Adminがいない部屋にはいった、退室します");
                 return;
             }
@@ -113,8 +116,11 @@ public class RoomModel : SingletonBase<RoomModel>
         {
             if ( playerRef.PlayerId == 1)
             {
-                Debug.LogError("Admin left room ");
-                ShutdownAndGotoTitle();
+                CommonDialogController.Show("Room was shut down, \n Back to Title", () =>
+                {
+                    ShutdownAndGotoTitle();
+                });
+
                 return;
             }
 
@@ -208,7 +214,10 @@ public class RoomModel : SingletonBase<RoomModel>
         {
             if (playerId == SelfPlayerRef.PlayerId)
             {
-                ShutdownAndGotoTitle();
+                CommonDialogController.Show("Kicked by Admin, \n Back to Title", () =>
+                {
+                    ShutdownAndGotoTitle();
+                });
             }
         }
     }

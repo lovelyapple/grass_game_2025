@@ -1,12 +1,14 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
+using Sytem.Controller;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class JoinPlayerTypeSelectView : MonoBehaviour
 {
+    [SerializeField] ControllerSelectButtonsReceiver ControllerReceiver;
     [SerializeField] Button JoinAdminButton;
     [SerializeField] Button JoinPlayerButton;
     [SerializeField] TMP_InputField AdminRoomInputField;
@@ -15,11 +17,17 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
     private int _clickResult = 0;
     private void Awake()
     {
-        JoinAdminButton.OnClickAsObservable()
+        var adminBtnObserable = ControllerReceiver.OnTapButtonObservable()
+        .Where(btn => btn == JoinAdminButton).Select(_ => Unit.Default);
+
+        Observable.Merge(adminBtnObserable, JoinAdminButton.OnClickAsObservable())
         .Subscribe(_ => _clickResult = (int)PlayerRole.Admin)
         .AddTo(this);
 
-        JoinPlayerButton.OnClickAsObservable()
+        var playerBtnObservable = ControllerReceiver.OnTapButtonObservable()
+        .Where(btn => btn == JoinPlayerButton).Select(_ => Unit.Default);
+
+        Observable.Merge(playerBtnObservable, JoinPlayerButton.OnClickAsObservable())
         .Where(_ => !string.IsNullOrEmpty(PlayerNameInputField.text))
         .Subscribe(_ =>
         {
@@ -38,4 +46,5 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
         gameObject.SetActive(false);
         return ((PlayerRole)_clickResult, AdminRoomInputField.text);
     }
+
 }

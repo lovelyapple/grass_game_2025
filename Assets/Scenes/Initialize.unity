@@ -564,6 +564,7 @@ MonoBehaviour:
     Prefab: {fileID: 5113205534830423114, guid: 8a78e4dde106c5a4d8ccbb3546de4134, type: 3}
   - CharaType: 2
     Prefab: {fileID: 7509047084589990653, guid: 9e18b1f57707ab34f9f483b599261569, type: 3}
+  ButtonFramePrefab: {fileID: 5553957042231871514, guid: 729a36d9f504794469186dd3d236a5b6, type: 3}
 --- !u!4 &1613291600
 Transform:
   m_ObjectHideFlags: 0
@@ -980,6 +981,14 @@ PrefabInstance:
       propertyPath: SeHolder
       value: 
       objectReference: {fileID: 11400000, guid: 3031fd08589f0074bb576cc4d61753e7, type: 2}
+    - target: {fileID: 4774376068387899482, guid: cd9a540f22c563244bf44f21e3090ebc, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: c373870d499dbf646bec4a8b537f4462, type: 3}
+    - target: {fileID: 4774376068387899482, guid: cd9a540f22c563244bf44f21e3090ebc, type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: c373870d499dbf646bec4a8b537f4462, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

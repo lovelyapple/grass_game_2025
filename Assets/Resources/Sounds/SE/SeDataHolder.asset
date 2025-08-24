@@ -17,11 +17,13 @@ MonoBehaviour:
     Clip: {fileID: 8300000, guid: 2ed8479a5c5eee74aadcc81a501e1b90, type: 3}
   - Type: 1
     Clip: {fileID: 8300000, guid: 8ddc8e6a92cf2bb4595d21ef649f1828, type: 3}
-  - Type: 2
-    Clip: {fileID: 8300000, guid: ed187a681dfd22740802b383897bd2e9, type: 3}
-  - Type: 3
-    Clip: {fileID: 8300000, guid: 9c1aef6e327c3b0449d77ffdae07c0e7, type: 3}
   - Type: 4
+    Clip: {fileID: 8300000, guid: ed187a681dfd22740802b383897bd2e9, type: 3}
+  - Type: 5
+    Clip: {fileID: 8300000, guid: 9c1aef6e327c3b0449d77ffdae07c0e7, type: 3}
+  - Type: 6
     Clip: {fileID: 8300000, guid: c9e0f20bd7a6fa44a95414d1227744af, type: 3}
   - Type: 2
+    Clip: {fileID: 8300000, guid: 4a55d4f3afb2e5f41b7debbb05739f80, type: 3}
+  - Type: 3
     Clip: {fileID: 8300000, guid: c6bfb9145b3c0b94c9026aea79e71645, type: 3}
