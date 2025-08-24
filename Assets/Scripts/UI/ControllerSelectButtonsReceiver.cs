@@ -33,7 +33,7 @@ namespace Sytem.Controller
                     _inputAxisReceivedSubject.OnNext(outPut);
                     UsingController = true;
 
-                    UpdateFrame();
+                    UpdateFrame(outPut == ControllerAxis.Down);
                     SoundManager.PlayOneShot(SeType.Button_Common_Se);
                 })
                 .AddTo(this);
@@ -52,13 +52,13 @@ namespace Sytem.Controller
                 _inputVerticalSubject.OnNext(axis);
             }
 
-            if(Input.GetKeyDown(KeyCode.Joystick1Button0) && _selectingButton != null)
+            if(Input.GetKeyDown(KeyCode.Joystick1Button3) && _selectingButton != null)
             {
                 _onTapButtonSubject.OnNext(_selectingButton);
                 SoundManager.PlayOneShot(SeType.Button_Confirm_Se);
             }
         }
-        private void UpdateFrame()
+        private void UpdateFrame(bool isNext = true)
         {
             if (_selectingButton == null)
             {
@@ -66,24 +66,48 @@ namespace Sytem.Controller
             }
             else
             {
-                if (_selectedFrameImage == null)
+                var index = CurrentUIButtons.IndexOf(_selectingButton);
+
+
+                var nextIndex = 0;
+
+                if(isNext)
                 {
-                    _selectedFrameImage = Instantiate(ResourceContainer.Instance.GetButtonSelectFrame(), transform, false);
+                    nextIndex = (index + 1) % CurrentUIButtons.Count;
+                }
+                else
+                {
+                    nextIndex = (index - 1 + CurrentUIButtons.Count) % CurrentUIButtons.Count;
                 }
 
-                var index = CurrentUIButtons.IndexOf(_selectingButton);
-                var nextIndex = (index + 1) % CurrentUIButtons.Count;
-
                 _selectingButton = CurrentUIButtons[nextIndex];
-                _selectedFrameImage.transform.SetParent(_selectingButton.transform);
-                var frameRect = _selectedFrameImage.rectTransform;
-                frameRect.anchoredPosition = Vector2.zero;
-                frameRect.offsetMin = new Vector2(-Margin, -Margin);
-                frameRect.offsetMax = new Vector2(Margin, Margin);
-                frameRect.anchorMin = Vector2.zero;
-                frameRect.anchorMax = Vector2.one;
+            }
 
-                frameRect.SetSiblingIndex(0);
+            if (_selectedFrameImage == null)
+            {
+                _selectedFrameImage = Instantiate(ResourceContainer.Instance.GetButtonSelectFrame(), transform, false);
+            }
+
+            _selectedFrameImage.transform.SetParent(_selectingButton.transform);
+            var frameRect = _selectedFrameImage.rectTransform;
+            frameRect.anchoredPosition = Vector2.zero;
+            frameRect.offsetMin = new Vector2(-Margin, -Margin);
+            frameRect.offsetMax = new Vector2(Margin, Margin);
+            frameRect.anchorMin = Vector2.zero;
+            frameRect.anchorMax = Vector2.one;
+
+            frameRect.SetSiblingIndex(0);
+        }
+        public void AddButton(Button button)
+        {
+            if(CurrentUIButtons == null)
+            {
+                CurrentUIButtons = new List<Button>();
+            }
+
+            if(!CurrentUIButtons.Contains(button))
+            {
+                CurrentUIButtons.Add(button);
             }
         }
     }
