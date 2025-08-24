@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
+using Sytem.Controller;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class RoomListController : MonoBehaviour
 {
+    [SerializeField] ControllerSelectButtonsReceiver ControllerReceiver;
     [SerializeField] GameObject RoomPrefab;
     [SerializeField] Transform RoomListRootTransform;
     [SerializeField] Button RefreshButton;
@@ -20,16 +22,31 @@ public class RoomListController : MonoBehaviour
     private string _roonName = null;
     public void Awake()
     {
-        RefreshButton.OnClickAsObservable()
+        var refreshBtnObservable = ControllerReceiver.OnTapButtonObservable()
+        .Where(btn => btn == RefreshButton).Select(x => Unit.Default);
+
+        Observable.Merge(refreshBtnObservable, RefreshButton.OnClickAsObservable())
         .Where(_ => !_isRefreshing)
-        .Subscribe(async async  => await RefreshRoomListAsync())
+        .Subscribe(async async => await RefreshRoomListAsync())
         .AddTo(this);
 
-        CloseButton.OnClickAsObservable()
+        var closeBtnObservable = ControllerReceiver.OnTapButtonObservable()
+        .Where(btn => btn == CloseButton).Select(x => Unit.Default);
+
+        Observable.Merge(refreshBtnObservable, CloseButton.OnClickAsObservable())
         .Subscribe(_ =>
         {
             gameObject.SetActive(false);
             _roonName = GameConstant.EmptyRoomName;
+        })
+        .AddTo(this);
+
+        ControllerReceiver.OnTapButtonObservable()
+        .Where(btn => _roomCells.Any(x => x.ThisButton == btn))
+        .Subscribe(btn => 
+        {
+            var cell = _roomCells.FirstOrDefault(x => x.ThisButton == btn);
+            _roonName = cell.RoomName;
         })
         .AddTo(this);
     }
@@ -78,6 +95,7 @@ public class RoomListController : MonoBehaviour
                         _roonName = roomName;
                     });
 
+                    ControllerReceiver.AddButton(cell.ThisButton);
                     _subscriptions.Add(diposable);
                     _roomCells.Add(cell);
                 }

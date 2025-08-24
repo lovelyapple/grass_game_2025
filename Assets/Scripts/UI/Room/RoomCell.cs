@@ -9,6 +9,7 @@ public class RoomCell : MonoBehaviour
     [SerializeField] TextMeshProUGUI PlayerCountLabel;
     [SerializeField] TextMeshProUGUI RoomPhaseLabel;
     [SerializeField] Button JoinRoomBtn;
+    public Button ThisButton => JoinRoomBtn;
     public string RoomName = "";
     private int _playerCnt;
     private string _roomPhase;

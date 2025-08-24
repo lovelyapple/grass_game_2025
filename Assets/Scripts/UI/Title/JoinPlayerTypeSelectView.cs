@@ -46,4 +46,5 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
         gameObject.SetActive(false);
         return ((PlayerRole)_clickResult, AdminRoomInputField.text);
     }
+
 }
