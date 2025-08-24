@@ -5,6 +5,7 @@ using System.Threading;
 using StarMessage.Models;
 using Fusion;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 public class TitleController : MonoBehaviour
 {
     [SerializeField] JoinPlayerTypeSelectView JoinSelectView;
