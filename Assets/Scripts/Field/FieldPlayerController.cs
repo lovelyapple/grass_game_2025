@@ -82,7 +82,7 @@ public class FieldPlayerController : NetworkBehaviour
         MatchModel.GetInstance().OnMatchFinishedObservable()
         .Where(_ => _saddleSeCache != null)
         .Subscribe(_ => {
-            _saddleSeCache.enabled = false;
+            _saddleSeCache.gameObject.SetActive(false);
          })
         .AddTo(this);
     }
@@ -310,7 +310,7 @@ public class FieldPlayerController : NetworkBehaviour
         }
     }
 
-    public void OnReceivedJumpInOut(bool jumdIn)
+    public void OnReceivedJumpInOut(bool jumdIn) 
     {
         if (jumdIn)
         {
@@ -338,8 +338,8 @@ public class FieldPlayerController : NetworkBehaviour
 
         if (_saddleSeCache != null)
         {
-            _saddleSeCache.Stop();
-            _saddleSeCache.enabled = false;
+            _saddleSeCache?.Stop();
+            _saddleSeCache?.gameObject.SetActive(false);
         }
     }
     public void OnReceivedStatusEffect(int statusEffectType)
