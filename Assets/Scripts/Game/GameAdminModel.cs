@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
+using UnityEngine.UI;
 public interface IGameAdminModel
 {
     public bool IsAdmin { get; }
@@ -18,6 +19,7 @@ public interface IGameAdminModel
     public void OnPlayerFinishedLine(int playerId);
     public void OnReturnRoomTop();
     public void UpdateAdminView();
+    public void OnPlayerEquipmentConfirm(int playerId);
     public Observable<Unit> RequestUpateAdminViewObservable();
     public void KickPlayer(int playerId);
 }
@@ -28,6 +30,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController) { }
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject) { }
     public void OnPlayerLeave(int playerId) { }
+    public void OnPlayerEquipmentConfirm(int playerId) { }
     public void OnCountDownUpdate(double timeRemain) { }
     public void OnMatchStart() { }
     public void OnCountDownFinished() { }
@@ -44,6 +47,7 @@ public class GameAdminModel : IGameAdminModel
     private PlayerRef _adminRef;
     private RoomStateController _roomStateController;
     private Dictionary<int, PlayerInfoObject> _playerInfoObjects = new Dictionary<int, PlayerInfoObject>();
+    private Dictionary<int, bool> _playerEquipConfirmedDict = new Dictionary<int, bool>();
     private RoomPhase _currentRoomPhase;
     private bool _isSendRequestUpdateRoomPlayerCount = false;
     private bool _isSendRequestUpdateRoomPhase = false;
@@ -59,6 +63,7 @@ public class GameAdminModel : IGameAdminModel
     public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
+        _roomStateController.AdminId = _adminRef.PlayerId;
         _currentRoomPhase = RoomPhase.Waiting;
         UpdateRoomPhaseOnPlayerJoinLeave();
         SyncUpdateRoomPhase();
@@ -66,11 +71,23 @@ public class GameAdminModel : IGameAdminModel
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
     {
         _playerInfoObjects.Add(infoObject.PlayerId, infoObject);
+
+        if(infoObject.PlayerId != _adminRef.PlayerId)
+        {
+            _playerEquipConfirmedDict.Add(infoObject.PlayerId, infoObject.IsEquipmentConfirmed);
+        }
+
         UpdateRoomPhaseOnPlayerJoinLeave();
     }
     public void OnPlayerLeave(int playerId)
     {
         _playerInfoObjects.Remove(playerId);
+
+        if (playerId != _adminRef.PlayerId)
+        {
+            _playerEquipConfirmedDict.Remove(playerId);
+        }
+
         UpdateRoomPhaseOnPlayerJoinLeave();
     }
     private int? _requestOverrideRoomPhase = null;
@@ -109,9 +126,29 @@ public class GameAdminModel : IGameAdminModel
     }
     private void UpdateRoomPhaseOnPlayerJoinLeave()
     {
-        RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(RoomModel.GetInstance().RoomName, GetCurrentPlayerCount()).Forget();
+        RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(RoomModel.GetInstance().RoomName).Forget();
     }
-    private async UniTask<Unit> RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(string roomName, int currentPlayerCount)
+    public void OnPlayerEquipmentConfirm(int playerId)
+    {
+        _playerEquipConfirmedDict[playerId] = true;
+        UpdateEquipmenConfirm();
+    }
+    private void UpdateEquipmenConfirm()
+    {
+        if (_playerEquipConfirmedDict.Values.Count(x => x) >= GameConstant.GameStartPlayerCount)
+        {
+            if (_currentRoomPhase == RoomPhase.Waiting)
+            {
+                RequestUpdateRoomPhase(RoomPhase.CountDown);
+                StartCountDownAdmin();
+            }
+        }else if (_currentRoomPhase != RoomPhase.Waiting)
+        {
+            RequestUpdateRoomPhase(RoomPhase.Waiting);
+            CancelCountDownAdmin();
+        }
+    }
+    private async UniTask<Unit> RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(string roomName)
     {
         _playerCountRequesting = GetCurrentPlayerCount();
 
@@ -121,8 +158,6 @@ public class GameAdminModel : IGameAdminModel
         }
 
         _isSendRequestUpdateRoomPlayerCount = true;
-
-        var prevRoomPhase = _currentRoomPhase;
         var needGotoTitle = false;
 
         while (_playerCountRequesting.HasValue)
@@ -130,49 +165,20 @@ public class GameAdminModel : IGameAdminModel
             var playerCount = _playerCountRequesting.Value;
             _playerCountRequesting = null;
 
-            if (prevRoomPhase == RoomPhase.Waiting)
+            if (playerCount == 0)
             {
-                if (playerCount >= GameConstant.GameStartPlayerCount)
-                {
-                    _currentRoomPhase =  RoomPhase.CountDown;
-                }
+                needGotoTitle = true;
+                await RequestUpdateRoomPhaseAsync(RoomModel.GetInstance().RoomName, RoomPhase.Waiting);
             }
-            else if (prevRoomPhase == RoomPhase.CountDown || prevRoomPhase == RoomPhase.CountLock)
+            else
             {
-                if (playerCount < GameConstant.GameStartPlayerCount)
-                {
-                    _currentRoomPhase =  RoomPhase.Waiting;
-                }
-            }
-            else if (prevRoomPhase == RoomPhase.MatchLoading || prevRoomPhase == RoomPhase.Playing)
-            {
-                if(playerCount == 0)
-                {
-                    needGotoTitle = true;
-                }
+                await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
             }
 
-            await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
+            UpdateEquipmenConfirm();
         }
 
         _isSendRequestUpdateRoomPlayerCount = false;
-
-        if (_currentRoomPhase != prevRoomPhase)
-        {
-            if (_currentRoomPhase == RoomPhase.CountDown)
-            {
-                if (!needGotoTitle)
-                {
-                    StartCountDownAdmin();
-                }
-            }
-            else if (_currentRoomPhase == RoomPhase.Waiting)
-            {
-                CancelCountDownAdmin();
-            }
-
-            SyncUpdateRoomPhase();
-        }
 
         if(needGotoTitle)
         {

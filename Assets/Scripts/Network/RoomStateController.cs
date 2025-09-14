@@ -18,7 +18,7 @@ public class RoomStateController : NetworkBehaviour
     public int CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked]  
-    public int AdminId { get; private set; }
+    public int AdminId { get; set; }
     [Networked]
     public double RoomCountDownTime { get; set; }
     public static RoomStateController Instance;
