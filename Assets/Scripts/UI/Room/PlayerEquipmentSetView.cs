@@ -72,7 +72,7 @@ public class PlayerEquipmentSetView : MonoBehaviour
     [SerializeField] Image CharacterImage;
     [SerializeField] Image SaddleImage;
     [SerializeField] Image VehicleImage;
-    public int PlayerId { get; private set; }
+    public int PlayerId { get; private set; } = -1;
     private CancellationTokenSource _requestNameHandler;
     public void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {

@@ -35,6 +35,7 @@ public class PlayerEquipmentModel : SingletonBase<PlayerEquipmentModel>
                 PlayerId = playerId,
             };
 
+            GamePlayerInfoModel.GetInstance().UpdateSelfEquipment(SelfEquipmentSetInfo);
             var info = SelfEquipmentSetInfo.Clone();
             PlayerEquipmentSetInfos.Add(info);
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
 using StarMessage.Models;
@@ -29,8 +30,8 @@ public class RoomStateController : NetworkBehaviour
     public override void Spawned()
     {
         base.Spawned();
-        RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
         ModelCache.Admin.OnRoomStateControllerSpawn(this);
+        RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
         Instance = this;
     }
     public override void Despawned(NetworkRunner runner, bool hasState)
