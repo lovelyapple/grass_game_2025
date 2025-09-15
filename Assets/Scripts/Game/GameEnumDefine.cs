@@ -54,4 +54,8 @@ public static class GameConstant
     public const string EmptyRoomName = "Empty";
     public const int CountDownSec = 45;
     public const int FinalCountDownSec = 15;
+    public const float MaxHpBarValue = 800;
+    public const float MaxHeatBarValue = 100;
+    public const float MaxSpeedBarValue = 6;
+    public const float MaxWeigthBarValue = 800;
 }

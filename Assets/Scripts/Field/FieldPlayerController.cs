@@ -52,11 +52,13 @@ public class FieldPlayerController : NetworkBehaviour
 
     private NetworkTransform _networkTransform;
     private PlayerBase _playerBase;
+    private VehicleBase _vehicle;
     public int PlayerId { get; private set; }
     public bool IsReady = false;
     public bool IsFinished = false;
     private Vector3 _initPos;
-    private VehicleBase _vehicle;
+    private float _maxSpeed;
+    private float _acceleration;
     private float _saddleHeatRate;
     private float _appendHp;
     private SpecialPoint _specialPoint = new SpecialPoint();
@@ -106,8 +108,15 @@ public class FieldPlayerController : NetworkBehaviour
         _vehicle = GetComponent<VehicleBase>();
         IsReady = true;
 
+        var vechielParameter = ParameterHolder.Instance.VehcileParameters.FirstOrDefault(x => x.Type == (Vehicles)obj.PlayerEquipment.Vehicle);
+        _maxSpeed = vechielParameter.MaxSpeed;
+        _acceleration = vechielParameter.Acceleration;
         _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == _saddleType).HeatRate;
         _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).AppendHP;
+
+        _vehicle.MaxSpeed = _maxSpeed;
+        _vehicle.Acceleration = _acceleration;
+
         HealthPoint.Init(_appendHp);
 
         MatchModel.GetInstance().OnFieldPlayerControllerSpawned(this);
