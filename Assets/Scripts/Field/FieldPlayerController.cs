@@ -22,7 +22,7 @@ public class SpecialPoint
 }
 public class HealthPoint
 {
-    private const float MaxPoint = 300;
+    public const float MaxPoint = 300;
     public float TotalPoint = MaxPoint;
     public float CurrentPoint = MaxPoint;
     public bool IsMax => CurrentPoint >= TotalPoint;

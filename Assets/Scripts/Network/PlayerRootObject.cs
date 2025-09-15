@@ -80,7 +80,6 @@ public class PlayerRootObject : MonoBehaviour
     }
     public string GetPlayerInfoName(int playerId)
     {
-        Debug.LogWarning($"GetPlayerInfoName {playerId}");
         if (PlayerInfos.ContainsKey(playerId))
         {
             if(PlayerInfos[playerId].PlayerId <= 0)

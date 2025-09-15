@@ -46,6 +46,12 @@ public enum BgmType
     Game,
     Result,
 }
+public enum PlayerParameterType
+{
+    Hp,
+    Speed,
+    Heat,
+}
 public static class GameConstant 
 {
     public const int MaxRoomCount = 3;
@@ -54,8 +60,20 @@ public static class GameConstant
     public const string EmptyRoomName = "Empty";
     public const int CountDownSec = 45;
     public const int FinalCountDownSec = 15;
-    public const float MaxHpBarValue = 800;
+    public const float MaxHpBarValue = 600;
     public const float MaxHeatBarValue = 100;
     public const float MaxSpeedBarValue = 6;
-    public const float MaxWeigthBarValue = 800;
+    public static float GetParameterMaxValue(PlayerParameterType type)
+    {
+        switch(type)
+        {
+            case PlayerParameterType.Hp:
+                return MaxHpBarValue;
+            case PlayerParameterType.Speed:
+                return MaxSpeedBarValue;
+            default:
+            case PlayerParameterType.Heat:
+                return MaxHeatBarValue;
+        }
+    }
 }

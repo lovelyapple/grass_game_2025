@@ -96,7 +96,8 @@ public class TitleController : MonoBehaviour
         await UniTask.WaitUntil(() =>
             RoomStateController.Instance != null &&
             RpcConnector.Instance != null &&
-            RoomModel.GetInstance().SelfPlayerRef != null,
+            RoomModel.GetInstance().SelfPlayerRef != null &&
+            PlayerEquipmentModel.GetInstance().SelfEquipmentSetInfo != null,
             cancellationToken: token);
 
         if (!GameCoreModel.Instance.IsAdminUser)

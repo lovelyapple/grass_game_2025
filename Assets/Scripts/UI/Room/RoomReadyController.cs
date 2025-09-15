@@ -8,6 +8,7 @@ using TMPro;
 using StarMessage.Models;
 using Sytem.Controller;
 using Unity.Collections;
+using R3.Triggers;
 
 public class RoomReadyController : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public class RoomReadyController : MonoBehaviour
     [SerializeField] Button VehicleChangeButton;
     [SerializeField] Button ConfirmButton;
     [SerializeField] Button CloseButton;
+    [SerializeField] GameObject NotConfirmObj;
+    [SerializeField] GameObject ConfirmedObj;
     private List<Button> ActionButtonList;
     private void Awake()
     {
@@ -80,6 +83,7 @@ public class RoomReadyController : MonoBehaviour
         ControllerReceiver.AddButton(CloseButton);
         var closeBtn = ControllerReceiver.OnTapButtonObservable()
         .Where(x => x == CloseButton && CloseButton.interactable).Select(x => Unit.Default);
+
         Observable.Merge(closeBtn, CloseButton.OnClickAsObservable())
         .Subscribe(_ => RoomModel.GetInstance().ShutdownAndGotoTitle())
         .AddTo(this);
@@ -88,7 +92,7 @@ public class RoomReadyController : MonoBehaviour
             .Subscribe(roomPhase => OnRoomPhaseUpdate(roomPhase))
             .AddTo(this);
 
-        SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
+        SelfEquipmentSetView.UpdateEquipmentInfo(PlayerEquipmentModel.GetInstance().SelfEquipmentSetInfo);
         PlayerEquipmentSetViews.ForEach(x => x.SetAsEmpty());
 
         var selfId = RoomModel.GetInstance().SelfPlayerRef.PlayerId;
@@ -132,12 +136,15 @@ public class RoomReadyController : MonoBehaviour
                 SetButtonActive(true);
             }
         }
+
+        UpdateNotSave(false);
     }
     private void UpdateEquipmentInfo(EquipmentSetInfo equipmentSetInfo)
     {
         if(equipmentSetInfo.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
         {
             SelfEquipmentSetView.UpdateEquipmentInfo(equipmentSetInfo);
+            UpdateNotSave(false);
         }
         else
         {
@@ -173,6 +180,7 @@ public class RoomReadyController : MonoBehaviour
     private void OnConfirm()
     {
         PlayerEquipmentModel.GetInstance().SaveSelfEquipment();
+        UpdateNotSave(true);
     }
     private void ShaffleSelfEquipment()
     {
@@ -217,5 +225,10 @@ public class RoomReadyController : MonoBehaviour
     private void SetButtonActive(bool active)
     {
         ActionButtonList.ForEach(x => x.interactable = active);
+    }
+    private void UpdateNotSave(bool confirmed)
+    {
+        NotConfirmObj.SetActive(!confirmed);
+        ConfirmedObj.SetActive(confirmed);
     }
 }
