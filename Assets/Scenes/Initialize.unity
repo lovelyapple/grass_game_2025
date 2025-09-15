@@ -592,6 +592,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a7fcea090696e44f9075db53822bd2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  VehcileParameters:
+  - Type: 0
+    Name: Bicycle
+    MaxSpeed: 5.5
+    Acceleration: 10
+  - Type: 1
+    Name: Scooter
+    MaxSpeed: 6
+    Acceleration: 5
+  - Type: 2
+    Name: Unicyle
+    MaxSpeed: 5
+    Acceleration: 20
   SaddleParameters:
   - Type: 0
     HeatRate: 30

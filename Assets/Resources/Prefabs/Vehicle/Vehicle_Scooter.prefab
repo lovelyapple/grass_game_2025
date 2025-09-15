@@ -185,7 +185,7 @@ MonoBehaviour:
   Parameter:
     Name: GreenCar
     MaxSpeed: 6
-    Acceleration: 10
+    Acceleration: 5
   _currentSpeed: 0
   _accelerating: 0
   _horizontalMoveDir: 0

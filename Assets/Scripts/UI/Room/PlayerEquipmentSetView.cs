@@ -84,16 +84,6 @@ public class PlayerEquipmentSetView : MonoBehaviour
 
         RequestPlayerNameAsync().Forget();
     }
-    public void InitAsSelf(int playerId)
-    {
-        NameText.text = "Joinnig";
-        PlayerId = playerId;
-        CharacterImage.sprite = ResourceContainer.Instance.GetCharacterImage(Characters.JK, false);
-        SaddleImage.sprite = ResourceContainer.Instance.GetSaddleImage(SaddleType.Ice, false);
-        VehicleImage.sprite = ResourceContainer.Instance.GetVehicleImage(Vehicles.Bicycle, false);
-        gameObject.SetActive(true);
-        RequestPlayerNameAsync().Forget();
-    }
     private async UniTask<Unit> RequestPlayerNameAsync()
     {
         _requestNameHandler = new CancellationTokenSource();

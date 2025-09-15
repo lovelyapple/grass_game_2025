@@ -584,7 +584,7 @@ MonoBehaviour:
   SaddleTransform: {fileID: 6299082318114859922}
   Parameter:
     Name: GreenCar
-    MaxSpeed: 6
+    MaxSpeed: 5.5
     Acceleration: 10
   _currentSpeed: 0
   _accelerating: 0

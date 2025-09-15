@@ -3,19 +3,9 @@ using Fusion;
 using R3;
 using UnityEngine;
 
-[Serializable]
-public class VehicleParameter
-{
-    public string Name;
-    public float MaxSpeed;
-    public float Acceleration;
-}
 public class VehicleBase : NetworkBehaviour
 {
     public Transform SaddleTransform;
-
-    [SerializeField] VehicleParameter Parameter;
-
     public float _currentSpeed;
     public bool _accelerating;
     public HorizontalMoveDir _horizontalMoveDir;
@@ -28,6 +18,8 @@ public class VehicleBase : NetworkBehaviour
     private float _addSpeed = 0f;
     private bool _isRevertMoving = false;
     private bool _isStun = false;
+    public float MaxSpeed { get; set; }
+    public float Acceleration { get;set; }
     public bool IsPushing;
     public Action OnPositionUpdated = null;
     private void OnDestroy()
@@ -69,9 +61,9 @@ public class VehicleBase : NetworkBehaviour
 
         if (_accelerating && !IsPushing & !_isStun)
         { 
-            _currentSpeed += Runner.DeltaTime * Parameter.Acceleration;
+            _currentSpeed += Runner.DeltaTime * Acceleration;
 
-            _currentSpeed = Mathf.Clamp(_currentSpeed, 0, Parameter.MaxSpeed + _addSpeed);
+            _currentSpeed = Mathf.Clamp(_currentSpeed, 0, MaxSpeed + _addSpeed);
         }
         else if (_breaking)
         {

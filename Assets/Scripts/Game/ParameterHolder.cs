@@ -13,6 +13,14 @@ public class CharaParameter
     public Characters Type;
     public float AppendHP = 1.0f;
 }
+[Serializable]
+public class VehicleParameter
+{
+    public Vehicles Type;
+    public string Name;
+    public float MaxSpeed;
+    public float Acceleration;
+}
 public class ParameterHolder : MonoBehaviour
 {
     private static ParameterHolder _instance;
@@ -27,6 +35,7 @@ public class ParameterHolder : MonoBehaviour
             return _instance;
         }
     }
+    public List<VehicleParameter> VehcileParameters;
     public List<SaddleParameter> SaddleParameters;
     public List<CharaParameter> CharaParameters;
 }
