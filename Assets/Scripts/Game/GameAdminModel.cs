@@ -233,6 +233,7 @@ public class GameAdminModel : IGameAdminModel
     private void CancelCountDownAdmin()
     {
         RpcConnector.Instance.Rpc_BroadcastCancelCountDown(0);
+        _roomStateController.RoomCountDownTime = 0;
     }
     #endregion
     private void SyncUpdateRoomPhase()
