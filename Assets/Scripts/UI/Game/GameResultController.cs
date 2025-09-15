@@ -4,13 +4,21 @@ using Cysharp.Threading.Tasks;
 using R3;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameResultController : MonoBehaviour
 {
     [SerializeField] PlayerEquipmentSetView WinnerView;
     [SerializeField] TextMeshProUGUI TimeLeft;
+    [SerializeField] Button ReturnButton;
     private double RemainSeconds;
     private IDisposable _countdownSubscription;
+    private void Awake()
+    {
+        ReturnButton.OnClickAsObservable()
+        .Subscribe(_ => RoomModel.GetInstance().ShutdownAndGotoTitle())
+        .AddTo(this);
+    }
     private void OnDestory()
     {
         _countdownSubscription?.Dispose();
