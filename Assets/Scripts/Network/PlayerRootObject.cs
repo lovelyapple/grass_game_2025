@@ -3,6 +3,10 @@ using Fusion;
 using UnityEngine;
 using R3;
 using StarMessage.Models;
+using Cysharp.Threading.Tasks;
+using System.Threading;
+using Unity.Collections;
+using System.Linq;
 
 public class PlayerRootObject : MonoBehaviour
 {
@@ -57,6 +61,7 @@ public class PlayerRootObject : MonoBehaviour
         playerInfoObj.transform.parent = transform;
         playerInfoObj.gameObject.name = $"PlayerInfoObject_{playerInfoObj.PlayerRef.PlayerId}";
         RoomModel.GetInstance().OnPlayerInfoObjectJoined(playerInfoObj);
+        Debug.LogWarning($"OnPlayerInfoSpawnedAndRegister {playerInfoObj.PlayerRef.PlayerId}, name {playerInfoObj.name}");
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -75,7 +80,8 @@ public class PlayerRootObject : MonoBehaviour
     }
     public string GetPlayerInfoName(int playerId)
     {
-        if(PlayerInfos.ContainsKey(playerId))
+        Debug.LogWarning($"GetPlayerInfoName {playerId}");
+        if (PlayerInfos.ContainsKey(playerId))
         {
             if(PlayerInfos[playerId].PlayerId <= 0)
             {
@@ -96,5 +102,12 @@ public class PlayerRootObject : MonoBehaviour
 
         Debug.LogError($"PlayerInfoobj is null {playerId}");
         return null;
+    }
+    public async UniTask<Unit> WaitAllObjectReadyAsync(CancellationToken token)
+    {
+        await UniTask.WaitUntil(() => SelfInfoObject != null && !string.IsNullOrEmpty(SelfInfoObject.PlayerName), cancellationToken: token);
+        await UniTask.WaitUntil(() => PlayerInfos.Values.All(x => x.PlayerId != RoomModel.GetInstance().AdminId && !string.IsNullOrEmpty(x.PlayerName)), cancellationToken: token);
+
+        return Unit.Default;
     }
 }

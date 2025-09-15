@@ -11,6 +11,7 @@ public class PlayerInfoObject : NetworkBehaviour
     public string PlayerName { get => default; set { } }
     [Networked] public int PlayerId { get; set; }
     [Networked] public PlayerRef PlayerRef { get; set; }
+    [Networked] public bool IsEquipmentConfirmed { get; set; }
 
     // まぁ、たぶん使わないけど、一応
     [Networked, OnChangedRender(nameof(OnEquipmentUpdate))] 

@@ -25,6 +25,7 @@ public class RpcConnector : NetworkBehaviour
         };
 
         PlayerEquipmentModel.GetInstance().OnReceivePlayerEquipSave(info);
+        ModelCache.Admin.OnPlayerEquipmentConfirm(playerId);
     }
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void Rpc_BroadcastStartCountDown(double endTimeUnixMilliseconds)

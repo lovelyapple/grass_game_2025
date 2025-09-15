@@ -91,8 +91,10 @@ public class RoomReadyController : MonoBehaviour
         SelfEquipmentSetView.InitAsSelf(RoomModel.GetInstance().SelfPlayerRef.PlayerId);
         PlayerEquipmentSetViews.ForEach(x => x.SetAsEmpty());
 
+        var selfId = RoomModel.GetInstance().SelfPlayerRef.PlayerId;
+        var adminId = RoomModel.GetInstance().AdminId;
         var equipmentCache = PlayerRootObject.Instance.PlayerInfos.Values
-        .Where(x => x.PlayerId != RoomModel.GetInstance().SelfPlayerRef.PlayerId)
+        .Where(x => x.PlayerId != selfId && x.PlayerId != adminId)
         .Select(x => x.PlayerEquipment);
 
         foreach(var equipment in equipmentCache)

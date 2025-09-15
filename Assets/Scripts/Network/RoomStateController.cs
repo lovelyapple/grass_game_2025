@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
 using StarMessage.Models;
@@ -18,7 +19,7 @@ public class RoomStateController : NetworkBehaviour
     public int CurrentRoomPhase { get; set; }
     // 一般ユーザーがこれを使ってAdminを取得
     [Networked]  
-    public int AdminId { get; private set; }
+    public int AdminId { get; set; }
     [Networked]
     public double RoomCountDownTime { get; set; }
     public static RoomStateController Instance;
@@ -29,8 +30,8 @@ public class RoomStateController : NetworkBehaviour
     public override void Spawned()
     {
         base.Spawned();
-        RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
         ModelCache.Admin.OnRoomStateControllerSpawn(this);
+        RoomModel.GetInstance().OnRoomStateControllerSpawn(this);
         Instance = this;
     }
     public override void Despawned(NetworkRunner runner, bool hasState)
