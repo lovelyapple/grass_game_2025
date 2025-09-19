@@ -65,6 +65,7 @@ public class TitleController : MonoBehaviour
         else
         {
             RoomModel.GetInstance().Reset();
+            PlayerEquipmentModel.GetInstance().Reset();
             PlayerRootObject.Instance.Reset();
 
             ModelCache.GetInstance().LoadAdminAs(false);
