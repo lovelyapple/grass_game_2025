@@ -20,7 +20,7 @@ public interface IGameAdminModel
     public void OnReturnRoomTop();
     public void UpdateAdminView();
     public void OnPlayerEquipmentConfirm(int playerId);
-    public Observable<Unit> RequestUpateAdminViewObservable();
+    public Observable<Unit> RequestUpdateAdminViewObservable();
     public void KickPlayer(int playerId);
 }
 public class NullGameAdminModel : IGameAdminModel
@@ -38,7 +38,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void OnReturnRoomTop() { }
     private Subject<Unit> _dummySubject = new Subject<Unit>();
     public void UpdateAdminView() { }
-    public Observable<Unit> RequestUpateAdminViewObservable() { return _dummySubject; }
+    public Observable<Unit> RequestUpdateAdminViewObservable() { return _dummySubject; }
     public void KickPlayer(int playerId) { }
 }
 public class GameAdminModel : IGameAdminModel
@@ -52,9 +52,9 @@ public class GameAdminModel : IGameAdminModel
     private bool _isSendRequestUpdateRoomPlayerCount = false;
     private bool _isSendRequestUpdateRoomPhase = false;
     private int? _playerCountRequesting = null;
-    private Subject<Unit> _requestUpdateAdimView = new Subject<Unit>();
-    public Observable<Unit> RequestUpateAdminViewObservable() { return _requestUpdateAdimView; }
-    public void UpdateAdminView() { _requestUpdateAdimView.OnNext(Unit.Default); }
+    private Subject<Unit> _requestUpdateAdminView = new Subject<Unit>();
+    public Observable<Unit> RequestUpdateAdminViewObservable() { return _requestUpdateAdminView; }
+    public void UpdateAdminView() { _requestUpdateAdminView.OnNext(Unit.Default); }
     public void OnAdminJoined(PlayerRef playerRef)
     {
         _adminRef = playerRef;
@@ -65,19 +65,21 @@ public class GameAdminModel : IGameAdminModel
         _roomStateController = roomStateController;
         _roomStateController.AdminId = _adminRef.PlayerId;
         _currentRoomPhase = RoomPhase.Waiting;
-        UpdateRoomPhaseOnPlayerJoinLeave();
+        UpdateRoomPhaseOnPlayerJoinLeave(isAdminJoin: true);
         SyncUpdateRoomPhase();
     }
     public void OnPlayerInfoObjectJoined(PlayerInfoObject infoObject)
     {
         _playerInfoObjects.Add(infoObject.PlayerId, infoObject);
 
-        if(infoObject.PlayerId != _adminRef.PlayerId)
+        var isAdminJoin = infoObject.PlayerRef.PlayerId == _adminRef.PlayerId;
+
+        if(!isAdminJoin)
         {
             _playerEquipConfirmedDict.Add(infoObject.PlayerId, infoObject.IsEquipmentConfirmed);
         }
 
-        UpdateRoomPhaseOnPlayerJoinLeave();
+        UpdateRoomPhaseOnPlayerJoinLeave(isAdminJoin: isAdminJoin);
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -124,16 +126,16 @@ public class GameAdminModel : IGameAdminModel
     {
         RpcConnector.Instance.Rpc_BroadcastKickPlayer(playerId);
     }
-    private void UpdateRoomPhaseOnPlayerJoinLeave()
+    private void UpdateRoomPhaseOnPlayerJoinLeave(bool isAdminJoin = false)
     {
-        RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(RoomModel.GetInstance().RoomName).Forget();
+        RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(RoomModel.GetInstance().RoomName, isAdminJoin).Forget();
     }
     public void OnPlayerEquipmentConfirm(int playerId)
     {
         _playerEquipConfirmedDict[playerId] = true;
-        UpdateEquipmenConfirm();
+        UpdateEquipmentConfirm();
     }
-    private void UpdateEquipmenConfirm()
+    private void UpdateEquipmentConfirm()
     {
         if (_playerEquipConfirmedDict.Values.Count(x => x) >= GameConstant.GameStartPlayerCount)
         {
@@ -148,7 +150,7 @@ public class GameAdminModel : IGameAdminModel
             CancelCountDownAdmin();
         }
     }
-    private async UniTask<Unit> RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(string roomName)
+    private async UniTask<Unit> RequestUpdateRoomPhaseOnPlayerJoinLeaveAsync(string roomName, bool isAdminJoin = false)
     {
         _playerCountRequesting = GetCurrentPlayerCount();
 
@@ -175,12 +177,12 @@ public class GameAdminModel : IGameAdminModel
                 await RoomService.UpdateRoom(new RoomInfo(roomName, playerCount, _currentRoomPhase.ToString()), new CancellationToken());
             }
 
-            UpdateEquipmenConfirm();
+            UpdateEquipmentConfirm();
         }
 
         _isSendRequestUpdateRoomPlayerCount = false;
 
-        if(needGotoTitle)
+        if(needGotoTitle && !isAdminJoin)
         {
             SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Title).Forget();
         }

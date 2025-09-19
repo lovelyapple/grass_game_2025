@@ -28,7 +28,7 @@ public class AdminPanelController : MonoBehaviour
     {
         _isShow = true;
         MainUIRoot.SetActive(true);
-        ModelCache.Admin.RequestUpateAdminViewObservable()
+        ModelCache.Admin.RequestUpdateAdminViewObservable()
         .Subscribe(x => RequestUpdate())
         .AddTo(this);
 
