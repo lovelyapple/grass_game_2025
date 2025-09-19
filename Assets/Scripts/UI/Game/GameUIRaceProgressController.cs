@@ -90,7 +90,7 @@ public class GameUIRaceProgressController : MonoBehaviour
 
         if (mark == null)
         {
-            Debug.LogError($"duplicated id found {playerId}");
+            Debug.LogWarning($"mark not found {playerId}");
             return;
         }
 
