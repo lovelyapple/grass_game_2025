@@ -82,4 +82,14 @@ public class RpcConnector : NetworkBehaviour
     {
         RoomModel.GetInstance().ReceiveKickPlayer(targetId);
     }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_BroadcastTouchItemBox(int playerId, int itemBoxId, double gotTime)
+    {
+        ModelCache.Admin.ReceivedRequestItemBox(playerId, itemBoxId, gotTime);
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_BroadcastOnItemBoxOpen(int playerId, int itemBoxId)
+    {
+
+    }
 }

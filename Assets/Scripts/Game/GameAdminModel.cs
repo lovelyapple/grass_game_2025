@@ -22,6 +22,7 @@ public interface IGameAdminModel
     public void OnPlayerEquipmentConfirm(int playerId);
     public Observable<Unit> RequestUpdateAdminViewObservable();
     public void KickPlayer(int playerId);
+    public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -40,6 +41,7 @@ public class NullGameAdminModel : IGameAdminModel
     public void UpdateAdminView() { }
     public Observable<Unit> RequestUpdateAdminViewObservable() { return _dummySubject; }
     public void KickPlayer(int playerId) { }
+    public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime) { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -243,5 +245,12 @@ public class GameAdminModel : IGameAdminModel
         UnityEngine.Debug.Log($"Sync Room phase {(RoomPhase)_currentRoomPhase}");
         _roomStateController.CurrentRoomPhase = (int)_currentRoomPhase;
         RpcConnector.Instance?.Rpc_BroadcastRoomPhase(_currentRoomPhase);
+    }
+    public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime)
+    {
+        if (MatchModel.GetInstance().TryGetItem(itemBoxId, gotTime))
+        {
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(playerId, itemBoxId);
+        }
     }
 }
