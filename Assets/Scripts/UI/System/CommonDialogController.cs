@@ -50,8 +50,8 @@ public class CommonDialogController : MonoBehaviour
         }
         finally
         {
-            gameObject.SetActive(false);
-            onConfirm.Invoke();
+            gameObject?.SetActive(false);
+            onConfirm?.Invoke();
         }
 
         return Unit.Default;
