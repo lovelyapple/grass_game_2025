@@ -409,4 +409,13 @@ public class FieldPlayerController : NetworkBehaviour
     {
         return _playerBase.gameObject;
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "ItemBox")
+        {
+            var itemBox = collision.gameObject.GetComponent<FieldItemBox>();
+            RpcConnector.Instance.Rpc_BroadcastTouchItemBox(PlayerId, itemBox.ItemId, 0);
+        }
+    }
 }
+    

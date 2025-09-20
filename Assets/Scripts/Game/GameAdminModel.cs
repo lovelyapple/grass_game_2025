@@ -23,6 +23,7 @@ public interface IGameAdminModel
     public Observable<Unit> RequestUpdateAdminViewObservable();
     public void KickPlayer(int playerId);
     public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime);
+    public void OnItemCoolDownFinished(int itemBoxId);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -42,6 +43,7 @@ public class NullGameAdminModel : IGameAdminModel
     public Observable<Unit> RequestUpdateAdminViewObservable() { return _dummySubject; }
     public void KickPlayer(int playerId) { }
     public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime) { }
+    public void OnItemCoolDownFinished(int itemBoxId) { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -224,6 +226,10 @@ public class GameAdminModel : IGameAdminModel
     {
         return _playerInfoObjects.Keys.Count(x => x != _adminRef.PlayerId);
     }
+    public void OnItemCoolDownFinished(int itemBoxId)
+    {
+        RpcConnector.Instance.Rpc_BroadcastOnItemBoxReturn(itemBoxId);
+    }
     #region count_down
     private void StartCountDownAdmin()
     {
@@ -248,7 +254,7 @@ public class GameAdminModel : IGameAdminModel
     }
     public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime)
     {
-        if (MatchModel.GetInstance().TryGetItem(itemBoxId, gotTime))
+        if (MatchModel.GetInstance().TryOpenItemAdmin(itemBoxId))
         {
             RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(playerId, itemBoxId);
         }

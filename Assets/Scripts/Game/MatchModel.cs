@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Fusion;
 using R3;
 using StarMessage.Models;
 using UnityEngine;
@@ -28,7 +29,7 @@ public class MatchModel :SingletonBase<MatchModel>
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
     public float RaceDistance { get; set; }
-
+    private Dictionary<int, FieldItemBox> _itemDict = null;
     public void Reset()
     {
         SelfPlayer = null;
@@ -36,6 +37,7 @@ public class MatchModel :SingletonBase<MatchModel>
         MatchWinner = 0;
         InitializedPlayerCount = 0;
         _preInitFinished = false;
+        _itemDict = null;
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -102,6 +104,11 @@ public class MatchModel :SingletonBase<MatchModel>
         }
 
         ModelCache.Admin.OnMatchStart();
+
+        await UniTask.WaitUntil(() => 
+        RoomStateController.Instance == null ||
+        RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.Playing,
+        cancellationToken: token);
 
         _showLoadUISubject.OnNext(false);
     }
@@ -210,5 +217,60 @@ public class MatchModel :SingletonBase<MatchModel>
     public float TranslatePlayerProgress(float zPosition)
     {
         return zPosition / (RaceDistance + 0.01f);
+    }
+    private FieldItemBox TryGetItem(int itemBoxId)
+    {
+        if (_itemDict == null)
+        {
+            _itemDict = new Dictionary<int, FieldItemBox>();
+
+            var allItems = GameObject.FindObjectsByType<FieldItemBox>(FindObjectsSortMode.InstanceID);
+
+            for (int i = 0; i < allItems.Length; i++)
+            {
+                _itemDict.Add(allItems[i].ItemId, allItems[i]);
+            }
+        }
+
+        if(_itemDict.TryGetValue(itemBoxId, out var item))
+        {
+            return item;
+        }
+
+        Debug.LogError($"itemBoxId not found {itemBoxId}");
+        return null;
+    }
+    public FieldItemBox TryOpenItemAdmin(int itemBoxId)
+    {
+        var item = TryGetItem(itemBoxId);
+
+        if(item == null)
+        {
+            return null;
+        }
+
+        if (item.Used)
+        {
+            return null;
+        }
+
+        item.OnUse();
+        return item;
+    }
+    public void TrySetItemActive(int playerId, int itemBoxId, bool active)
+    {
+        var item = TryGetItem(itemBoxId);
+
+        if(item == null)
+        {
+            return;
+        }
+
+        item.SetActive(active);
+
+        if(active == false)
+        {
+
+        }
     }
 }

@@ -90,6 +90,11 @@ public class RpcConnector : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.All)]
     public void Rpc_BroadcastOnItemBoxOpen(int playerId, int itemBoxId)
     {
-
+        MatchModel.GetInstance().TrySetItemActive(playerId, itemBoxId, false);
+    }
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    public void Rpc_BroadcastOnItemBoxReturn(int itemBoxId)
+    {
+        MatchModel.GetInstance().TrySetItemActive(0, itemBoxId, true);
     }
 }
