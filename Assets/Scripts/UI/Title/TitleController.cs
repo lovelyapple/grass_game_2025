@@ -59,6 +59,7 @@ public class TitleController : MonoBehaviour
             else
             {
                 await UniTask.WaitUntil(() => RoomModel.GetInstance().IsEmpty, cancellationToken: token);
+                MatchModel.GetInstance().Reset();
                 ModelCache.Admin.OnReturnRoomTop();
             }
         }

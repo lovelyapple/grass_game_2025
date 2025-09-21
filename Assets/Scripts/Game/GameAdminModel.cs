@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
+using UnityEngine;
 using UnityEngine.UI;
 public interface IGameAdminModel
 {
@@ -22,6 +23,8 @@ public interface IGameAdminModel
     public void OnPlayerEquipmentConfirm(int playerId);
     public Observable<Unit> RequestUpdateAdminViewObservable();
     public void KickPlayer(int playerId);
+    public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime);
+    public void OnItemCoolDownFinished(int itemBoxId);
 }
 public class NullGameAdminModel : IGameAdminModel
 {
@@ -40,6 +43,8 @@ public class NullGameAdminModel : IGameAdminModel
     public void UpdateAdminView() { }
     public Observable<Unit> RequestUpdateAdminViewObservable() { return _dummySubject; }
     public void KickPlayer(int playerId) { }
+    public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime) { }
+    public void OnItemCoolDownFinished(int itemBoxId) { }
 }
 public class GameAdminModel : IGameAdminModel
 {
@@ -222,6 +227,10 @@ public class GameAdminModel : IGameAdminModel
     {
         return _playerInfoObjects.Keys.Count(x => x != _adminRef.PlayerId);
     }
+    public void OnItemCoolDownFinished(int itemBoxId)
+    {
+        RpcConnector.Instance.Rpc_BroadcastOnItemBoxReturn(itemBoxId);
+    }
     #region count_down
     private void StartCountDownAdmin()
     {
@@ -243,5 +252,26 @@ public class GameAdminModel : IGameAdminModel
         UnityEngine.Debug.Log($"Sync Room phase {(RoomPhase)_currentRoomPhase}");
         _roomStateController.CurrentRoomPhase = (int)_currentRoomPhase;
         RpcConnector.Instance?.Rpc_BroadcastRoomPhase(_currentRoomPhase);
+    }
+    public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime)
+    {
+        var item = MatchModel.GetInstance().TryOpenItemAdmin(itemBoxId);
+
+        if(item == null)
+        {
+            return;
+        }
+
+        if(item is FieldItemBox)
+        {
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(itemBoxId);
+            var res = UnityEngine.Random.Range((int)ItemEffectType.Heal, (int)ItemEffectType.BuffMax);
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxReturn(playerId, res);
+        }
+        else
+        {
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(itemBoxId);
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxReturn(playerId, (int)ItemEffectType.Jummer);
+        }
     }
 }
