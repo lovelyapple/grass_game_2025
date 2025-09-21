@@ -88,13 +88,18 @@ public class RpcConnector : NetworkBehaviour
         ModelCache.Admin.ReceivedRequestItemBox(playerId, itemBoxId, gotTime);
     }
     [Rpc(RpcSources.All, RpcTargets.All)]
-    public void Rpc_BroadcastOnItemBoxOpen(int playerId, int itemBoxId)
+    public void Rpc_BroadcastOnItemBoxOpen(int itemBoxId)
     {
-        MatchModel.GetInstance().TrySetItemActive(playerId, itemBoxId, false);
+        MatchModel.GetInstance().TrySetItemActive(itemBoxId, false);
     }
-    [Rpc(RpcSources.All, RpcTargets.All)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void Rpc_BroadcastOnItemBoxReturn(int itemBoxId)
     {
-        MatchModel.GetInstance().TrySetItemActive(0, itemBoxId, true);
+        MatchModel.GetInstance().TrySetItemActive(itemBoxId, true);
+    }
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void Rpc_BroadcastOnItemBoxReturn(int playerId, int itemEfffectType)
+    {
+        MatchModel.GetInstance().ReceivedItemBoxEffect(playerId, itemEfffectType);
     }
 }

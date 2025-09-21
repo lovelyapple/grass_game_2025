@@ -67,6 +67,7 @@ public class GameUIController : MonoBehaviour
         {
             await UniTask.WaitUntil(() => RoomModel.GetInstance().IsEmpty);
             SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Title).Forget();
+            MatchModel.GetInstance().Reset();
         }
         else
         {

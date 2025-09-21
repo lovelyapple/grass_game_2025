@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Fusion;
 using R3;
+using UnityEngine;
 using UnityEngine.UI;
 public interface IGameAdminModel
 {
@@ -256,7 +257,9 @@ public class GameAdminModel : IGameAdminModel
     {
         if (MatchModel.GetInstance().TryOpenItemAdmin(itemBoxId))
         {
-            RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(playerId, itemBoxId);
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(itemBoxId);
+            var res = UnityEngine.Random.Range((int)ItemEffectType.Heal, (int)ItemEffectType.BuffMax);
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxReturn(playerId, res);
         }
     }
 }

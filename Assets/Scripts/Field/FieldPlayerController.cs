@@ -247,6 +247,7 @@ public class FieldPlayerController : NetworkBehaviour
 
             if(SkillBase is SkillOfficeWorker)
             {
+                itemSpeedBuffTokenSource?.Cancel();
                 _vehicle.SetSkillSpeed(5);
                 PlayerSetFixDriving(true);
                 var task1 = UniTask.WaitForSeconds(SkillBase.SkillDuration());
@@ -404,6 +405,61 @@ public class FieldPlayerController : NetworkBehaviour
         }
 
         _onStatusEffectExecute.OnNext(_iCurrentStatueEffect);
+    }
+    public void OnReceivedItemEffect(int itemEfffectType)
+    {
+        switch((ItemEffectType) itemEfffectType)
+        {
+            case ItemEffectType.Heal:
+                HealthPoint.AddPoint(200);
+                {
+                    MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
+                    var prefab = ResourceContainer.Instance.GetItemEffectIcon(ItemEffectType.Heal);
+                    var instance = GameObject.Instantiate(prefab, this.transform);
+                    instance.gameObject.SetActive(true);
+                }
+                break;
+            case ItemEffectType.SpeedUp:
+                {
+                    if (SkillBase is not SkillOfficeWorker)
+                    {
+                        if(!SkillBase.PlayingSkill)
+                        {
+                            ItemSpeedUpAsync().Forget();
+                        }
+                    }
+                    else
+                    {
+                        ItemSpeedUpAsync().Forget();
+                    }
+
+                    MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
+                    var prefab = ResourceContainer.Instance.GetItemEffectIcon(ItemEffectType.SpeedUp);
+                    var instance = GameObject.Instantiate(prefab, this.transform);
+                    instance.gameObject.SetActive(true);
+                }
+                break;
+        }
+    }
+    CancellationTokenSource itemSpeedBuffTokenSource;
+    private async UniTask<Unit> ItemSpeedUpAsync()
+    {
+        itemSpeedBuffTokenSource?.Cancel();
+
+        try
+        {
+            itemSpeedBuffTokenSource = new CancellationTokenSource();
+            var token = CancellationTokenSource.CreateLinkedTokenSource(itemSpeedBuffTokenSource.Token, destroyCancellationToken).Token;
+            _vehicle.SetSkillSpeed(4);//サラリーマンは5        
+            await UniTask.WaitForSeconds(5, cancellationToken: token);// 適当に5秒
+            _vehicle?.SetSkillSpeed(0);
+        }
+        finally
+        {
+            itemSpeedBuffTokenSource = null;
+        }
+
+        return Unit.Default;
     }
     public GameObject GetCharaObj()
     {

@@ -257,7 +257,7 @@ public class MatchModel :SingletonBase<MatchModel>
         item.OnUse();
         return item;
     }
-    public void TrySetItemActive(int playerId, int itemBoxId, bool active)
+    public void TrySetItemActive(int itemBoxId, bool active)
     {
         var item = TryGetItem(itemBoxId);
 
@@ -267,10 +267,14 @@ public class MatchModel :SingletonBase<MatchModel>
         }
 
         item.SetActive(active);
+    }
+    public void ReceivedItemBoxEffect(int playerId, int itemEffectType)
+    {
+        var model = GetPlayer(playerId);
 
-        if(active == false)
+        if (model != null)
         {
-
+            model.GetModelObservable().DoAsync(x => x.OnReceivedItemEffect(itemEffectType)).Forget();
         }
     }
 }
