@@ -352,9 +352,9 @@ public class FieldPlayerController : NetworkBehaviour
             _saddleSeCache?.gameObject.SetActive(false);
         }
     }
-    public void OnReceivedStatusEffect(int statusEffectType)
+    public void OnReceivedStatusEffect(int statusEffectType, bool ignoreNotDrive)
     {
-        if(_iCurrentStatueEffect != null || !_isPlayerDriving)
+        if(_iCurrentStatueEffect != null || (!_isPlayerDriving && !ignoreNotDrive))
         {
             Debug.Log($"すでにStatusEffectがかかっているか、運転していないため、スキップ");
             return;
@@ -439,6 +439,10 @@ public class FieldPlayerController : NetworkBehaviour
                     instance.gameObject.SetActive(true);
                 }
                 break;
+
+            case ItemEffectType.Jummer:
+                OnReceivedStatusEffect((int)StatusEffectType.Stun, true);
+                break;
         }
     }
     CancellationTokenSource itemSpeedBuffTokenSource;
@@ -469,7 +473,7 @@ public class FieldPlayerController : NetworkBehaviour
     {
         if(collision.gameObject.tag == "ItemBox")
         {
-            var itemBox = collision.gameObject.GetComponent<FieldItemBox>();
+            var itemBox = collision.gameObject.GetComponent<FieldItemBase>();
             RpcConnector.Instance.Rpc_BroadcastTouchItemBox(PlayerId, itemBox.ItemId, 0);
         }
     }

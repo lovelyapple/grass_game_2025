@@ -29,7 +29,7 @@ public class MatchModel :SingletonBase<MatchModel>
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
     public float RaceDistance { get; set; }
-    private Dictionary<int, FieldItemBox> _itemDict = null;
+    private Dictionary<int, FieldItemBase> _itemDict = null;
     public void Reset()
     {
         SelfPlayer = null;
@@ -186,7 +186,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         if (model != null)
         {
-            model.GetModelObservable().DoAsync(x => x.OnReceivedStatusEffect(effectType)).Forget();
+            model.GetModelObservable().DoAsync(x => x.OnReceivedStatusEffect(effectType, true)).Forget();
         }
     }
     public void UpdateHeatAndSepcialPoint(SpecialPoint specialPoint, HealthPoint healthPoint)
@@ -218,13 +218,13 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         return zPosition / (RaceDistance + 0.01f);
     }
-    private FieldItemBox TryGetItem(int itemBoxId)
+    private FieldItemBase TryGetItem(int itemBoxId)
     {
         if (_itemDict == null)
         {
-            _itemDict = new Dictionary<int, FieldItemBox>();
+            _itemDict = new Dictionary<int, FieldItemBase>();
 
-            var allItems = GameObject.FindObjectsByType<FieldItemBox>(FindObjectsSortMode.InstanceID);
+            var allItems = GameObject.FindObjectsByType<FieldItemBase>(FindObjectsSortMode.InstanceID);
 
             for (int i = 0; i < allItems.Length; i++)
             {
@@ -240,7 +240,7 @@ public class MatchModel :SingletonBase<MatchModel>
         Debug.LogError($"itemBoxId not found {itemBoxId}");
         return null;
     }
-    public FieldItemBox TryOpenItemAdmin(int itemBoxId)
+    public FieldItemBase TryOpenItemAdmin(int itemBoxId)
     {
         var item = TryGetItem(itemBoxId);
 

@@ -1,18 +1,13 @@
 using Cysharp.Threading.Tasks;
 using R3;
 using StarMessage.Models;
-public enum ItemEffectType
+using UnityEngine;
+public class FieldBarrer : FieldItemBase
 {
-    Heal,
-    SpeedUp,
-    BuffMax,
-    Jummer,
-}
-
-public class FieldItemBox : FieldItemBase
-{
+    [SerializeField] GameObject NormalImage;
+    [SerializeField] GameObject BrokeImage;
+    [SerializeField] Collider Collider;
     private const float RespawnSec = 5;
-    public override bool IsBuffItem => true;
     public override void OnUse()
     {
         Used = true;
@@ -23,13 +18,15 @@ public class FieldItemBox : FieldItemBase
     {
         await UniTask.WaitForSeconds(RespawnSec, cancellationToken: destroyCancellationToken);
         Used = false;
-        gameObject.SetActive(true);
+        SetActive(true);
 
         ModelCache.Admin.OnItemCoolDownFinished(ItemId);
         return Unit.Default;
     }
     public override void SetActive(bool active)
     {
-        gameObject.SetActive(active);
+        NormalImage.SetActive(active);
+        BrokeImage.SetActive(!active);
+        Collider.enabled = active;
     }
 }

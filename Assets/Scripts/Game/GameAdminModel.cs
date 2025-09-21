@@ -255,11 +255,23 @@ public class GameAdminModel : IGameAdminModel
     }
     public void ReceivedRequestItemBox(int playerId, int itemBoxId, double gotTime)
     {
-        if (MatchModel.GetInstance().TryOpenItemAdmin(itemBoxId))
+        var item = MatchModel.GetInstance().TryOpenItemAdmin(itemBoxId);
+
+        if(item == null)
+        {
+            return;
+        }
+
+        if(item is FieldItemBox)
         {
             RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(itemBoxId);
             var res = UnityEngine.Random.Range((int)ItemEffectType.Heal, (int)ItemEffectType.BuffMax);
             RpcConnector.Instance.Rpc_BroadcastOnItemBoxReturn(playerId, res);
+        }
+        else
+        {
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxOpen(itemBoxId);
+            RpcConnector.Instance.Rpc_BroadcastOnItemBoxReturn(playerId, (int)ItemEffectType.Jummer);
         }
     }
 }
