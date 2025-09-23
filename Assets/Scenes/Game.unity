@@ -1203,12 +1203,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1398112211}
-  m_Father: {fileID: 1035579060}
+  m_Father: {fileID: 1152799881}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 667.3, y: 544}
-  m_SizeDelta: {x: 824.63, y: 32.51}
+  m_AnchoredPosition: {x: 0.012511, y: 20.7}
+  m_SizeDelta: {x: 499.99, y: 32.51}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &199047493
 MonoBehaviour:
@@ -5409,7 +5409,7 @@ GameObject:
   - component: {fileID: 898407775}
   m_Layer: 0
   m_Name: UICamera
-  m_TagString: MainCamera
+  m_TagString: UICamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6538,8 +6538,7 @@ RectTransform:
   - {fileID: 780254131}
   - {fileID: 1662139862}
   - {fileID: 1922962424}
-  - {fileID: 199047492}
-  - {fileID: 1419252780}
+  - {fileID: 1152799881}
   - {fileID: 1122381761}
   - {fileID: 471128876}
   m_Father: {fileID: 1072535524}
@@ -6795,6 +6794,7 @@ MonoBehaviour:
   SpecialPointImage: {fileID: 1398112212}
   HeatPointController: {fileID: 1419252783}
   SkillController: {fileID: 1122381762}
+  PlayerStatusUI: {fileID: 1152799882}
   LoadUI: {fileID: 624207414}
   AccelerateButtonHandler: {fileID: 831578723}
   UpButtonHandler: {fileID: 1896015130}
@@ -7575,6 +7575,62 @@ RectTransform:
   m_AnchoredPosition: {x: 1178, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1152799880
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1152799881}
+  - component: {fileID: 1152799882}
+  m_Layer: 5
+  m_Name: PlayerStatusView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1152799881
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152799880}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1419252780}
+  - {fileID: 199047492}
+  m_Father: {fileID: 1035579060}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 40.85, y: 378.94}
+  m_SizeDelta: {x: 500, y: 170}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1152799882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152799880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d067058d1aa544492f504e18f29b80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fieldObject: {fileID: 0}
+  uiMarker: {fileID: 1152799881}
+  canvas: {fileID: 1072535523}
+  upOffset: 280
+  UICamera: {fileID: 898407774}
+  FixUpdate: 0
 --- !u!1 &1153863360
 GameObject:
   m_ObjectHideFlags: 0
@@ -9246,8 +9302,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0.41, y: 0.29999924}
-  m_SizeDelta: {x: 1878.31, y: -11.09}
+  m_AnchoredPosition: {x: -3.18, y: 0.29999924}
+  m_SizeDelta: {x: 484.89, y: -11.09}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1403047020
 MonoBehaviour:
@@ -9514,12 +9570,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1403047019}
-  m_Father: {fileID: 1035579060}
+  m_Father: {fileID: 1152799881}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 135.31, y: 606.24994}
-  m_SizeDelta: {x: 1887.65, y: 48.785}
+  m_AnchoredPosition: {x: 0.0025024, y: 62.310013}
+  m_SizeDelta: {x: 500.01, y: 32.16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1419252781
 MonoBehaviour:
@@ -16698,8 +16754,8 @@ MonoBehaviour:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 898407778}
   - {fileID: 730493580}
+  - {fileID: 898407778}
   - {fileID: 2079846195}
   - {fileID: 1072535524}
   - {fileID: 252215116}
