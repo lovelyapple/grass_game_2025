@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: d84e4b0e5e1060a4b8371e130bf81cc2
+timeCreated: 1531119847
+licenseType: Store
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 182111
+  packageName: nGarden Light 2-1 UI
+  packageVersion: 1.0
+  assetPath: Assets/nGarden/InriaSerif/Web/preview.html
+  uploadId: 398683

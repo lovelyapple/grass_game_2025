@@ -1,0 +1,29 @@
+fileFormatVersion: 2
+guid: 81b5e5d3065b784488aa835f9da6a73a
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: CookieRun
+  fontNames:
+  - CookieRun
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 182111
+  packageName: nGarden Light 2-1 UI
+  packageVersion: 1.0
+  assetPath: Assets/nGarden/Font/CookieRun Bold.ttf
+  uploadId: 398683
