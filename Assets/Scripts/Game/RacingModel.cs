@@ -18,8 +18,6 @@ public class RacingModel : SingletonBase<RacingModel>
             _debugPlayer = GameObject.FindAnyObjectByType<PlayerBase>();
         }
 
-        _debugPlayer.DebugSetVehicle(_debugVehicle);
-
         return _debugPlayer;
     }
 }

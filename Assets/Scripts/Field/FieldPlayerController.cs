@@ -72,6 +72,7 @@ public class FieldPlayerController : NetworkBehaviour
     private Subject<IStatusEffect> _onStatusEffectExecute = new Subject<IStatusEffect>();
     public Observable<IStatusEffect> OnStatusEffectExecuteObservable() => _onStatusEffectExecute;
     private IStatusEffect _iCurrentStatueEffect = null;
+    private bool _isStuning => _iCurrentStatueEffect != null && _iCurrentStatueEffect is StatusEffectStun;
     private CompositeDisposable _inputDisposables = new();
     private const float HPRECOVER_SELF_RATE = 15f;
     private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
@@ -158,17 +159,17 @@ public class FieldPlayerController : NetworkBehaviour
         var inputController  = GameInputController.Instance;
 
         inputController.IsAcceleratingObservable()
-        .Where(_ => _vehicle != null && !_recovering)
+        .Where(_ => _vehicle != null && !_recovering && !_isStuning)
         .Subscribe(x => PlayerChangeDrive(x))
         .AddTo(_inputDisposables);
 
         inputController.HorizontalMovingObservable()
-        .Where(_ => _vehicle != null && !_recovering)
+        .Where(_ => _vehicle != null && !_recovering && !_isStuning)
         .Subscribe(x => PlayerSetHorizontal(x))
         .AddTo(_inputDisposables);
 
         inputController.UseSkillObservable()
-        .Where(_ => !_recovering && _specialPoint.IsMax)
+        .Where(_ => !_recovering && _specialPoint.IsMax && !_isStuning)
         .Subscribe(x => PlayerOnInputUseSkill())
         .AddTo(_inputDisposables);
 
@@ -211,6 +212,7 @@ public class FieldPlayerController : NetworkBehaviour
 
         _isPlayerDriving = accelaring;
         _vehicle.SetAccelerate(accelaring || _forceDriving);
+        _playerBase.SetDriving(accelaring);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void ForceBreak()
