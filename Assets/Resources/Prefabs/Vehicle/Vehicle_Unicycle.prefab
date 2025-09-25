@@ -136,6 +136,7 @@ MonoBehaviour:
   SaddleImage: {fileID: 4446613733535728573}
   StatusEffectView: {fileID: 7255144071594606626}
   DownPoint: {fileID: 7238415439944569922}
+  SaddleFX: {fileID: 0}
   IsReady: 0
   IsFinished: 0
 --- !u!114 &1636245863516424954
@@ -398,6 +399,7 @@ Transform:
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 5610456742862486889}
   - {fileID: 6813258223261073800}
   m_Father: {fileID: 5398541552988346507}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
@@ -519,6 +521,80 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5398541552988346507}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 90}
+--- !u!1001 &3260973209382240685
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6283270859057558515}
+    m_Modifications:
+    - target: {fileID: 6961744194933668774, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195086728389, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_Name
+      value: Yellow-FireWood_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195437372590, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6961744195437372591, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+      propertyPath: m_Layer
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+--- !u!4 &5610456742862486889 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+  m_PrefabInstance: {fileID: 3260973209382240685}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4678798132777652462
 PrefabInstance:
   m_ObjectHideFlags: 0
