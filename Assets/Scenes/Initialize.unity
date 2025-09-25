@@ -539,10 +539,10 @@ MonoBehaviour:
   - Vehicle: 2
     CFResource: {fileID: 21300000, guid: 6839c2187bbab6c4aa4a7dead596a18e, type: 3}
     CHResource: {fileID: 21300000, guid: 9c0465183a523504983eafb65bffcd78, type: 3}
-  - Vehicle: 1
+  - Vehicle: 0
     CFResource: {fileID: 21300000, guid: 0b89c8dc66352c54c8d455b6506a811b, type: 3}
     CHResource: {fileID: 21300000, guid: af2a2b30e046a85448d44ee3769d9f9f, type: 3}
-  - Vehicle: 0
+  - Vehicle: 1
     CFResource: {fileID: 21300000, guid: cf24a7e5eb6f0d242af0ff34c79b4895, type: 3}
     CHResource: {fileID: 21300000, guid: 647d4c87364a9c74dbb6c5b2ba50760e, type: 3}
   DriverPrefabs:

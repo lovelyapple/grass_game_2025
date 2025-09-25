@@ -581,6 +581,8 @@ MonoBehaviour:
     DriverPrefab: {fileID: 1628428294843395936, guid: 28cd3beb117d21c47a0bc14080beaee4, type: 3}
   StatusEffectIcons: []
   StatusEffectFxPrefab: []
+  ItemEffectFxPrefabs: []
+  ButtonFramePrefab: {fileID: 0}
 --- !u!4 &1613291600
 Transform:
   m_ObjectHideFlags: 0

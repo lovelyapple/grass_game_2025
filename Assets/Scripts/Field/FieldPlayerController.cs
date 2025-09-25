@@ -49,6 +49,7 @@ public class FieldPlayerController : NetworkBehaviour
     [SerializeField] SpriteRenderer SaddleImage;
     [SerializeField] StatusEffectView StatusEffectView;
     [SerializeField] Transform DownPoint;
+    [SerializeField] ParticleSystem SaddleFX;
 
     private NetworkTransform _networkTransform;
     private PlayerBase _playerBase;
@@ -176,6 +177,7 @@ public class FieldPlayerController : NetworkBehaviour
         MatchCameraController.Instance.SwitchPlayerLisitener(true);
         _audioListener = gameObject.AddComponent<AudioListener>();
     }
+
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority || !IsReady || RoomStateController.Instance == null || RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
@@ -213,6 +215,7 @@ public class FieldPlayerController : NetworkBehaviour
         _isPlayerDriving = accelaring;
         _vehicle.SetAccelerate(accelaring || _forceDriving);
         _playerBase.SetDriving(accelaring);
+        SetSaddleFXActive(accelaring);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void ForceBreak()
@@ -321,7 +324,14 @@ public class FieldPlayerController : NetworkBehaviour
             Destroy(_audioListener);
         }
     }
-
+    private void SetSaddleFXActive(bool active)
+    {
+        if (SaddleFX != null)
+        {
+            var mainF = SaddleFX.main;
+            mainF.startColor = active ? Color.yellow : Color.black;
+        }
+    }
     public void OnReceivedJumpInOut(bool jumdIn) 
     {
         if (jumdIn)
@@ -379,6 +389,8 @@ public class FieldPlayerController : NetworkBehaviour
             case StatusEffectType.Stun:
                 _iCurrentStatueEffect = new StatusEffectStun();
                 _vehicle.SetStun(true);
+                SetSaddleFXActive(false);
+                _playerBase.SetDriving(false);
                 StatusEffectView.SetImage(StatusEffectType.Stun);
                 _playerBase.transform.SetParent(DownPoint);
                 _playerBase.transform.localPosition = Vector3.zero;
@@ -392,6 +404,7 @@ public class FieldPlayerController : NetworkBehaviour
 
                     if (_isPlayerDriving)
                     {
+                        _isPlayerDriving = false;
                         _playerBase.transform.SetParent(CharaPoint);
                         _playerBase.transform.localEulerAngles = Vector3.zero;
                         _playerBase.transform.localPosition = Vector3.zero;
