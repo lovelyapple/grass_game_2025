@@ -211,6 +211,7 @@ public class FieldPlayerController : NetworkBehaviour
 
         _isPlayerDriving = accelaring;
         _vehicle.SetAccelerate(accelaring || _forceDriving);
+        _playerBase.SetDriving(accelaring);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void ForceBreak()
