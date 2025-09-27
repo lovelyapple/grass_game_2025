@@ -12,6 +12,7 @@ public class ResourceContainer : MonoBehaviour
         public Characters Character;
         public Sprite CFResource;
         public Sprite CHResource;
+        public Sprite CDFResource;
     }
     [Serializable]
     public class DriverPrefabContainer
