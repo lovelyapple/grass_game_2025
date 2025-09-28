@@ -36,7 +36,7 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
         })
         .AddTo(this);
 
-        PlayerNameInputField.text = GamePlayerInfoModel.GetInstance().GetDefaultRandomName();
+        PlayerNameInputField.text = GamePlayerInfoModel.GetInstance().SelfName;
     }
     public async UniTask<(PlayerRole, string)> OpenViewAsync(CancellationToken cancellation)
     {
