@@ -224,9 +224,14 @@ public class FieldPlayerController : NetworkBehaviour
     }
     private void ForceBreak()
     {
-        _isPlayerDriving = false;
         _forceDriving = false;
+        SetSaddleFXActive(false);
         _vehicle.SetAccelerate(_isPlayerDriving || _forceDriving);
+        _isPlayerDriving = false;
+        _playerBase.SetDriving(false);
+        _playerBase.transform.SetParent(LandingTransform);
+        _playerBase.transform.localEulerAngles = Vector3.zero;
+        _playerBase.transform.localPosition = Vector3.zero;
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void PlayerSetFixDriving(bool forceDriving)
@@ -396,9 +401,12 @@ public class FieldPlayerController : NetworkBehaviour
                 SetSaddleFXActive(false);
                 _playerBase.SetDriving(false);
                 StatusEffectView.SetImage(StatusEffectType.Stun);
-                _playerBase.transform.SetParent(DownPoint);
-                _playerBase.transform.localPosition = Vector3.zero;
+
+                _isPlayerDriving = false;
+                _playerBase.transform.SetParent(LandingTransform);
                 _playerBase.transform.localEulerAngles = Vector3.zero;
+                _playerBase.transform.localPosition = Vector3.zero;
+
                 MatchCameraController.Instance.ShakeCamera();
                 _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
                 {
@@ -406,19 +414,9 @@ public class FieldPlayerController : NetworkBehaviour
                     _iCurrentStatueEffect = null;
                     StatusEffectView.TurnOff();
 
-                    if (_isPlayerDriving)
-                    {
-                        _isPlayerDriving = false;
-                        _playerBase.transform.SetParent(CharaPoint);
-                        _playerBase.transform.localEulerAngles = Vector3.zero;
-                        _playerBase.transform.localPosition = Vector3.zero;
-                    }
-                    else
-                    {
-                        _playerBase.transform.SetParent(LandingTransform);
-                        _playerBase.transform.localEulerAngles = Vector3.zero;
-                        _playerBase.transform.localPosition = Vector3.zero;
-                    }
+                    _playerBase.transform.SetParent(LandingTransform);
+                    _playerBase.transform.localEulerAngles = Vector3.zero;
+                    _playerBase.transform.localPosition = Vector3.zero;
                 });
                 break;
         }
