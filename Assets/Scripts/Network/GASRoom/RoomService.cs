@@ -28,7 +28,7 @@ public class RoomService
 {
     private const string APP_TOKEN = "5e0b7d4ef7fc31e6c691a92acf5806b742df3ded";
     private const string WEB_API_URL = "https://script.google.com/macros/s/AKfycbwkAQnqofSp6f9oi9vp33lBYgQvH5yjdLbKcpRt2swXBbqEab2AtaAzljMoK5xgsOIS3Q/exec";
-    public static async UniTask<List<RoomInfo>> FetchRoomList(CancellationToken token)
+    public static async UniTask<(List<RoomInfo>, string)> FetchRoomList(CancellationToken token)
     {
         string url = $"{WEB_API_URL}?token={APP_TOKEN}";
         UnityWebRequest request = UnityWebRequest.Get(url);
@@ -37,13 +37,13 @@ public class RoomService
         if(request.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"FetchRoomList error {request.error}");
-            return null;
+            return (null, request.error);
         }
 
         var json = request.downloadHandler.text;
         var roomsInfo = JsonUtility.FromJson<RoomListInfo>(json);
       
-        return roomsInfo.rooms;
+        return (roomsInfo.rooms, null);
     }
     public static async UniTask<Unit> UpdateRoom(RoomInfo roomInfo, CancellationToken token)
     {
