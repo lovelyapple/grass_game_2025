@@ -131,6 +131,8 @@ public class FieldPlayerController : NetworkBehaviour
             source.spatialBlend = 0.92f;
             source.volume = 1.0f;
         }
+
+        SetSaddleFXActive(false);
     }
     public void SetupInitPos(Vector3 pos)
     {
