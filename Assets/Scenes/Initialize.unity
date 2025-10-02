@@ -623,10 +623,13 @@ MonoBehaviour:
   CharaParameters:
   - Type: 0
     AppendHP: 0
+    RecoverSpeed: 2.5
   - Type: 1
     AppendHP: 100
+    RecoverSpeed: 1.5
   - Type: 2
     AppendHP: 200
+    RecoverSpeed: 1
 --- !u!1 &1680813169
 GameObject:
   m_ObjectHideFlags: 0

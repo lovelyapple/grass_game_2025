@@ -62,6 +62,7 @@ public class FieldPlayerController : NetworkBehaviour
     private float _acceleration;
     private float _saddleHeatRate;
     private float _appendHp;
+    private float _hpSecoverSpeed;
     private SpecialPoint _specialPoint = new SpecialPoint();
     public HealthPoint HealthPoint = new HealthPoint();
     public SkillBase SkillBase{ get; private set; }
@@ -115,6 +116,7 @@ public class FieldPlayerController : NetworkBehaviour
         _acceleration = vechielParameter.Acceleration;
         _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == _saddleType).HeatRate;
         _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).AppendHP;
+        _hpSecoverSpeed = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).RecoverSpeed;
 
         _vehicle.MaxSpeed = _maxSpeed;
         _vehicle.Acceleration = _acceleration;
@@ -201,7 +203,7 @@ public class FieldPlayerController : NetworkBehaviour
         }
         else if (!_recovering)
         {
-            HealthPoint.AddPoint(HPRECOVER_SELF_RATE * Runner.DeltaTime);
+            HealthPoint.AddPoint(HPRECOVER_SELF_RATE * _hpSecoverSpeed * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
         }
     }
