@@ -62,6 +62,7 @@ public class FieldPlayerController : NetworkBehaviour
     private float _acceleration;
     private float _saddleHeatRate;
     private float _appendHp;
+    private float _hpSecoverSpeed;
     private SpecialPoint _specialPoint = new SpecialPoint();
     public HealthPoint HealthPoint = new HealthPoint();
     public SkillBase SkillBase{ get; private set; }
@@ -115,6 +116,7 @@ public class FieldPlayerController : NetworkBehaviour
         _acceleration = vechielParameter.Acceleration;
         _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == _saddleType).HeatRate;
         _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).AppendHP;
+        _hpSecoverSpeed = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).RecoverSpeed;
 
         _vehicle.MaxSpeed = _maxSpeed;
         _vehicle.Acceleration = _acceleration;
@@ -131,6 +133,8 @@ public class FieldPlayerController : NetworkBehaviour
             source.spatialBlend = 0.92f;
             source.volume = 1.0f;
         }
+
+        SetSaddleFXActive(false);
     }
     public void SetupInitPos(Vector3 pos)
     {
@@ -199,7 +203,7 @@ public class FieldPlayerController : NetworkBehaviour
         }
         else if (!_recovering)
         {
-            HealthPoint.AddPoint(HPRECOVER_SELF_RATE * Runner.DeltaTime);
+            HealthPoint.AddPoint(HPRECOVER_SELF_RATE * _hpSecoverSpeed * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
         }
     }
@@ -220,9 +224,14 @@ public class FieldPlayerController : NetworkBehaviour
     }
     private void ForceBreak()
     {
-        _isPlayerDriving = false;
         _forceDriving = false;
+        SetSaddleFXActive(false);
         _vehicle.SetAccelerate(_isPlayerDriving || _forceDriving);
+        _isPlayerDriving = false;
+        _playerBase.SetDriving(false);
+        _playerBase.transform.SetParent(LandingTransform);
+        _playerBase.transform.localEulerAngles = Vector3.zero;
+        _playerBase.transform.localPosition = Vector3.zero;
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
     }
     private void PlayerSetFixDriving(bool forceDriving)
@@ -392,9 +401,12 @@ public class FieldPlayerController : NetworkBehaviour
                 SetSaddleFXActive(false);
                 _playerBase.SetDriving(false);
                 StatusEffectView.SetImage(StatusEffectType.Stun);
-                _playerBase.transform.SetParent(DownPoint);
-                _playerBase.transform.localPosition = Vector3.zero;
+
+                _isPlayerDriving = false;
+                _playerBase.transform.SetParent(LandingTransform);
                 _playerBase.transform.localEulerAngles = Vector3.zero;
+                _playerBase.transform.localPosition = Vector3.zero;
+
                 MatchCameraController.Instance.ShakeCamera();
                 _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
                 {
@@ -402,19 +414,9 @@ public class FieldPlayerController : NetworkBehaviour
                     _iCurrentStatueEffect = null;
                     StatusEffectView.TurnOff();
 
-                    if (_isPlayerDriving)
-                    {
-                        _isPlayerDriving = false;
-                        _playerBase.transform.SetParent(CharaPoint);
-                        _playerBase.transform.localEulerAngles = Vector3.zero;
-                        _playerBase.transform.localPosition = Vector3.zero;
-                    }
-                    else
-                    {
-                        _playerBase.transform.SetParent(LandingTransform);
-                        _playerBase.transform.localEulerAngles = Vector3.zero;
-                        _playerBase.transform.localPosition = Vector3.zero;
-                    }
+                    _playerBase.transform.SetParent(LandingTransform);
+                    _playerBase.transform.localEulerAngles = Vector3.zero;
+                    _playerBase.transform.localPosition = Vector3.zero;
                 });
                 break;
         }

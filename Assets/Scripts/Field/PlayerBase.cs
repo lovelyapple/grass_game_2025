@@ -9,6 +9,6 @@ public class PlayerBase : MonoBehaviour
     public void SetDriving(bool isDriving)
     {
         StandingSprite.enabled = !isDriving;
-        DrivingSprite.enabled = DrivingSprite;
+        DrivingSprite.enabled = isDriving;
     }
 }

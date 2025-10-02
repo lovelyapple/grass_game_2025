@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using R3;
 using Sytem.Controller;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ public class RoomListController : MonoBehaviour
     [SerializeField] Transform RoomListRootTransform;
     [SerializeField] Button RefreshButton;
     [SerializeField] Button CloseButton;
+    [SerializeField] TextMeshProUGUI RoomFetchErrorText;
     private List<RoomCell> _roomCells = new List<RoomCell>();
     private CancellationTokenSource _refreshCancellationTokenSource;
     private bool _isRefreshing = false;
@@ -79,30 +81,39 @@ public class RoomListController : MonoBehaviour
 
         try
         {
-            var rooms = await RoomService.FetchRoomList(_refreshCancellationTokenSource.Token);
+            var (rooms, errorMsg) = await RoomService.FetchRoomList(_refreshCancellationTokenSource.Token);
 
-            foreach(var room in rooms)
+            if (rooms != null)
             {
-                var cell = _roomCells.FirstOrDefault(x => x.RoomName == room.room_name);
-
-                if(cell == null)
+                foreach (var room in rooms)
                 {
-                    cell = Instantiate(RoomPrefab, RoomListRootTransform).GetComponent<RoomCell>();
-                    cell.Initialize(room.room_name, room.player_count, room.status);
-                    var diposable = cell.OnClickObservable
-                    .Subscribe(roomName =>
+                    var cell = _roomCells.FirstOrDefault(x => x.RoomName == room.room_name);
+
+                    if (cell == null)
                     {
-                        _roonName = roomName;
-                    });
+                        cell = Instantiate(RoomPrefab, RoomListRootTransform).GetComponent<RoomCell>();
+                        cell.Initialize(room.room_name, room.player_count, room.status);
+                        var diposable = cell.OnClickObservable
+                        .Subscribe(roomName =>
+                        {
+                            _roonName = roomName;
+                        });
 
-                    ControllerReceiver.AddButton(cell.ThisButton);
-                    _subscriptions.Add(diposable);
-                    _roomCells.Add(cell);
+                        ControllerReceiver.AddButton(cell.ThisButton);
+                        _subscriptions.Add(diposable);
+                        _roomCells.Add(cell);
+                    }
+                    else
+                    {
+                        cell.UpdateCell(room.player_count, room.status);
+                    }
                 }
-                else
-                {
-                    cell.UpdateCell(room.player_count, room.status);
-                }
+
+                RoomFetchErrorText.text = "";
+            }
+            else
+            {
+                RoomFetchErrorText.text = errorMsg;
             }
         }
         finally

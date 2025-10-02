@@ -12,6 +12,7 @@ public class CharaParameter
 {
     public Characters Type;
     public float AppendHP = 1.0f;
+    public float RecoverSpeed = 1.0f;
 }
 [Serializable]
 public class VehicleParameter
