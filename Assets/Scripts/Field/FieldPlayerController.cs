@@ -375,10 +375,19 @@ public class FieldPlayerController : NetworkBehaviour
     }
     public void OnReceivedStatusEffect(int statusEffectType, bool ignoreNotDrive)
     {
-        if(_iCurrentStatueEffect != null || (!_isPlayerDriving && !ignoreNotDrive))
+        if(_iCurrentStatueEffect != null)
         {
-            Debug.Log($"すでにStatusEffectがかかっているか、運転していないため、スキップ");
+            Debug.Log("すでにStatusEffectがかかっているかスキップ");
             return;
+        }
+
+        if(!_isPlayerDriving)
+        {
+            if(!ignoreNotDrive)
+            {
+                Debug.Log("運転していないため、スキップ");
+                return;
+            }
         }
 
         switch((StatusEffectType)statusEffectType)

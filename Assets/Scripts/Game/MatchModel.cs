@@ -197,7 +197,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         if (model != null)
         {
-            model.GetModelObservable().DoAsync(x => x.OnReceivedStatusEffect(effectType, true)).Forget();
+            model.GetModelObservable().DoAsync(x => x.OnReceivedStatusEffect(effectType, false)).Forget();
         }
     }
     public void UpdateHeatAndSepcialPoint(SpecialPoint specialPoint, HealthPoint healthPoint)
