@@ -53,6 +53,7 @@ public class MatchModel :SingletonBase<MatchModel>
     }
     public async UniTaskVoid RequestStartMatchAsync(CancellationToken token)
     {
+        Debug.LogWarning("@@@ RequestStartMatchAsync 1");
         await SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Game);
         _showLoadUISubject.OnNext(true);
 
@@ -80,6 +81,14 @@ public class MatchModel :SingletonBase<MatchModel>
         })
         .ToList();
 
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            PlayerRootObject.Instance.SelfInfoObject.IsMatchPreReady = true;
+        }
+
+        Debug.LogWarning("@@@ RequestStartMatchAsync 2");
+        await PlayerRootObject.Instance.WaitAllObjectMatchPreReadyAsync(token);
+
         InitializedPlayerCount = _players.Count;
         _preInitFinished = true;
 
@@ -91,10 +100,11 @@ public class MatchModel :SingletonBase<MatchModel>
         // ロード途中に抜けると死ぬ
         async UniTask WaitUntilReady(MatchPlayerModel player)
         {
-            await UniTask.WaitUntil(() => player.IsResourceReady);
+            await UniTask.WaitUntil(() => player.IsResourceReady, cancellationToken: token);
         }
 
         var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
+        Debug.LogWarning("@@@ RequestStartMatchAsync 3");
         await UniTask.WhenAll(tasks);
 
         if (!GameCoreModel.Instance.IsAdminUser)
@@ -105,6 +115,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         ModelCache.Admin.OnMatchStart();
 
+        Debug.LogWarning("@@@ RequestStartMatchAsync 4");
         await UniTask.WaitUntil(() => 
         RoomStateController.Instance == null ||
         RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.Playing,
@@ -186,7 +197,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         if (model != null)
         {
-            model.GetModelObservable().DoAsync(x => x.OnReceivedStatusEffect(effectType, true)).Forget();
+            model.GetModelObservable().DoAsync(x => x.OnReceivedStatusEffect(effectType, false)).Forget();
         }
     }
     public void UpdateHeatAndSepcialPoint(SpecialPoint specialPoint, HealthPoint healthPoint)
