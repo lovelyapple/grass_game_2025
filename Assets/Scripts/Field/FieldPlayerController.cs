@@ -225,14 +225,14 @@ public class FieldPlayerController : NetworkBehaviour
     private void ForceBreak()
     {
         _forceDriving = false;
-        SetSaddleFXActive(false);
-        _vehicle.SetAccelerate(_isPlayerDriving || _forceDriving);
         _isPlayerDriving = false;
+        SetSaddleFXActive(false);
+        _vehicle.SetAccelerate(false);
         _playerBase.SetDriving(false);
         _playerBase.transform.SetParent(LandingTransform);
         _playerBase.transform.localEulerAngles = Vector3.zero;
         _playerBase.transform.localPosition = Vector3.zero;
-        RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
+        RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, false);
     }
     private void PlayerSetFixDriving(bool forceDriving)
     {
@@ -406,8 +406,9 @@ public class FieldPlayerController : NetworkBehaviour
 
             case StatusEffectType.Stun:
                 _iCurrentStatueEffect = new StatusEffectStun();
-                _vehicle.SetStun(true);
                 SetSaddleFXActive(false);
+                _vehicle.SetStun(true);
+                _vehicle.SetAccelerate(false);
                 _playerBase.SetDriving(false);
                 StatusEffectView.SetImage(StatusEffectType.Stun);
 
