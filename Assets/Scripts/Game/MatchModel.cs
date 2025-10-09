@@ -80,6 +80,13 @@ public class MatchModel :SingletonBase<MatchModel>
         })
         .ToList();
 
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            PlayerRootObject.Instance.SelfInfoObject.IsMatchPreReady = true;
+        }
+
+        await PlayerRootObject.Instance.WaitAllObjectMatchPreReadyAsync(token);
+
         InitializedPlayerCount = _players.Count;
         _preInitFinished = true;
 
@@ -91,7 +98,7 @@ public class MatchModel :SingletonBase<MatchModel>
         // ロード途中に抜けると死ぬ
         async UniTask WaitUntilReady(MatchPlayerModel player)
         {
-            await UniTask.WaitUntil(() => player.IsResourceReady);
+            await UniTask.WaitUntil(() => player.IsResourceReady, cancellationToken: token);
         }
 
         var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
