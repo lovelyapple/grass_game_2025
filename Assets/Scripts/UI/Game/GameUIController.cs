@@ -48,12 +48,13 @@ public class GameUIController : MonoBehaviour
         .AddTo(this);
 
         MatchModel.GetInstance().OnPlayerCtrlSpawnedObservable()
-        .Subscribe(x =>
-        {
-            PlayerStatusUI.Setup(x.FieldPlayerController.transform);
-            HeatPointController.UpdateCurrentHp(x.FieldPlayerController.HealthPoint);
-        })
-        .AddTo(this);
+            .Where(x => x.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
+            .Subscribe(x =>
+            {
+                PlayerStatusUI.Setup(x.FieldPlayerController.transform);
+                HeatPointController.UpdateCurrentHp(x.FieldPlayerController.HealthPoint);
+            })
+            .AddTo(this);
     }
 
     private async UniTask<Unit> RunResult(int playerId)
