@@ -53,6 +53,7 @@ public class MatchModel :SingletonBase<MatchModel>
     }
     public async UniTaskVoid RequestStartMatchAsync(CancellationToken token)
     {
+        Debug.LogWarning("@@@ RequestStartMatchAsync 1");
         await SceneChanger.GetInstance().RequestChangeSceneAsyc(SceneChanger.SceneName.Game);
         _showLoadUISubject.OnNext(true);
 
@@ -85,6 +86,7 @@ public class MatchModel :SingletonBase<MatchModel>
             PlayerRootObject.Instance.SelfInfoObject.IsMatchPreReady = true;
         }
 
+        Debug.LogWarning("@@@ RequestStartMatchAsync 2");
         await PlayerRootObject.Instance.WaitAllObjectMatchPreReadyAsync(token);
 
         InitializedPlayerCount = _players.Count;
@@ -102,6 +104,7 @@ public class MatchModel :SingletonBase<MatchModel>
         }
 
         var tasks = _players.Select(player => WaitUntilReady(player)).ToArray();
+        Debug.LogWarning("@@@ RequestStartMatchAsync 3");
         await UniTask.WhenAll(tasks);
 
         if (!GameCoreModel.Instance.IsAdminUser)
@@ -112,6 +115,7 @@ public class MatchModel :SingletonBase<MatchModel>
 
         ModelCache.Admin.OnMatchStart();
 
+        Debug.LogWarning("@@@ RequestStartMatchAsync 4");
         await UniTask.WaitUntil(() => 
         RoomStateController.Instance == null ||
         RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.Playing,
