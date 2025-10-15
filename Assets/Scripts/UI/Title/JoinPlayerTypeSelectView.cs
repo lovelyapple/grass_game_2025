@@ -17,6 +17,17 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
     private int _clickResult = 0;
     private void Awake()
     {
+#if !ADMIN_BUILD
+        JoinAdminButton.gameObject.SetActive(false);
+        AdminRoomInputField.gameObject.SetActive(false);
+#endif
+
+#if !PLAYER_BUILD
+        JoinPlayerButton.gameObject.SetActive(false);
+        PlayerNameInputField.gameObject.SetActive(false);
+#endif
+
+
         var adminBtnObserable = ControllerReceiver.OnTapButtonObservable()
         .Where(btn => btn == JoinAdminButton).Select(_ => Unit.Default);
 
