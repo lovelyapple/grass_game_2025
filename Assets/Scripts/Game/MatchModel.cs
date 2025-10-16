@@ -25,6 +25,8 @@ public class MatchModel :SingletonBase<MatchModel>
     public Observable<HealthPoint> HealthPointChangeObservable() => _healthPointChangeSubject;
     private Subject<int> _onAnyOneUseSkillSubject = new Subject<int>();
     public Observable<int> OnAnyOneUseSkillObservable() => _onAnyOneUseSkillSubject;
+    private Subject<(Characters, bool)> _playDrivingVoiceSubject = new Subject<(Characters, bool)>();
+    public Observable<(Characters, bool)> PlayDrivingVoiceObservable() => _playDrivingVoiceSubject;
     private bool _preInitFinished = false;
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
@@ -287,5 +289,9 @@ public class MatchModel :SingletonBase<MatchModel>
         {
             model.GetModelObservable().DoAsync(x => x.OnReceivedItemEffect(itemEffectType)).Forget();
         }
+    }
+    public void RequestPlayVoice(Characters characters, bool playForce)
+    {
+        _playDrivingVoiceSubject.OnNext((characters, playForce));
     }
 }

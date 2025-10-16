@@ -1,6 +1,5 @@
 using System;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
 using Fusion;
 using R3;
 using UnityEngine;
@@ -15,11 +14,15 @@ public class SeController : MonoBehaviour
     public bool IsEmpty => !Source.isPlaying;
     public void PlaySe(AudioClip audioClip)
     {
-        if(_mixerGroup == null)
-        {
-            _mixerGroup = SoundManager.SeMixerGroup();
-            Source.outputAudioMixerGroup = _mixerGroup;
-        }
+        _mixerGroup = SoundManager.SeMixerGroup();
+        Source.outputAudioMixerGroup = _mixerGroup;
+
+        PlayAsync(audioClip).Forget();
+    }
+    public void PlayVoice(AudioClip audioClip)
+    {
+        _mixerGroup = SoundManager.VoiceMixerGroup();
+        Source.outputAudioMixerGroup = _mixerGroup;
 
         PlayAsync(audioClip).Forget();
     }
