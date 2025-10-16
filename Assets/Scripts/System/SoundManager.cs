@@ -6,6 +6,12 @@ using Cysharp.Threading.Tasks;
 using R3;
 using UnityEngine;
 using UnityEngine.Audio;
+[Serializable]
+public class VoiceContainer
+{
+    public Characters CharacterType;
+    public List<AudioClip> DrivingVoice;
+}
 public class SoundManager : MonoBehaviour
 {
     private static SoundManager _instance;
@@ -31,6 +37,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioSource ResultBGM;
 
     [SerializeField] SeDataHolder SeHolder;
+    [SerializeField] List<VoiceContainer> VoiceContainers;
 
     private const float DEFAULT_BGM_VOLUM = 0.1f;
     private const float LOW_BGM_VOLUM = 0.05f;
