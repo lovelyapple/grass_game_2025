@@ -78,6 +78,7 @@ public class FieldPlayerController : NetworkBehaviour
     private CompositeDisposable _inputDisposables = new();
     private const float HPRECOVER_SELF_RATE = 25f;
     private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
+    private Characters _characterType;
     private SaddleType _saddleType;
     private AudioSource _saddleSeCache = null;
     private AudioListener _audioListener = null;
@@ -99,9 +100,9 @@ public class FieldPlayerController : NetworkBehaviour
 
         var obj = PlayerRootObject.Instance.GetPlayerInfoObject(PlayerId);
         _saddleType = (SaddleType)obj.PlayerEquipment.SaddleType;
-        var chara = obj.PlayerEquipment.Character;
+        _characterType = (Characters)obj.PlayerEquipment.Character;
 
-        var driverPrefab = ResourceContainer.Instance.GetCharacterPrefab((Characters)chara);
+        var driverPrefab = ResourceContainer.Instance.GetCharacterPrefab(_characterType);
         _playerBase = Instantiate(driverPrefab, CharaPoint).GetComponent<PlayerBase>();
 
         SkillBase = _playerBase.GetComponent<SkillBase>();
@@ -115,8 +116,8 @@ public class FieldPlayerController : NetworkBehaviour
         _maxSpeed = vechielParameter.MaxSpeed;
         _acceleration = vechielParameter.Acceleration;
         _saddleHeatRate = ParameterHolder.Instance.SaddleParameters.FirstOrDefault(x => x.Type == _saddleType).HeatRate;
-        _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).AppendHP;
-        _hpSecoverSpeed = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == (Characters)chara).RecoverSpeed;
+        _appendHp = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == _characterType).AppendHP;
+        _hpSecoverSpeed = ParameterHolder.Instance.CharaParameters.FirstOrDefault(x => x.Type == _characterType).RecoverSpeed;
 
         _vehicle.MaxSpeed = _maxSpeed;
         _vehicle.Acceleration = _acceleration;
@@ -196,6 +197,8 @@ public class FieldPlayerController : NetworkBehaviour
             if (!_isHittingPrev)
             {
                 healthDecrease *= 20f;
+
+                MatchModel.GetInstance().RequestPlayVoice(_characterType, false);
             }
             
             HealthPoint.Decrease(healthDecrease);
@@ -247,6 +250,7 @@ public class FieldPlayerController : NetworkBehaviour
         _playerBase.transform.localEulerAngles = Vector3.zero;
         _playerBase.transform.localPosition = Vector3.zero;
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, false);
+        OnReceivedJumpInOut(false);
     }
     private void PlayerSetFixDriving(bool forceDriving)
     {
@@ -432,6 +436,12 @@ public class FieldPlayerController : NetworkBehaviour
                 _playerBase.transform.localPosition = Vector3.zero;
 
                 MatchCameraController.Instance.ShakeCamera();
+
+                if(Object.HasStateAuthority)
+                {
+                    MatchModel.GetInstance().RequestPlayVoice(_characterType, true);
+                }
+
                 _iCurrentStatueEffect.OnExecute(this.GetCancellationTokenOnDestroy(), () =>
                 {
                     _vehicle.SetStun(false);

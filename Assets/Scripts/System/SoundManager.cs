@@ -6,6 +6,12 @@ using Cysharp.Threading.Tasks;
 using R3;
 using UnityEngine;
 using UnityEngine.Audio;
+[Serializable]
+public class VoiceContainer
+{
+    public Characters CharacterType;
+    public List<AudioClip> DrivingVoice;
+}
 public class SoundManager : MonoBehaviour
 {
     private static SoundManager _instance;
@@ -31,13 +37,16 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioSource ResultBGM;
 
     [SerializeField] SeDataHolder SeHolder;
+    [SerializeField] List<VoiceContainer> VoiceContainers;
 
     private const float DEFAULT_BGM_VOLUM = 0.1f;
     private const float LOW_BGM_VOLUM = 0.05f;
     private AudioSource _currentBgmSource;
 
     [SerializeField] List<SeController> SeControllers = new List<SeController>();
+    [SerializeField] List<SeController> VoiceControllers = new List<SeController>();
     public static AudioMixerGroup SeMixerGroup() => _instance.GameAudioMixer.FindMatchingGroups("SE")[0];
+    public static AudioMixerGroup VoiceMixerGroup() => _instance.GameAudioMixer.FindMatchingGroups("Voice")[0];
     public static void PlaySE(AudioClip clip)
     {
         _instance.seSource.outputAudioMixerGroup = _instance.GameAudioMixer.FindMatchingGroups("SE")[0];
@@ -60,6 +69,27 @@ public class SoundManager : MonoBehaviour
         }
 
         emptyCtrl.PlaySe(seClip);
+    }
+    public static SeController PlayerDrivingVoiceRandom(Characters characters)
+    {
+        return _instance.PlayerVoiceOneShot(characters);
+    }
+    private SeController PlayerVoiceOneShot(Characters characters)
+    {
+        var container = VoiceContainers.FirstOrDefault(x => x.CharacterType == characters);
+        var voiceCnt = container.DrivingVoice.Count;
+        var clip = container.DrivingVoice[UnityEngine.Random.Range(0, voiceCnt)];
+
+        var emptyCtrl = VoiceControllers.FirstOrDefault(x => x.IsEmpty);
+
+        if (emptyCtrl == null)
+        {
+            Debug.LogWarning($"there is no empty source");
+            return null;
+        }
+
+        emptyCtrl.PlayVoice(clip);
+        return emptyCtrl;
     }
     public static AudioSource GetSaddleAudio(SaddleType saddleType)
     {
