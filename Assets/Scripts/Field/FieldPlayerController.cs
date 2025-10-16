@@ -181,7 +181,7 @@ public class FieldPlayerController : NetworkBehaviour
         MatchCameraController.Instance.SwitchPlayerLisitener(true);
         _audioListener = gameObject.AddComponent<AudioListener>();
     }
-
+    private bool _isHittingPrev = false;
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority || !IsReady || RoomStateController.Instance == null || RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
@@ -191,20 +191,34 @@ public class FieldPlayerController : NetworkBehaviour
 
         if (_isPlayerDriving && !_forceDriving && HealthPoint.CurrentPoint > 0 && !_recovering)
         {
-            HealthPoint.Decrease(_saddleHeatRate * Runner.DeltaTime);
+            var healthDecrease = _saddleHeatRate * Runner.DeltaTime;
+
+            if (!_isHittingPrev)
+            {
+                healthDecrease *= 20f;
+            }
+            
+            HealthPoint.Decrease(healthDecrease);
             _specialPoint.AddPoint(_saddleHeatRate * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
+            _isHittingPrev = true;
 
             if(HealthPoint.CurrentPoint <= 0)
             {
                 ForceBreak();
                 RecoverHealthAll().Forget();
+                _isHittingPrev = false;
             }
         }
         else if (!_recovering)
         {
+            _isHittingPrev = false;
             HealthPoint.AddPoint(HPRECOVER_SELF_RATE * _hpSecoverSpeed * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
+        }
+        else
+        {
+            _isHittingPrev = false;
         }
     }
 
