@@ -17,6 +17,8 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
     private int _clickResult = 0;
     private void Awake()
     {
+        
+#if !UNITY_EDITOR
 #if !ADMIN_BUILD
         JoinAdminButton.gameObject.SetActive(false);
         AdminRoomInputField.gameObject.SetActive(false);
@@ -25,6 +27,7 @@ public class JoinPlayerTypeSelectView : MonoBehaviour
 #if !PLAYER_BUILD
         JoinPlayerButton.gameObject.SetActive(false);
         PlayerNameInputField.gameObject.SetActive(false);
+#endif
 #endif
 
 
