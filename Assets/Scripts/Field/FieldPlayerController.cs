@@ -76,7 +76,7 @@ public class FieldPlayerController : NetworkBehaviour
     private IStatusEffect _iCurrentStatueEffect = null;
     private bool _isStuning => _iCurrentStatueEffect != null && _iCurrentStatueEffect is StatusEffectStun;
     private CompositeDisposable _inputDisposables = new();
-    private const float HPRECOVER_SELF_RATE = 15f;
+    private const float HPRECOVER_SELF_RATE = 25f;
     private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
     private SaddleType _saddleType;
     private AudioSource _saddleSeCache = null;
