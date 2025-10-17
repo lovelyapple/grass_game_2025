@@ -13,6 +13,7 @@ public class PlayerInfoObject : NetworkBehaviour
     [Networked] public PlayerRef PlayerRef { get; set; }
     [Networked] public bool IsEquipmentConfirmed { get; set; }
     [Networked] public bool IsMatchPreReady { get; set; }
+    [Networked] public bool IsMatchReady { get; set; }
 
     // まぁ、たぶん使わないけど、一応
     [Networked, OnChangedRender(nameof(OnEquipmentUpdate))] 
