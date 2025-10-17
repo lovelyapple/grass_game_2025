@@ -18,6 +18,7 @@ public class ClientBuilder
             extraScriptingDefines = new string[] { AdminSymbolDefine },
         };
 
+        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows);
         BuildPipeline.BuildPlayer(buildPlayerOptions);
     }
     [MenuItem("Build/BuildWindows_Player")]
@@ -32,6 +33,7 @@ public class ClientBuilder
             extraScriptingDefines = new string[] { PlayerSymbolDefine },
         };
 
+        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows);
         BuildPipeline.BuildPlayer(buildPlayerOptions);
     }
     [MenuItem("Build/BuildiOS_Player")]
@@ -46,6 +48,7 @@ public class ClientBuilder
             extraScriptingDefines = new string[] { PlayerSymbolDefine },
         };
 
+        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
         BuildPipeline.BuildPlayer(buildPlayerOptions);
     }
     [MenuItem("Build/BuildAndroid_Player")]
@@ -54,12 +57,14 @@ public class ClientBuilder
         var buildPlayerOptions = new BuildPlayerOptions
         {
             scenes = EditorBuildSettings.scenes.Select(x => x.path).ToArray(),
-            locationPathName = "./Build/and_player",
+            locationPathName = "./Build/and_player/PlayerBuild.apk",
             target = BuildTarget.Android,
             options = BuildOptions.None,
             extraScriptingDefines = new string[] { PlayerSymbolDefine },
         };
 
+        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
+        EditorUserBuildSettings.buildAppBundle = false;
         BuildPipeline.BuildPlayer(buildPlayerOptions);
     }
 }

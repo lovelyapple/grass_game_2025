@@ -1591,7 +1591,7 @@ namespace Fusion {
         GetEditorLogLevel();
 #else
         LogLevel.None;
-      FusionEditorLog.LogWarning($"No log level define set for Fusion, treating as FUSION_LOGLEVEL_NONE (disabled completely).");
+      // FusionEditorLog.LogWarning($"No log level define set for Fusion, treating as FUSION_LOGLEVEL_NONE (disabled completely).");
 #endif
       
       TraceChannels traceChannels = default;
