@@ -124,6 +124,12 @@ public class MatchModel :SingletonBase<MatchModel>
         cancellationToken: token);
 
         _showLoadUISubject.OnNext(false);
+        
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            PlayerRootObject.Instance.SelfInfoObject.IsMatchReady = true;
+        }
+
     }
     public void OnFieldPlayerControllerSpawned(FieldPlayerController fieldPlayerController)
     {

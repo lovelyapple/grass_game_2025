@@ -122,4 +122,17 @@ public class PlayerRootObject : MonoBehaviour
 
         return Unit.Default;
     }
+    public async UniTask<Unit> WaitAllObjectMatchReadyAsync(CancellationToken token)
+    {
+        if (!GameCoreModel.Instance.IsAdminUser)
+        {
+            await UniTask.WaitUntil(() => SelfInfoObject != null && !string.IsNullOrEmpty(SelfInfoObject.PlayerName), cancellationToken: token);
+        }
+
+        await UniTask.WaitUntil(() => PlayerInfos.Values
+            .Where(x => x.PlayerId != RoomModel.GetInstance().AdminId)
+            .All(x => x.IsMatchReady), cancellationToken: token);
+
+        return Unit.Default;
+    }
 }
