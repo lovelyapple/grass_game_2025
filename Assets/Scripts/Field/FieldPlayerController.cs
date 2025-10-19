@@ -82,6 +82,8 @@ public class FieldPlayerController : NetworkBehaviour
     private SaddleType _saddleType;
     private AudioSource _saddleSeCache = null;
     private AudioListener _audioListener = null;
+    public float SkillSheildTimeLeft = 0f; 
+    private const float Skill_Shield_Time = 0.5f;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
@@ -185,6 +187,11 @@ public class FieldPlayerController : NetworkBehaviour
     private bool _isHittingPrev = false;
     public override void FixedUpdateNetwork()
     {
+        if(SkillSheildTimeLeft > 0)
+        {
+            SkillSheildTimeLeft -= Runner.DeltaTime;
+        }
+
         if (!Object.HasStateAuthority || 
         !IsReady ||
         RoomStateController.Instance == null ||
@@ -218,6 +225,11 @@ public class FieldPlayerController : NetworkBehaviour
         }
         else if (!_recovering)
         {
+            if(_isHittingPrev)
+            {
+                SkillSheildTimeLeft = Skill_Shield_Time;
+            }
+        
             _isHittingPrev = false;
             HealthPoint.AddPoint(HPRECOVER_SELF_RATE * _hpSecoverSpeed * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
@@ -394,7 +406,7 @@ public class FieldPlayerController : NetworkBehaviour
             _saddleSeCache?.gameObject.SetActive(false);
         }
     }
-    public void OnReceivedStatusEffect(int statusEffectType, bool ignoreNotDrive)
+    public void OnReceivedStatusEffect(int statusEffectType, bool ignoreNotDrive, bool isUserSkill)
     {
         if(_iCurrentStatueEffect != null)
         {
@@ -406,8 +418,11 @@ public class FieldPlayerController : NetworkBehaviour
         {
             if(!ignoreNotDrive)
             {
-                Debug.Log("運転していないため、スキップ");
-                return;
+                if(isUserSkill && SkillSheildTimeLeft > 0)
+                {
+                    Debug.Log("運転していないため、スキップ");
+                    return;
+                }
             }
         }
 
@@ -496,7 +511,7 @@ public class FieldPlayerController : NetworkBehaviour
 
             case ItemEffectType.Jummer:
                 SoundManager.PlayOneShot(seType: SeType.Se_Barrer_broke);
-                OnReceivedStatusEffect((int)StatusEffectType.Stun, true);
+                OnReceivedStatusEffect((int)StatusEffectType.Stun, true, false);
                 break;
         }
     }
