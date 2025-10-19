@@ -27,11 +27,14 @@ public class MatchModel :SingletonBase<MatchModel>
     public Observable<int> OnAnyOneUseSkillObservable() => _onAnyOneUseSkillSubject;
     private Subject<(Characters, bool)> _playDrivingVoiceSubject = new Subject<(Characters, bool)>();
     public Observable<(Characters, bool)> PlayDrivingVoiceObservable() => _playDrivingVoiceSubject;
+    private Subject<Unit> _onLoadOpenSubjet = new Subject<Unit>();
+    public Observable<Unit> OnLoadFinishedObservable() => _onLoadOpenSubjet;
     private bool _preInitFinished = false;
     public int InitializedPlayerCount { get; private set; }
     public int MatchWinner { get; private set; }
     public float RaceDistance { get; set; }
     private Dictionary<int, FieldItemBase> _itemDict = null;
+    public bool CountDownFinished { get; set; } = false;
     public void Reset()
     {
         SelfPlayer = null;
@@ -40,6 +43,7 @@ public class MatchModel :SingletonBase<MatchModel>
         InitializedPlayerCount = 0;
         _preInitFinished = false;
         _itemDict = null;
+        CountDownFinished = false;
     }
     public void OnPlayerLeave(int playerId)
     {
@@ -130,6 +134,7 @@ public class MatchModel :SingletonBase<MatchModel>
             PlayerRootObject.Instance.SelfInfoObject.IsMatchReady = true;
         }
 
+        _onLoadOpenSubjet.OnNext(Unit.Default);
     }
     public void OnFieldPlayerControllerSpawned(FieldPlayerController fieldPlayerController)
     {

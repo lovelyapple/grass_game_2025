@@ -165,7 +165,7 @@ public class FieldPlayerController : NetworkBehaviour
         var inputController  = GameInputController.Instance;
 
         inputController.IsAcceleratingObservable()
-        .Where(_ => _vehicle != null && !_recovering && !_isStuning)
+        .Where(_ => _vehicle != null && !_recovering && !_isStuning && MatchModel.GetInstance().CountDownFinished == true)
         .Subscribe(x => PlayerChangeDrive(x))
         .AddTo(_inputDisposables);
 
@@ -185,7 +185,10 @@ public class FieldPlayerController : NetworkBehaviour
     private bool _isHittingPrev = false;
     public override void FixedUpdateNetwork()
     {
-        if (!Object.HasStateAuthority || !IsReady || RoomStateController.Instance == null || RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
+        if (!Object.HasStateAuthority || 
+        !IsReady ||
+        RoomStateController.Instance == null ||
+        RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
         {
             return;
         }
@@ -492,6 +495,7 @@ public class FieldPlayerController : NetworkBehaviour
                 break;
 
             case ItemEffectType.Jummer:
+                SoundManager.PlayOneShot(seType: SeType.Se_Barrer_broke);
                 OnReceivedStatusEffect((int)StatusEffectType.Stun, true);
                 break;
         }

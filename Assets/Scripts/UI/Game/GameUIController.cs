@@ -19,6 +19,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private UIButtonPressHandler DownButtonHandler;
     [SerializeField] private Button UseSkillButton;
     [SerializeField] private GameResultController ResultController;
+    [SerializeField] private GameUICountdown CountDownController;
     public Observable<bool> IsPressingAccelerateButtonObservable() => AccelerateButtonHandler.IsPressingObservable();
     public Observable<bool> IsPressingUpButtonObservable() => UpButtonHandler.IsPressingObservable();
     public Observable<bool> IsPressingDownButtonObservable() => DownButtonHandler.IsPressingObservable();
@@ -55,6 +56,10 @@ public class GameUIController : MonoBehaviour
                 HeatPointController.UpdateCurrentHp(x.FieldPlayerController.HealthPoint);
             })
             .AddTo(this);
+
+        MatchModel.GetInstance().OnLoadFinishedObservable()
+        .Subscribe(_ => CountDownController.gameObject.SetActive(true))
+        .AddTo(this);
     }
 
     private async UniTask<Unit> RunResult(int playerId)
