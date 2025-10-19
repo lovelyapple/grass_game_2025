@@ -711,7 +711,7 @@ AnimationClip:
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 4
+    intParameter: 6
     messageOptions: 0
   - time: 1.0833334
     functionName: OnFinished
