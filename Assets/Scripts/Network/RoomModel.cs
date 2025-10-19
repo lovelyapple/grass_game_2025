@@ -38,12 +38,13 @@ public class RoomModel : SingletonBase<RoomModel>
     {
         Debug.Log("Reset RoomModel");
         _playerInfos.Clear();
+        _roomStateController = null;
         SelfPlayerRef = PlayerRef.None;
         AdminId = 0;
         RoomName = "";
     }
     #region NetworkCallBack
-    public void OnRoomStateControllerSpawn(RoomStateController roomStateController)
+    public void OnRoomStateControllerSpawnOrReturn(RoomStateController roomStateController)
     {
         _roomStateController = roomStateController;
         AdminId = _roomStateController.AdminId;
