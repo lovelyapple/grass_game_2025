@@ -50,7 +50,7 @@ public class SeController : MonoBehaviour
         {
             Source.Stop();
             Source.clip = null;
-            gameObject.SetActive(false);
+            gameObject?.SetActive(false);
         }
         return Unit.Default;
     }

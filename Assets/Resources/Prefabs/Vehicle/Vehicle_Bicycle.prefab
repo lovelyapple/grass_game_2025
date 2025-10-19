@@ -572,6 +572,7 @@ MonoBehaviour:
   SaddleFX: {fileID: 3244292366936536327}
   IsReady: 0
   IsFinished: 0
+  SkillSheildTimeLeft: 0
 --- !u!114 &542003492502914567
 MonoBehaviour:
   m_ObjectHideFlags: 0

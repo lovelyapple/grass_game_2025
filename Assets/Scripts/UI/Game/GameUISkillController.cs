@@ -16,9 +16,9 @@ public class GameUISkillController : MonoBehaviour
     private void SpawnSkillFX(int skillType)
     {
         var prefab = ResourceContainer.Instance.GetStatusEffectFx((Characters)skillType);
-        Instantiate(prefab, this.transform);
-        _spawnedOBjects.Add(prefab);
-
+        var instance = Instantiate(prefab, this.transform);
+        instance.gameObject.SetActive(true);
+        _spawnedOBjects.Add(instance);
         _spawnedOBjects.RemoveAll(x => x == null);
     }
     public void ClearAll()

@@ -1268,8 +1268,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterImages:
   - Character: 1
-    CFResource: {fileID: 21300000, guid: 8a7a16115846dab4a85f61451ce83e64, type: 3}
-    CHResource: {fileID: 21300000, guid: cbfc409b25b1a2540b65d22e6b74c01b, type: 3}
+    CFResource: {fileID: 21300000, guid: 9d8174dca840f8e4bae7506d24989527, type: 3}
+    CHResource: {fileID: 21300000, guid: 183feaacd181c354ca454d6041c4bf27, type: 3}
     CDFResource: {fileID: 21300000, guid: 594abac31f40c4f849446273cd68cee3, type: 3}
   - Character: 2
     CFResource: {fileID: 21300000, guid: 8c02dc6fdfacb4d47a9d1d1805695f8a, type: 3}
@@ -1277,7 +1277,7 @@ MonoBehaviour:
     CDFResource: {fileID: 21300000, guid: f15a0b23ff8314292a9c356f283595fc, type: 3}
   - Character: 0
     CFResource: {fileID: 21300000, guid: c398845158831fd4ba0eee685376ae6c, type: 3}
-    CHResource: {fileID: 21300000, guid: b55b7d39e7de57345b2157da74e50214, type: 3}
+    CHResource: {fileID: 21300000, guid: f90d0714679208a40bd1c5a9a5a75b0c, type: 3}
     CDFResource: {fileID: 21300000, guid: b462b1ed799014fd697a6696413ec624, type: 3}
   SaddleImages:
   - Saddle: 1
