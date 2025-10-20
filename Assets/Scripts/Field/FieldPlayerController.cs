@@ -484,6 +484,7 @@ public class FieldPlayerController : NetworkBehaviour
             case ItemEffectType.Heal:
                 HealthPoint.AddPoint(200);
                 {
+                    SoundManager.PlayerActionVoice(_characterType);
                     MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
                     var prefab = ResourceContainer.Instance.GetItemEffectIcon(ItemEffectType.Heal);
                     var instance = GameObject.Instantiate(prefab, this.transform);
@@ -520,6 +521,7 @@ public class FieldPlayerController : NetworkBehaviour
     CancellationTokenSource itemSpeedBuffTokenSource;
     private async UniTask<Unit> ItemSpeedUpAsync()
     {
+        SoundManager.PlayerActionVoice(_characterType);
         itemSpeedBuffTokenSource?.Cancel();
 
         try
