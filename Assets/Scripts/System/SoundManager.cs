@@ -11,6 +11,7 @@ public class VoiceContainer
 {
     public Characters CharacterType;
     public List<AudioClip> DrivingVoice;
+    public AudioClip SpVoice;
 }
 public class SoundManager : MonoBehaviour
 {
@@ -89,6 +90,25 @@ public class SoundManager : MonoBehaviour
         }
 
         emptyCtrl.PlayVoice(clip);
+        return emptyCtrl;
+    }
+    public static SeController PlayerDrivingSPVoice(Characters characters)
+    {
+        return _instance.PlayerSPVoiceOneShot(characters);
+    }
+    private SeController PlayerSPVoiceOneShot(Characters characters)
+    {
+        var container = VoiceContainers.FirstOrDefault(x => x.CharacterType == characters);
+
+        var emptyCtrl = VoiceControllers.FirstOrDefault(x => x.IsEmpty);
+
+        if (emptyCtrl == null)
+        {
+            Debug.LogWarning($"there is no empty source");
+            return null;
+        }
+
+        emptyCtrl.PlayVoice(container.SpVoice);
         return emptyCtrl;
     }
     public static AudioSource GetSaddleAudio(SaddleType saddleType)

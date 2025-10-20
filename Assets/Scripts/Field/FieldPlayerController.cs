@@ -315,6 +315,8 @@ public class FieldPlayerController : NetworkBehaviour
                 MatchModel.GetInstance().OnSelfUseStatusEffectSkill((int)StatusEffectType.Stun);
             }
 
+            SoundManager.PlayerDrivingSPVoice(_characterType);
+
             RpcConnector.Instance.Rpc_BroadcastOnPlayerFinishSkill(PlayerId);
         }
         catch(Exception e)
