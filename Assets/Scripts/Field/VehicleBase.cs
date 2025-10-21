@@ -7,7 +7,8 @@ public class VehicleBase : NetworkBehaviour
 {
     public Transform SaddleTransform;
     public float _currentSpeed;
-    public bool _accelerating;
+    public int _acceleratingDirPrev;
+    public int _acceleratingDir;
     public HorizontalMoveDir _horizontalMoveDir;
     private bool _breaking;
     private const float FRICTION = 0.95f;
@@ -38,9 +39,14 @@ public class VehicleBase : NetworkBehaviour
     {
         _addSpeed = speed;
     }
-    public void SetAccelerate(bool accelaring)
+    public void SetAccelerate(int accelaringDir)
     {
-        _accelerating = accelaring;
+        _acceleratingDir = accelaringDir;
+
+        if(accelaringDir != 0 && _acceleratingDirPrev != accelaringDir)
+        {
+            _acceleratingDirPrev = accelaringDir;
+        }
     }
     public void SetHorizontalMove(HorizontalMoveDir horizontalMoveDir)
     {
@@ -48,7 +54,7 @@ public class VehicleBase : NetworkBehaviour
     }
     public void UnRegistry()
     {
-        _accelerating = false;
+        _acceleratingDir = 0;
         _breaking = false;
         _horizontalMoveDir = HorizontalMoveDir.None;
     }
@@ -59,7 +65,7 @@ public class VehicleBase : NetworkBehaviour
             return;
         }
 
-        if (_accelerating && !IsPushing & !_isStun)
+        if (_acceleratingDir != 0 && !IsPushing & !_isStun)
         { 
             _currentSpeed += Runner.DeltaTime * Acceleration;
 
@@ -87,14 +93,14 @@ public class VehicleBase : NetworkBehaviour
 
         if (_horizontalMoveDir == HorizontalMoveDir.Left)
         {
-            var dir = _isRevertMoving ? Vector3.right : Vector3.left;
+            var dir = _isRevertMoving  ? Vector3.right : Vector3.left;
             var position = transform.position + dir * HOR_MOVE_SPEED * Runner.DeltaTime;
             position.x = Mathf.Clamp(position.x, -ROAD_WIDTH, ROAD_WIDTH);
             transform.position = position;
         }
         else if (_horizontalMoveDir == HorizontalMoveDir.Right)
         {
-            var dir = _isRevertMoving ? Vector3.left : Vector3.right;
+            var dir = _isRevertMoving  ? Vector3.left : Vector3.right;
             var position = transform.position + dir * HOR_MOVE_SPEED * Runner.DeltaTime;
             position.x = Mathf.Clamp(position.x, -ROAD_WIDTH, ROAD_WIDTH);
             transform.position = position;
@@ -102,13 +108,27 @@ public class VehicleBase : NetworkBehaviour
 
         if (_currentSpeed > 0)
         {
-            var dir = _isRevertMoving ? Vector3.back : Vector3.forward;
+            var isRevers = _isRevertMoving || _acceleratingDir < 0;
+
+            if (_acceleratingDir == 0)
+            {
+                if(_acceleratingDirPrev < 0)
+                {
+                    isRevers = true;
+                }
+            }
+
+            var dir = isRevers ? Vector3.back : Vector3.forward;
             transform.position = transform.position + dir * _currentSpeed * Runner.DeltaTime;
 
             if(OnPositionUpdated != null)
             {
                 OnPositionUpdated();
             }
+        }
+        else
+        {
+            _acceleratingDirPrev = 0;
         }
     }
 }

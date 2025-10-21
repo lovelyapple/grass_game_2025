@@ -22,9 +22,8 @@ public class GameInputController : MonoBehaviour
             return _instance;
         }
     }
-
-    private readonly ReactiveProperty<bool> _isAccelerating = new ReactiveProperty<bool>(false);
-    public Observable<bool> IsAcceleratingObservable() => _isAccelerating;
+    private readonly ReactiveProperty<int> _isAccelerating = new ReactiveProperty<int>(0);
+    public Observable<int> IsAcceleratingObservable() => _isAccelerating;
     private readonly ReactiveProperty<HorizontalMoveDir> _moveDir = new ReactiveProperty<HorizontalMoveDir>();
     public Observable<HorizontalMoveDir> HorizontalMovingObservable() => _moveDir;
     private readonly Subject<Unit> _useClickUseSkillSubject = new Subject<Unit>();
@@ -33,13 +32,20 @@ public class GameInputController : MonoBehaviour
     public Observable<Unit> UseSkillObservable() => _useSkillSubject;
 
     private bool _isPressingAccelerateUI = false;
+    private bool _isPressingBackUI = false;
     private bool _isPressingUpUI = false;
     private bool _isPressingDownUI = false;
+
+    private bool _canBack = false;
     private void Awake()
     {
         _instance = this;
         GameUIController.IsPressingAccelerateButtonObservable()
         .Subscribe(isPressing => _isPressingAccelerateUI = isPressing)
+        .AddTo(this);
+
+        GameUIController.IsPressingBackButtonObservable()
+        .Subscribe(isPressing => _isPressingBackUI = isPressing)
         .AddTo(this);
 
         GameUIController.IsPressingUpButtonObservable()
@@ -57,13 +63,31 @@ public class GameInputController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKey(KeyCode.Space) || _isPressingAccelerateUI || Input.GetKey(KeyCode.Joystick1Button2))
+        if ((Input.GetKey(KeyCode.Space) || _isPressingAccelerateUI || Input.GetKey(KeyCode.Joystick1Button2)) && (_isAccelerating.Value == 0 || _isAccelerating.Value == 1))
         {
-            _isAccelerating.Value = true;
+            _isAccelerating.Value = 1;
         }
         else
         {
-            _isAccelerating.Value = false;
+            if (_isAccelerating.Value == 1)
+            {
+                _isAccelerating.Value = 0;
+            }
+        }
+
+        if (_canBack)
+        {
+            if ((Input.GetKey(KeyCode.LeftControl) || _isPressingBackUI || Input.GetKey(KeyCode.Joystick1Button3)) && (_isAccelerating.Value == 0 || _isAccelerating.Value == -1))
+            {
+                _isAccelerating.Value = -1;
+            }
+            else
+            {
+                if (_isAccelerating.Value == -1)
+                {
+                    _isAccelerating.Value = 0;
+                }
+            }
         }
 
         if (Input.GetKey(KeyCode.UpArrow) || _isPressingUpUI || Input.GetAxis("Vertical") > 0)
@@ -83,5 +107,10 @@ public class GameInputController : MonoBehaviour
         {
             _useSkillSubject.OnNext(Unit.Default);
         }
+    }
+    public void SetCanBack(bool canBack)
+    {
+        _canBack = canBack;
+        GameUIController.SetCanBack(canBack);
     }
 }
