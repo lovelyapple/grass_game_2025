@@ -84,6 +84,7 @@ public class FieldPlayerController : NetworkBehaviour
     private AudioListener _audioListener = null;
     public float SkillSheildTimeLeft = 0f; 
     private const float Skill_Shield_Time = 0.5f;
+    [SerializeField] private Animator DodgeAnim;
     private void Awake()
     {
         _networkTransform = GetComponent<NetworkTransform>();
@@ -423,6 +424,7 @@ public class FieldPlayerController : NetworkBehaviour
                 if(isUserSkill && SkillSheildTimeLeft > 0)
                 {
                     Debug.Log("運転していないため、スキップ");
+                    PlayDodgeAnim();
                     return;
                 }
             }
@@ -550,6 +552,11 @@ public class FieldPlayerController : NetworkBehaviour
             var itemBox = collision.gameObject.GetComponent<FieldItemBase>();
             RpcConnector.Instance.Rpc_BroadcastTouchItemBox(PlayerId, itemBox.ItemId, 0);
         }
+    }
+
+    private void PlayDodgeAnim()
+    {
+        DodgeAnim.Play("Play");
     }
 }
     
