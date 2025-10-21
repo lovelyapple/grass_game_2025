@@ -484,14 +484,7 @@ public class FieldPlayerController : NetworkBehaviour
         switch((ItemEffectType) itemEfffectType)
         {
             case ItemEffectType.Heal:
-                HealthPoint.AddPoint(200);
-                {
-                    SoundManager.PlayerActionVoice(_characterType);
-                    MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
-                    var prefab = ResourceContainer.Instance.GetItemEffectIcon(ItemEffectType.Heal);
-                    var instance = GameObject.Instantiate(prefab, this.transform);
-                    instance.gameObject.SetActive(true);
-                }
+                ApplyHeal(200);
                 break;
             case ItemEffectType.SpeedUp:
                 {
@@ -519,6 +512,16 @@ public class FieldPlayerController : NetworkBehaviour
                 OnReceivedStatusEffect((int)StatusEffectType.Stun, true, false);
                 break;
         }
+    }
+
+    private void ApplyHeal(int healAmount)
+    {
+        HealthPoint.AddPoint(healAmount);
+        SoundManager.PlayerActionVoice(_characterType);
+        MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
+        var prefab = ResourceContainer.Instance.GetItemEffectIcon(ItemEffectType.Heal);
+        var instance = GameObject.Instantiate(prefab, this.transform);
+        instance.gameObject.SetActive(true);
     }
     CancellationTokenSource itemSpeedBuffTokenSource;
     private async UniTask<Unit> ItemSpeedUpAsync()
@@ -556,6 +559,7 @@ public class FieldPlayerController : NetworkBehaviour
 
     private void PlayDodgeAnim()
     {
+        ApplyHeal(30);
         DodgeAnim.Play("Play");
     }
 }
