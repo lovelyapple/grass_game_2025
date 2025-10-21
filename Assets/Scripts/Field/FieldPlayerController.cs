@@ -67,6 +67,7 @@ public class FieldPlayerController : NetworkBehaviour
     public HealthPoint HealthPoint = new HealthPoint();
     public SkillBase SkillBase{ get; private set; }
     private bool _isPlayerDriving = false;
+    private bool _isBacking = false;
     private bool _forceDriving = false;
     private bool _recovering = false;
     private Subject<FieldPlayerController> _onZPosUpdated = new Subject<FieldPlayerController>();
@@ -80,6 +81,7 @@ public class FieldPlayerController : NetworkBehaviour
     private const float HP_RECOVER_RATE_FROM_EMPTY = 50;
     private Characters _characterType;
     private SaddleType _saddleType;
+    private Vehicles _vehicleType;
     private AudioSource _saddleSeCache = null;
     private AudioListener _audioListener = null;
     public float SkillSheildTimeLeft = 0f; 
@@ -104,6 +106,7 @@ public class FieldPlayerController : NetworkBehaviour
         var obj = PlayerRootObject.Instance.GetPlayerInfoObject(PlayerId);
         _saddleType = (SaddleType)obj.PlayerEquipment.SaddleType;
         _characterType = (Characters)obj.PlayerEquipment.Character;
+        _vehicleType = (Vehicles)obj.PlayerEquipment.Vehicle;
 
         var driverPrefab = ResourceContainer.Instance.GetCharacterPrefab(_characterType);
         _playerBase = Instantiate(driverPrefab, CharaPoint).GetComponent<PlayerBase>();
@@ -167,10 +170,24 @@ public class FieldPlayerController : NetworkBehaviour
         _inputDisposables = new CompositeDisposable();
         var inputController  = GameInputController.Instance;
 
-        inputController.IsAcceleratingObservable()
-        .Where(_ => _vehicle != null && !_recovering && !_isStuning && MatchModel.GetInstance().CountDownFinished == true)
-        .Subscribe(x => PlayerChangeDrive(x))
-        .AddTo(_inputDisposables);
+        var canBack = _vehicleType == Vehicles.Unicycle;
+        inputController.SetCanBack(canBack);
+
+        if(canBack)
+        {
+            inputController.IsAcceleratingObservable()
+            .Where(_ => _vehicle != null && !_recovering && !_isStuning && MatchModel.GetInstance().CountDownFinished == true)
+            .Subscribe(x => PlayerChangeDrive(x))
+            .AddTo(_inputDisposables);
+        }
+        else
+        {
+            inputController.IsAcceleratingObservable()
+            .Where(_ => _vehicle != null && !_recovering && !_isStuning && MatchModel.GetInstance().CountDownFinished == true)
+            .Where(dir => dir >= 0)
+            .Subscribe(x => PlayerChangeDrive(x))
+            .AddTo(_inputDisposables);
+        }
 
         inputController.HorizontalMovingObservable()
         .Where(_ => _vehicle != null && !_recovering && !_isStuning)
@@ -242,15 +259,31 @@ public class FieldPlayerController : NetworkBehaviour
     }
 
     #region  player_input
-    private void PlayerChangeDrive(bool accelaring)
+    private void PlayerChangeDrive(int accelaringDir)
     {
+        var accelaring = accelaringDir != 0;
         if (_isPlayerDriving == accelaring)
         {
             return;
         }
 
+        var dir = 0;
+
+        if (_forceDriving || accelaringDir > 0)
+        {
+            dir = 1;
+        }
+        else if(accelaringDir < 0)
+        {
+            dir = -1;
+        }
+        else
+        {
+            dir = 0;
+        }
+
         _isPlayerDriving = accelaring;
-        _vehicle.SetAccelerate(accelaring || _forceDriving);
+        _vehicle.SetAccelerate(dir);
         _playerBase.SetDriving(accelaring);
         SetSaddleFXActive(accelaring);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _isPlayerDriving || _forceDriving);
@@ -260,7 +293,7 @@ public class FieldPlayerController : NetworkBehaviour
         _forceDriving = false;
         _isPlayerDriving = false;
         SetSaddleFXActive(false);
-        _vehicle.SetAccelerate(false);
+        _vehicle.SetAccelerate(0);
         _playerBase.SetDriving(false);
         _playerBase.transform.SetParent(LandingTransform);
         _playerBase.transform.localEulerAngles = Vector3.zero;
@@ -271,7 +304,7 @@ public class FieldPlayerController : NetworkBehaviour
     private void PlayerSetFixDriving(bool forceDriving)
     {
         _forceDriving = forceDriving;
-        _vehicle.SetAccelerate(_forceDriving);
+        _vehicle.SetAccelerate(1);
         RpcConnector.Instance.Rpc_OnPlayerJumpInOut(this.PlayerId, _forceDriving);
     }
     private void PlayerSetHorizontal(HorizontalMoveDir horizontalMoveDir)
@@ -448,7 +481,7 @@ public class FieldPlayerController : NetworkBehaviour
                 _iCurrentStatueEffect = new StatusEffectStun();
                 SetSaddleFXActive(false);
                 _vehicle.SetStun(true);
-                _vehicle.SetAccelerate(false);
+                _vehicle.SetAccelerate(0);
                 _playerBase.SetDriving(false);
                 StatusEffectView.SetImage(StatusEffectType.Stun);
 

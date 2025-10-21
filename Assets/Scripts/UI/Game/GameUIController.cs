@@ -15,12 +15,14 @@ public class GameUIController : MonoBehaviour
     [SerializeField] MatchObjectFollower PlayerStatusUI;
     [SerializeField] Image LoadUI;
     [SerializeField] private UIButtonPressHandler AccelerateButtonHandler;
+    [SerializeField] private UIButtonPressHandler BackButtonHandler;
     [SerializeField] private UIButtonPressHandler UpButtonHandler;
     [SerializeField] private UIButtonPressHandler DownButtonHandler;
     [SerializeField] private Button UseSkillButton;
     [SerializeField] private GameResultController ResultController;
     [SerializeField] private GameUICountdown CountDownController;
     public Observable<bool> IsPressingAccelerateButtonObservable() => AccelerateButtonHandler.IsPressingObservable();
+    public Observable<bool> IsPressingBackButtonObservable() => BackButtonHandler.IsPressingObservable();
     public Observable<bool> IsPressingUpButtonObservable() => UpButtonHandler.IsPressingObservable();
     public Observable<bool> IsPressingDownButtonObservable() => DownButtonHandler.IsPressingObservable();
     public Observable<Unit> OnClickUseSkillButtonObservable() => UseSkillButton.OnClickAsObservable();
@@ -61,7 +63,10 @@ public class GameUIController : MonoBehaviour
         .Subscribe(_ => CountDownController.gameObject.SetActive(true))
         .AddTo(this);
     }
-
+    public void SetCanBack(bool canBack)
+    {
+        BackButtonHandler.gameObject.SetActive(canBack);
+    }
     private async UniTask<Unit> RunResult(int playerId)
     {
         GameHudRoot.SetActive(false);
