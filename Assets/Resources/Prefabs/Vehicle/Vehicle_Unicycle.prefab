@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 3285155998959988849}
   - component: {fileID: 228594705271420329}
   - component: {fileID: 4915588501818776138}
+  - component: {fileID: 4241894149273836316}
   m_Layer: 0
   m_Name: Vehicle_Unicycle
   m_TagString: Untagged
@@ -136,9 +137,11 @@ MonoBehaviour:
   SaddleImage: {fileID: 4446613733535728573}
   StatusEffectView: {fileID: 7255144071594606626}
   DownPoint: {fileID: 7238415439944569922}
-  SaddleFX: {fileID: 0}
+  SaddleFX: {fileID: 5610456743321920797}
   IsReady: 0
   IsFinished: 0
+  SkillSheildTimeLeft: 0
+  DodgeAnim: {fileID: 4241894149273836316}
 --- !u!114 &1636245863516424954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,6 +224,28 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!95 &4241894149273836316
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778037696992862508}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 22cd22298d0944546b24c8ac9389b2ac, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1241416469637581696
 GameObject:
   m_ObjectHideFlags: 0
@@ -593,6 +618,11 @@ PrefabInstance:
 --- !u!4 &5610456742862486889 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6961744195086728388, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
+  m_PrefabInstance: {fileID: 3260973209382240685}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &5610456743321920797 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 6961744195437372592, guid: 27bb868af6e73ce49a6261cf0969344c, type: 3}
   m_PrefabInstance: {fileID: 3260973209382240685}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4678798132777652462
