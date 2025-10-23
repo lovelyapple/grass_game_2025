@@ -65,7 +65,7 @@ public class FieldPlayerController : NetworkBehaviour
     private float _hpSecoverSpeed;
     private SpecialPoint _specialPoint = new SpecialPoint();
     public HealthPoint HealthPoint = new HealthPoint();
-    public SkillBase SkillBase{ get; private set; }
+    public SkillBase SkillBase { get; private set; }
     private bool _isPlayerDriving = false;
     private bool _isBacking = false;
     private bool _forceDriving = false;
@@ -84,7 +84,7 @@ public class FieldPlayerController : NetworkBehaviour
     private Vehicles _vehicleType;
     private AudioSource _saddleSeCache = null;
     private AudioListener _audioListener = null;
-    public float SkillSheildTimeLeft = 0f; 
+    public float SkillSheildTimeLeft = 0f;
     private const float Skill_Shield_Time = 0.5f;
     [SerializeField] private Animator DodgeAnim;
     private void Awake()
@@ -92,9 +92,10 @@ public class FieldPlayerController : NetworkBehaviour
         _networkTransform = GetComponent<NetworkTransform>();
         MatchModel.GetInstance().OnMatchFinishedObservable()
         .Where(_ => _saddleSeCache != null)
-        .Subscribe(_ => {
+        .Subscribe(_ =>
+        {
             _saddleSeCache.gameObject.SetActive(false);
-         })
+        })
         .AddTo(this);
     }
     public override void Spawned()
@@ -134,7 +135,7 @@ public class FieldPlayerController : NetworkBehaviour
         _saddleSeCache = SoundManager.GetSaddleAudio(_saddleType);
         _saddleSeCache.transform.SetParent(this.transform);
 
-        if(PlayerId != RoomModel.GetInstance().SelfPlayerRef.PlayerId)
+        if (PlayerId != RoomModel.GetInstance().SelfPlayerRef.PlayerId)
         {
             var source = _saddleSeCache.GetComponent<AudioSource>();
             source.spatialBlend = 0.92f;
@@ -161,14 +162,14 @@ public class FieldPlayerController : NetworkBehaviour
     {
         _vehicle.OnPositionUpdated = () =>
         {
-            if(!IsFinished)
+            if (!IsFinished)
             {
                 _onZPosUpdated.OnNext(this);
             }
         };
 
         _inputDisposables = new CompositeDisposable();
-        var inputController  = GameInputController.Instance;
+        var inputController = GameInputController.Instance;
 
         var canBack = _vehicleType == Vehicles.Unicycle;
         inputController.SetCanBack(canBack);
@@ -205,12 +206,12 @@ public class FieldPlayerController : NetworkBehaviour
     private bool _isHittingPrev = false;
     public override void FixedUpdateNetwork()
     {
-        if(SkillSheildTimeLeft > 0)
+        if (SkillSheildTimeLeft > 0)
         {
             SkillSheildTimeLeft -= Runner.DeltaTime;
         }
 
-        if (!Object.HasStateAuthority || 
+        if (!Object.HasStateAuthority ||
         !IsReady ||
         RoomStateController.Instance == null ||
         RoomStateController.Instance.CurrentRoomPhase != (int)RoomPhase.Playing)
@@ -228,13 +229,13 @@ public class FieldPlayerController : NetworkBehaviour
 
                 MatchModel.GetInstance().RequestPlayVoice(_characterType, false);
             }
-            
+
             HealthPoint.Decrease(healthDecrease);
             _specialPoint.AddPoint(_saddleHeatRate * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
             _isHittingPrev = true;
 
-            if(HealthPoint.CurrentPoint <= 0)
+            if (HealthPoint.CurrentPoint <= 0)
             {
                 ForceBreak();
                 RecoverHealthAll().Forget();
@@ -243,11 +244,11 @@ public class FieldPlayerController : NetworkBehaviour
         }
         else if (!_recovering)
         {
-            if(_isHittingPrev)
+            if (_isHittingPrev)
             {
                 SkillSheildTimeLeft = Skill_Shield_Time;
             }
-        
+
             _isHittingPrev = false;
             HealthPoint.AddPoint(HPRECOVER_SELF_RATE * _hpSecoverSpeed * Runner.DeltaTime);
             MatchModel.GetInstance().UpdateHeatAndSepcialPoint(_specialPoint, HealthPoint);
@@ -326,7 +327,7 @@ public class FieldPlayerController : NetworkBehaviour
             RpcConnector.Instance.Rpc_BroadcastOnPlayerUseSkill(PlayerId);
             await UniTask.WaitUntil(() => SkillBase.PlayingSkill, cancellationToken: token);
 
-            if(SkillBase is SkillOfficeWorker)
+            if (SkillBase is SkillOfficeWorker)
             {
                 itemSpeedBuffTokenSource?.Cancel();
                 _vehicle.SetSkillSpeed(5);
@@ -336,7 +337,7 @@ public class FieldPlayerController : NetworkBehaviour
                 await UniTask.WhenAny(task1, task2);
                 PlayerSetFixDriving(false);
             }
-            else if(SkillBase is SkillJK)
+            else if (SkillBase is SkillJK)
             {
                 await UniTask.WaitForSeconds(SkillBase.SkillDuration());
 
@@ -353,7 +354,7 @@ public class FieldPlayerController : NetworkBehaviour
 
             RpcConnector.Instance.Rpc_BroadcastOnPlayerFinishSkill(PlayerId);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             throw e;
         }
@@ -372,6 +373,7 @@ public class FieldPlayerController : NetworkBehaviour
         var token = new CancellationTokenSource().Token;
         try
         {
+            MatchModel.GetInstance().PlayHPAlert(true);
             while (!HealthPoint.IsMax)
             {
                 token.ThrowIfCancellationRequested();
@@ -384,6 +386,7 @@ public class FieldPlayerController : NetworkBehaviour
         finally
         {
             _recovering = false;
+            MatchModel.GetInstance().PlayHPAlert(false);
         }
 
         return Unit.Default;
@@ -410,7 +413,7 @@ public class FieldPlayerController : NetworkBehaviour
             mainF.startColor = active ? Color.yellow : Color.black;
         }
     }
-    public void OnReceivedJumpInOut(bool jumdIn) 
+    public void OnReceivedJumpInOut(bool jumdIn)
     {
         if (jumdIn)
         {
@@ -444,17 +447,17 @@ public class FieldPlayerController : NetworkBehaviour
     }
     public void OnReceivedStatusEffect(int statusEffectType, bool ignoreNotDrive, bool isUserSkill)
     {
-        if(_iCurrentStatueEffect != null)
+        if (_iCurrentStatueEffect != null)
         {
             Debug.Log("すでにStatusEffectがかかっているかスキップ");
             return;
         }
 
-        if(!_isPlayerDriving)
+        if (!_isPlayerDriving)
         {
-            if(!ignoreNotDrive)
+            if (!ignoreNotDrive)
             {
-                if(isUserSkill && SkillSheildTimeLeft > 0)
+                if (isUserSkill && SkillSheildTimeLeft > 0)
                 {
                     Debug.Log("運転していないため、スキップ");
                     PlayDodgeAnim();
@@ -463,7 +466,7 @@ public class FieldPlayerController : NetworkBehaviour
             }
         }
 
-        switch((StatusEffectType)statusEffectType)
+        switch ((StatusEffectType)statusEffectType)
         {
             case StatusEffectType.DirectionRevert:
                 _iCurrentStatueEffect = new StatusEffectMoveRevert();
@@ -492,7 +495,7 @@ public class FieldPlayerController : NetworkBehaviour
 
                 MatchCameraController.Instance.ShakeCamera();
 
-                if(Object.HasStateAuthority)
+                if (Object.HasStateAuthority)
                 {
                     MatchModel.GetInstance().RequestPlayVoice(_characterType, true);
                 }
@@ -514,7 +517,7 @@ public class FieldPlayerController : NetworkBehaviour
     }
     public void OnReceivedItemEffect(int itemEfffectType)
     {
-        switch((ItemEffectType) itemEfffectType)
+        switch ((ItemEffectType)itemEfffectType)
         {
             case ItemEffectType.Heal:
                 ApplyHeal(200);
@@ -523,7 +526,7 @@ public class FieldPlayerController : NetworkBehaviour
                 {
                     if (SkillBase is not SkillOfficeWorker)
                     {
-                        if(!SkillBase.PlayingSkill)
+                        if (!SkillBase.PlayingSkill)
                         {
                             ItemSpeedUpAsync().Forget();
                         }
@@ -583,7 +586,7 @@ public class FieldPlayerController : NetworkBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.tag == "ItemBox")
+        if (collision.gameObject.tag == "ItemBox")
         {
             var itemBox = collision.gameObject.GetComponent<FieldItemBase>();
             RpcConnector.Instance.Rpc_BroadcastTouchItemBox(PlayerId, itemBox.ItemId, 0);
@@ -596,4 +599,3 @@ public class FieldPlayerController : NetworkBehaviour
         DodgeAnim.Play("Play");
     }
 }
-    
