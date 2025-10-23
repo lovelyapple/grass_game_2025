@@ -8,7 +8,7 @@ using R3;
 using StarMessage.Models;
 using UnityEngine;
 
-public class MatchModel :SingletonBase<MatchModel>
+public class MatchModel : SingletonBase<MatchModel>
 {
     public MatchPlayerModel SelfPlayer { get; private set; }
     private List<MatchPlayerModel> _players = new List<MatchPlayerModel>();
@@ -23,6 +23,8 @@ public class MatchModel :SingletonBase<MatchModel>
     public Observable<SpecialPoint> SpecialPointChangeObservable() => _specialPointChangeSubject;
     private Subject<HealthPoint> _healthPointChangeSubject = new Subject<HealthPoint>();
     public Observable<HealthPoint> HealthPointChangeObservable() => _healthPointChangeSubject;
+    private Subject<bool> _healthPointAlertSubject = new Subject<bool>();
+    public Observable<bool> HealthPointAlertObservable() => _healthPointAlertSubject;
     private Subject<int> _onAnyOneUseSkillSubject = new Subject<int>();
     public Observable<int> OnAnyOneUseSkillObservable() => _onAnyOneUseSkillSubject;
     private Subject<(Characters, bool)> _playDrivingVoiceSubject = new Subject<(Characters, bool)>();
@@ -50,7 +52,7 @@ public class MatchModel :SingletonBase<MatchModel>
         _players.RemoveAll(x => x.PlayerId == playerId);
 
         // まぁ別になくてもいいけど
-        if(SelfPlayer != null && SelfPlayer.PlayerId == playerId)
+        if (SelfPlayer != null && SelfPlayer.PlayerId == playerId)
         {
             SelfPlayer = null;
         }
@@ -122,13 +124,13 @@ public class MatchModel :SingletonBase<MatchModel>
         ModelCache.Admin.OnMatchStart();
 
         Debug.LogWarning("@@@ RequestStartMatchAsync 4");
-        await UniTask.WaitUntil(() => 
+        await UniTask.WaitUntil(() =>
         RoomStateController.Instance == null ||
         RoomStateController.Instance.CurrentRoomPhase == (int)RoomPhase.Playing,
         cancellationToken: token);
 
         _showLoadUISubject.OnNext(false);
-        
+
         if (!GameCoreModel.Instance.IsAdminUser)
         {
             PlayerRootObject.Instance.SelfInfoObject.IsMatchReady = true;
@@ -166,7 +168,7 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         var model = GetPlayer(playerId);
 
-        if(model != null)
+        if (model != null)
         {
             model.GetModelObservable().DoAsync(x => x.OnReceivedJumpInOut(jumpIn)).Forget();
         }
@@ -180,11 +182,11 @@ public class MatchModel :SingletonBase<MatchModel>
             model.GetModelObservable().DoAsync(x =>
             {
                 x.OnReceivedUseSkill();
-                if(x.SkillBase is SkillJK)
+                if (x.SkillBase is SkillJK)
                 {
                     _onAnyOneUseSkillSubject.OnNext((int)Characters.JK);
                 }
-                else if(x.SkillBase is SkillOfficeWorker)
+                else if (x.SkillBase is SkillOfficeWorker)
                 {
                     _onAnyOneUseSkillSubject.OnNext((int)Characters.OfficeWorker);
                 }
@@ -222,7 +224,7 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         var otherPlayers = _players.Where(x => x.PlayerId != SelfPlayer.PlayerId).ToList();
 
-        foreach(var player in otherPlayers)
+        foreach (var player in otherPlayers)
         {
             RpcConnector.Instance.Rpc_BroadcastOnRequestTouchPlayerStatusEffect(player.PlayerId, effectType);
         }
@@ -231,7 +233,7 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         var player = _players.FirstOrDefault(x => x.PlayerId == playerId);
 
-        if(player == null)
+        if (player == null)
         {
             Debug.LogError($"MatchPlayerModel not found {playerId}");
         }
@@ -256,7 +258,7 @@ public class MatchModel :SingletonBase<MatchModel>
             }
         }
 
-        if(_itemDict.TryGetValue(itemBoxId, out var item))
+        if (_itemDict.TryGetValue(itemBoxId, out var item))
         {
             return item;
         }
@@ -268,7 +270,7 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         var item = TryGetItem(itemBoxId);
 
-        if(item == null)
+        if (item == null)
         {
             return null;
         }
@@ -285,7 +287,7 @@ public class MatchModel :SingletonBase<MatchModel>
     {
         var item = TryGetItem(itemBoxId);
 
-        if(item == null)
+        if (item == null)
         {
             return;
         }
@@ -304,5 +306,9 @@ public class MatchModel :SingletonBase<MatchModel>
     public void RequestPlayVoice(Characters characters, bool playForce)
     {
         _playDrivingVoiceSubject.OnNext((characters, playForce));
+    }
+    public void PlayHPAlert(bool play)
+    {
+        _healthPointAlertSubject.OnNext(play);
     }
 }

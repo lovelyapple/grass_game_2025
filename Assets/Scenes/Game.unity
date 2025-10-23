@@ -11216,7 +11216,7 @@ MonoBehaviour:
   fieldObject: {fileID: 0}
   uiMarker: {fileID: 1152799881}
   canvas: {fileID: 1072535523}
-  upOffset: 280
+  upOffset: 320
   UICamera: {fileID: 898407774}
   FixUpdate: 0
 --- !u!1 &1153863360
@@ -13240,6 +13240,7 @@ GameObject:
   - component: {fileID: 1403047019}
   - component: {fileID: 1403047021}
   - component: {fileID: 1403047020}
+  - component: {fileID: 1403047022}
   m_Layer: 5
   m_Name: Value
   m_TagString: Untagged
@@ -13304,6 +13305,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1403047018}
   m_CullTransparentMesh: 1
+--- !u!95 &1403047022
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1403047018}
+  m_Enabled: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9bfc579ff85114491a36e3fc41233a29, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1415719109
 GameObject:
   m_ObjectHideFlags: 0
@@ -13658,6 +13681,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RootImage: {fileID: 1419252781}
   HPValueImage: {fileID: 1403047020}
+  AlertAnimator: {fileID: 1403047022}
 --- !u!1 &1420873354
 GameObject:
   m_ObjectHideFlags: 0

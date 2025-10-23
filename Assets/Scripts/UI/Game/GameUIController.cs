@@ -48,6 +48,10 @@ public class GameUIController : MonoBehaviour
         .Subscribe(x => HeatPointController.UpdateCurrentHp(x))
         .AddTo(this);
 
+        MatchModel.GetInstance().HealthPointAlertObservable()
+        .Subscribe(x => HeatPointController.PlayAlert(x))
+        .AddTo(this);
+
         MatchModel.GetInstance().OnPlayerCtrlSpawnedObservable()
             .Where(x => x.PlayerId == RoomModel.GetInstance().SelfPlayerRef.PlayerId)
             .Subscribe(x =>
