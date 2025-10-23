@@ -15,7 +15,7 @@ public class GameUIHPBarController : MonoBehaviour
     }
     public void PlayAlert(bool play)
     {
-        AlertAnimator.gameObject.SetActive(play);
+        AlertAnimator.enabled = play;
 
         if (!play)
         {
